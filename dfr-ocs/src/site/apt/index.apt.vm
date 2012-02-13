@@ -1,0 +1,8 @@
+  ---
+  About
+  ---
+
+About ${artifactId}
+
+  This service creates Fedora objects from files in DuraCloud and ingests them
+into a Fedora repository.
