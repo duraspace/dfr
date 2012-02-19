@@ -11,7 +11,7 @@ public class OCSExceptionTest {
     public void initWithMessage() {
         OCSException ocsException = new OCSException("test");
         Assert.assertEquals("test", ocsException.getMessage());
-        Assert.assertNull(ocsException.getMessage());
+        Assert.assertNull(ocsException.getCause());
     }
 
     @Test
