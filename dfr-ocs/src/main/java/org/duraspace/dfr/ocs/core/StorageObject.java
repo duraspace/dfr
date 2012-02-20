@@ -25,7 +25,7 @@ public interface StorageObject {
     /**
      * Gets the content. Callers may request this multiple times.
      *
-     * @return the content, possibly zero bytes, never <code>null</code>.
+     * @return the content, or <code>null</code> if the content does not exist.
      * @throws OCSException if an IO or remote error occurs.
      */
     InputStream getContent() throws OCSException;

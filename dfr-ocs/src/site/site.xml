@@ -10,8 +10,9 @@
       <item name="Dependencies" href="dependencies.html"/>
     </menu>
     <menu name="Reports">
-      <item name="Test Results" href="surefire-report.html"/>
-      <item name="Test Coverage" href="cobertura/index.html"/>
+      <item name="Unit Test Coverage" href="cobertura/index.html"/>
+      <item name="Unit Test Results" href="unit-tests.html"/>
+      <item name="Integration Test Results" href="integration-tests.html"/>
       <item name="FindBugs" href="findbugs.html"/>
       <item name="PMD" href="pmd.html"/>
       <item name="CPD" href="cpd.html"/>

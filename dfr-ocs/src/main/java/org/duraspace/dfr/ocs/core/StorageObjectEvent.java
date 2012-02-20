@@ -20,26 +20,38 @@ public class StorageObjectEvent {
 
     private static final Logger logger = LoggerFactory.getLogger(
             StorageObjectEvent.class);
-    
+
+    private final String id;
     private final Type type;
     private final StorageObject storageObject;
 
     /**
      * Creates an instance.
      *
+     * @param id the id of the event, never <code>null</code>.
      * @param type the type of event, never <code>null</code>.
      * @param storageObject the storageObject, never <code>null</code>.
      * @throws NullPointerException if type or storageObject is
      *         <code>null</code>.
      */
-    public StorageObjectEvent(Type type, StorageObject storageObject) {
-        if (type == null || storageObject == null) {
+    public StorageObjectEvent(String id, Type type, StorageObject storageObject) {
+        if (id == null || type == null || storageObject == null) {
             throw new NullPointerException();
         }
+        this.id = id;
         this.type = type;
         this.storageObject = storageObject;
         logger.debug("Created {} event for storage object '{}'",
                 type.toString(), storageObject.getId());
+    }
+
+    /**
+     * Gets the id of the event.
+     * 
+     * @return the id of the event, never <code>null</code>.
+     */
+    public String getId() {
+        return id;
     }
 
     /**
@@ -48,7 +60,7 @@ public class StorageObjectEvent {
      * @return the type of event, never <code>null</code>.
      */
     public Type getType() {
-        return this.type;
+        return type;
     }
 
     /**
@@ -58,6 +70,6 @@ public class StorageObjectEvent {
      * @throws OCSException if an IO or remote error occurs.
      */
     public StorageObject getStorageObject() throws OCSException {
-        return this.storageObject;
+        return storageObject;
     }
 }
