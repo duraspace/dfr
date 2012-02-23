@@ -8,6 +8,9 @@
   <logger name="org.duraspace.dfr.ocs" additivity="false" level="ERROR">
     <appender-ref ref="STDOUT"/>
   </logger>
+  <logger name="org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListenerIT" additivity="false" level="INFO">
+    <appender-ref ref="STDOUT"/>
+  </logger>
   <root additivity="false" level="WARN">
     <appender-ref ref="STDOUT"/>
   </root>

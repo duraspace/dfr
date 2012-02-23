@@ -1,12 +1,7 @@
 package org.duraspace.dfr.ocs.duracloud;
 
-import javax.jms.JMSException;
-import javax.jms.MapMessage;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-
 import org.apache.activemq.command.ActiveMQTopic;
-import org.duraspace.dfr.ocs.core.OCSException;
+import org.duracloud.client.ContentStore;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.core.StorageObjectEventListener;
@@ -14,7 +9,10 @@ import org.duraspace.dfr.ocs.core.StorageObjectEventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.MessageListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +24,24 @@ public class DuraCloudStorageListener
         implements StorageObjectEventListener, MessageListener {
     private static final Logger logger = LoggerFactory.getLogger(
             DuraCloudStorageListener.class);
-    
+
+    private final ContentStore contentStore;
+
     private StorageObjectEventProcessor processor;
+
+    /**
+     * Creates an instance.
+     * 
+     * @param contentStore the DuraCloud <code>ContentStore</code> to use when
+     *                     getting storage object content and metadata, never
+     *                     <code>null</code>.
+     */
+    public DuraCloudStorageListener(ContentStore contentStore) {
+        if (contentStore == null) {
+            throw new NullPointerException();
+        }
+        this.contentStore = contentStore;
+    }
 
     @Override
     public void setProcessor(StorageObjectEventProcessor processor) {
@@ -55,11 +69,20 @@ public class DuraCloudStorageListener
                             "{}, {}", topic, message);
                     return;
                 }
-                String id = ((MapMessage) message).getString("contentId");
+                String messageId = message.getJMSMessageID();
+                MapMessage mapMessage = (MapMessage) message;
+                String spaceId = mapMessage.getString("spaceId");
+                String storeId = mapMessage.getStringProperty("storeId");
+                String contentId = mapMessage.getString("contentId");
+                Map<String, String> messageMetadata =
+                        new HashMap<String, String>();
+                messageMetadata.put("space-id", spaceId);
+                messageMetadata.put("store-id", storeId);
+                StorageObject storageObject = new DuraCloudStorageObject(
+                        contentStore, spaceId, contentId, messageMetadata,
+                        type == StorageObjectEvent.Type.DELETED);
                 StorageObjectEvent event = new StorageObjectEvent(
-                        message.getJMSMessageID(),
-                        type,
-                        getStorageObject(id));
+                        messageId, type, storageObject);
                 processor.process(event);
             } catch (JMSException e) {
                 logger.warn("Error getting topic for JMS message", e);
@@ -71,23 +94,4 @@ public class DuraCloudStorageListener
         }
     }
     
-    private StorageObject getStorageObject(final String id) {
-        // TODO: Get one whose content is from DuraStore as part of DFR-70
-        return new StorageObject() {
-            @Override
-            public String getId() {
-                return id;
-            }
-
-            @Override
-            public Map<String, String> getMetadata() throws OCSException {
-                return new HashMap<String, String>();
-            }
-
-            @Override
-            public InputStream getContent() throws OCSException {
-                return null;
-            }
-        };
-    }
 }

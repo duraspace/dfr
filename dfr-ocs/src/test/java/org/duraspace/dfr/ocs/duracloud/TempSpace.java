@@ -1,6 +1,5 @@
 package org.duraspace.dfr.ocs.duracloud;
 
-import com.sun.corba.se.impl.orbutil.HexOutputStream;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
@@ -62,6 +61,10 @@ public class TempSpace {
             if (count == 10) throw new RuntimeException("Temporary space " +
                     id + " never got created? Checked 10 times.");
         }
+    }
+
+    public ContentStore getContentStore() {
+        return contentStore;
     }
     
     public String getId() {
