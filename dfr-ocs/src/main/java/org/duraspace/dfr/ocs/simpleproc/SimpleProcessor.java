@@ -1,6 +1,5 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
-import com.github.cwilper.fcrepo.dto.core.ContentDigest;
 import com.github.cwilper.fcrepo.dto.core.ControlGroup;
 import com.github.cwilper.fcrepo.dto.core.Datastream;
 import com.github.cwilper.fcrepo.dto.core.DatastreamVersion;
@@ -113,21 +112,26 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
                 metadata.get(STORE_ID);
         String pid = pidPrefix + DigestUtils.md5Hex(contentURL);
         requireValues(metadata, STORE_ID, SPACE_ID);
+        String logMessageSuffix = "requested by DFR Object Creation Service." +
+                " Event ID: " + event.getId();
         if (event.getType() == StorageObjectEvent.Type.CREATED) {
             requireValues(metadata,
                     ContentStore.CONTENT_CHECKSUM,
                     ContentStore.CONTENT_MIMETYPE,
                     ContentStore.CONTENT_MODIFIED,
                     ContentStore.CONTENT_SIZE);
-            fedoraObjectStore.ingest(getFedoraObject(
-                    event.getId(), pid, contentURL, metadata));
+            if (!fedoraObjectStore.ingest(getFedoraObject(pid, contentURL,
+                    metadata), "Ingest " + logMessageSuffix)) {
+                throw new OCSException("Ingest failed; Fedora object already "
+                        + "exists: " + pid);
+            }
         } else {
-            fedoraObjectStore.purge(pid);
+            fedoraObjectStore.purge(pid, "Purge " + logMessageSuffix);
         }
     }
 
-    protected FedoraObject getFedoraObject(String eventId, String pid,
-            String contentURL, Map<String, String> metadata) {
+    private FedoraObject getFedoraObject(String pid, String contentURL,
+            Map<String, String> metadata) {
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
         fedoraObject.label(contentURL);
@@ -135,16 +139,22 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         return fedoraObject;
     }
     
-    protected Datastream getContentDatastream(String contentURL,
+    private Datastream getContentDatastream(String contentURL,
             Map<String, String> metadata) {
         Datastream datastream = new Datastream("CONTENT");
         datastream.controlGroup(ControlGroup.REDIRECT);
         Date date = parseRFC822Date(metadata.get(
                 ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("CONTENT.0", date);
-        version.contentDigest(new ContentDigest()
-                .type("MD5")
-                .hexValue(metadata.get(ContentStore.CONTENT_CHECKSUM)));
+        // TODO: Activate this after Fedora has been updated to either
+        //       not require auto-validating checksums for externals
+        //       datastreams or to allow configuration of credentials for
+        //       actually getting remote datastreams.
+        //       See https://jira.duraspace.org/browse/FCREPO-752
+        //       and https://jira.duraspace.org/browse/FCREPO-748
+        //version.contentDigest(new ContentDigest()
+        //        .type("MD5")
+        //        .hexValue(metadata.get(ContentStore.CONTENT_CHECKSUM)));
         version.contentLocation(URI.create(contentURL));
         int i = contentURL.lastIndexOf("/");
         String label = contentURL.substring(i + 1);

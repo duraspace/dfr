@@ -6,6 +6,7 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.error.NotFoundException;
+import org.duraspace.dfr.ocs.it.ITConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,15 +18,9 @@ import java.io.UnsupportedEncodingException;
  * Convenience class for DuraCloud integration tests that need to work with a
  * temporary space.
  */
-public class TempSpace {
-    private static final String HOST = "dfrtest.duracloud.org";
-    private static final String PORT = "443";
-    private static final String CONTEXT = "durastore";
-    private static final String USER = "dfrtest";
-    private static final String PASS = System.getProperty("duracloud.password");
-    
+public class DuraCloudTempSpace {
     private static final Logger logger =
-            LoggerFactory.getLogger(TempSpace.class);
+            LoggerFactory.getLogger(DuraCloudTempSpace.class);
 
     private final ContentStoreManager contentStoreManager;
     private final ContentStore contentStore;
@@ -33,9 +28,13 @@ public class TempSpace {
 
     private boolean closed = false;
 
-    public TempSpace() {
-        contentStoreManager = new ContentStoreManagerImpl(HOST, PORT, CONTEXT);
-        Credential credential = new Credential(USER, PASS);
+    public DuraCloudTempSpace() {
+        contentStoreManager = new ContentStoreManagerImpl(
+                ITConstants.DURACLOUD_HOSTNAME,
+                ITConstants.DURACLOUD_PORT, ITConstants.DURASTORE_CONTEXT);
+        Credential credential = new Credential(
+                ITConstants.DURACLOUD_USERNAME,
+                ITConstants.DURACLOUD_PASSWORD);
         contentStoreManager.login(credential);
         try {
             contentStore = contentStoreManager.getPrimaryContentStore();
@@ -77,6 +76,7 @@ public class TempSpace {
             InputStream in = new ByteArrayInputStream(bytes);
             contentStore.addContent(id, contentId, in, bytes.length,
                     "text/plain", null, null);
+            giveAmazonSomeTime();
         } catch (ContentStoreException e) {
             throw new RuntimeException("Unexpected error adding content", e);
         } catch (UnsupportedEncodingException wontHappen) {
@@ -88,6 +88,7 @@ public class TempSpace {
     public void deleteContent(String contentId) {
         try {
             contentStore.deleteContent(id, contentId);
+            giveAmazonSomeTime();
         } catch (ContentStoreException e) {
             throw new RuntimeException("Unexpected error deleting content", e);
         }
@@ -110,6 +111,16 @@ public class TempSpace {
     protected void finalize() throws Throwable {
         super.finalize();
         close();
+    }
+    
+    private static void giveAmazonSomeTime() {
+        // Some S3 regions don't offer read-after-write consistency,
+        // meaning that when a write call returns, you're not guaranteed
+        // that an immediate subsequent read will reflect the desired state
+        // of the space. Eventually it will, and it's almost always within
+        // a few seconds, so here we wait and hope subsequent calls to
+        // DuraCloud will reflect the state we expect.
+        try { Thread.sleep(5000); } catch (InterruptedException e) { }
     }
 
 }

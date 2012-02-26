@@ -1,10 +1,10 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
-import com.github.cwilper.fcrepo.dto.core.ContentDigest;
 import com.github.cwilper.fcrepo.dto.core.ControlGroup;
 import com.github.cwilper.fcrepo.dto.core.Datastream;
 import com.github.cwilper.fcrepo.dto.core.FedoraObject;
 import org.duraspace.dfr.ocs.core.MemoryFedoraObjectStore;
+import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.easymock.EasyMock;
@@ -64,25 +64,37 @@ public class SimpleProcessorTest {
 
     @Test
     public void processCreated() {
-        processCreated(GOOD_DATE);
+        processCreated(GOOD_DATE, false);
     }
 
     @Test (expected=IllegalArgumentException.class)
     public void processCreatedWithMissingRequiredMetadata() {
-        processCreated(null);
+        processCreated(null, false);
     }
 
     @Test (expected=IllegalArgumentException.class)
     public void processCreatedWithMalformedMetadata() {
-        processCreated("Fry, 42 Feb 2012 31:48:02 XYZ");
+        processCreated("Fry, 42 Feb 2012 31:48:02 XYZ", false);
     }
     
-    private void processCreated(String modifiedDate) {
+    @Test (expected=OCSException.class)
+    public void processCreatedWithPreExistingObject() {
+        processCreated(GOOD_DATE, true);
+    }
+    
+    private void processCreated(String modifiedDate, boolean preExisting) {
         // process a CREATED event, which should add it to our memory store
-        SimpleProcessor processor = new SimpleProcessor(PID_PREFIX, DURASTORE_URL);
-        MemoryFedoraObjectStore fedoraObjectStore = new MemoryFedoraObjectStore();
+        SimpleProcessor processor = new SimpleProcessor(PID_PREFIX,
+                DURASTORE_URL);
+        MemoryFedoraObjectStore fedoraObjectStore =
+                new MemoryFedoraObjectStore();
+        if (preExisting) {
+            fedoraObjectStore.ingest(new FedoraObject().pid(FEDORA_PID),
+                    "logMessage");
+        }
         processor.setFedoraObjectStore(fedoraObjectStore);
-        StorageObjectEvent event = EasyMock.createMock(StorageObjectEvent.class);
+        StorageObjectEvent event = EasyMock.createMock(
+                StorageObjectEvent.class);
         StorageObject storageObject = EasyMock.createMock(StorageObject.class);
         EasyMock.expect(storageObject.getId()).andReturn(CONTENT_ID);
         Map<String, String> metadata = new HashMap<String, String>();
@@ -96,33 +108,37 @@ public class SimpleProcessorTest {
         }
         EasyMock.expect(storageObject.getMetadata()).andReturn(metadata);
         EasyMock.expect(event.getStorageObject()).andReturn(storageObject);
-        EasyMock.expect(event.getType()).andReturn(StorageObjectEvent.Type.CREATED);
+        EasyMock.expect(event.getType()).andReturn(
+                StorageObjectEvent.Type.CREATED);
         EasyMock.expect(event.getId()).andReturn("eventId");
         EasyMock.replay(event, storageObject);
-        Assert.assertEquals(0, fedoraObjectStore.getMap().size());
         processor.process(event);
-        Assert.assertEquals(1, fedoraObjectStore.getMap().size());
+        Assert.assertEquals(1, fedoraObjectStore.getFedoraObjectMap().size());
         EasyMock.verify(event, storageObject);
-
+        
         // make sure the object made it in and looks as expected
-        Iterator<String> keys = fedoraObjectStore.getMap().keySet().iterator();
+        Iterator<String> keys = fedoraObjectStore.getFedoraObjectMap().
+                keySet().iterator();
         Assert.assertTrue(keys.hasNext());
-        FedoraObject fedoraObject = fedoraObjectStore.getMap().get(keys.next());
+        String key = keys.next();
+        FedoraObject fedoraObject = fedoraObjectStore.getFedoraObjectMap().
+                get(key);
         Datastream expectedDatastream = new Datastream("CONTENT")
                 .controlGroup(ControlGroup.REDIRECT);
         expectedDatastream.addVersion(new Date(GOOD_DATE_MILLIS))
                 .label("content")
                 .mimeType("text/plain")
                 .size(3L)
-                .contentLocation(URI.create(CONTENT_URL))
-                .contentDigest(new ContentDigest()
-                        .type("MD5")
-                        .hexValue("37b51d194a7513e45b56f6524f2d51f2"));
+                .contentLocation(URI.create(CONTENT_URL));
         FedoraObject expectedFedoraObject = new FedoraObject()
                 .pid(FEDORA_PID)
                 .label(CONTENT_URL)
                 .putDatastream(expectedDatastream);
         Assert.assertEquals(expectedFedoraObject, fedoraObject);
+        Assert.assertEquals(
+                "Ingest requested by DFR Object Creation Service. "
+                + "Event ID: eventId",
+                fedoraObjectStore.getLogMessageMap().get(key));
     }
 
     @Test
@@ -141,10 +157,13 @@ public class SimpleProcessorTest {
     }
 
     private void processDeleted(String storeId) {
-        SimpleProcessor processor = new SimpleProcessor(PID_PREFIX, DURASTORE_URL);
-        MemoryFedoraObjectStore fedoraObjectStore = new MemoryFedoraObjectStore();
+        SimpleProcessor processor = new SimpleProcessor(
+                PID_PREFIX, DURASTORE_URL);
+        MemoryFedoraObjectStore fedoraObjectStore =
+                new MemoryFedoraObjectStore();
         processor.setFedoraObjectStore(fedoraObjectStore);
-        StorageObjectEvent event = EasyMock.createMock(StorageObjectEvent.class);
+        StorageObjectEvent event = EasyMock.createMock(
+                StorageObjectEvent.class);
         StorageObject storageObject = EasyMock.createMock(StorageObject.class);
         EasyMock.expect(storageObject.getId()).andReturn(CONTENT_ID);
         Map<String, String> metadata = new HashMap<String, String>();
@@ -154,13 +173,19 @@ public class SimpleProcessorTest {
         metadata.put("space-id", "spaceId");
         EasyMock.expect(storageObject.getMetadata()).andReturn(metadata);
         EasyMock.expect(event.getStorageObject()).andReturn(storageObject);
-        EasyMock.expect(event.getType()).andReturn(StorageObjectEvent.Type.DELETED);
+        EasyMock.expect(event.getType()).andReturn(
+                StorageObjectEvent.Type.DELETED);
         EasyMock.expect(event.getId()).andReturn("eventId");
         EasyMock.replay(event, storageObject);
-        fedoraObjectStore.getMap().put(FEDORA_PID, new FedoraObject());
-        Assert.assertEquals(1, fedoraObjectStore.getMap().size());
+        fedoraObjectStore.getFedoraObjectMap().put(FEDORA_PID,
+                new FedoraObject());
+        Assert.assertEquals(1, fedoraObjectStore.getFedoraObjectMap().size());
         processor.process(event);
-        Assert.assertEquals(0, fedoraObjectStore.getMap().size());
+        Assert.assertEquals(0, fedoraObjectStore.getFedoraObjectMap().size());
+        Assert.assertEquals(
+                "Purge requested by DFR Object Creation Service. "
+                        + "Event ID: eventId",
+                fedoraObjectStore.getLogMessageMap().get(FEDORA_PID));
     }
 
 }

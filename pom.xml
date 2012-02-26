@@ -53,6 +53,7 @@
     <currentVersion>${project.version}</currentVersion>
 
     <duracloud.version>1.3.1</duracloud.version>
+    <fcrepo-misc.version>1.0.0</fcrepo-misc.version>
     <slf4j.version>1.6.4</slf4j.version>
     <spring.version>3.1.1.RELEASE</spring.version>
   </properties>
@@ -69,7 +70,19 @@
       <dependency>
         <groupId>com.github.cwilper.fcrepo-misc</groupId>
         <artifactId>fcrepo-dto-core</artifactId>
-        <version>1.0.0</version>
+        <version>${fcrepo-misc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.github.cwilper.fcrepo-misc</groupId>
+        <artifactId>fcrepo-dto-foxml</artifactId>
+        <version>${fcrepo-misc.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.yourmediashelf.fedora.client</groupId>
+        <artifactId>fedora-client-core</artifactId>
+        <version>0.3</version>
       </dependency>
 
       <dependency>
@@ -211,6 +224,7 @@
           <skipITs>${skipITs}</skipITs>
           <systemPropertyVariables>
             <duracloud.password>${duracloud.password}</duracloud.password>
+            <fedora.password>${fedora.password}</fedora.password>
           </systemPropertyVariables>
         </configuration>
         <executions>
@@ -251,6 +265,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <links>
+            <link>http://cwilper.github.com/fcrepo-misc/apidocs</link>
+            <link>http://mediashelf.github.com/fedora-client/apidocs</link>
+          </links>
+        </configuration>
       </plugin>
 
       <plugin>

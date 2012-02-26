@@ -1,71 +1,49 @@
 package org.duraspace.dfr.ocs.duracloud;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.commons.io.IOUtils;
 import org.duraspace.dfr.ocs.core.EventCapturingProcessor;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
-import org.duraspace.dfr.ocs.core.StorageObjectEventListener;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 import java.util.Map;
 
 /**
- * Integration tests for {@link org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListener}.
+ * Integration tests for {@link DuraCloudStorageListener} using a real
+ * running DuraCloud instance.
  */
 public class DuraCloudStorageListenerIT {
-    private static final String DURACLOUD_BROKER_URL = "tcp://dfrtest.duracloud.org:61617";
-
-    private static final DefaultMessageListenerContainer container =
-            new DefaultMessageListenerContainer();
-
-    private static final Logger logger = LoggerFactory.getLogger(
-            DuraCloudStorageListenerIT.class);
-
-    private static final EventCapturingProcessor processor =
-            new EventCapturingProcessor();
-    
-    private static final TempSpace tempSpace = new TempSpace();
-
-    private static final StorageObjectEventListener listener =
-            new DuraCloudStorageListener(tempSpace.getContentStore());
+    private static EventCapturingProcessor processor;
+    private static DuraCloudTempSpace tempSpace;
+    private static DuraCloudStorageListener listener;
+    private static DuraCloudMessagingClient messagingClient;
 
     @BeforeClass
     public static void setUp() throws Exception {
+        tempSpace = new DuraCloudTempSpace();
+        processor = new EventCapturingProcessor();
+        listener = new DuraCloudStorageListener(tempSpace.getContentStore());
         listener.setProcessor(processor);
-        logger.info("Connecting to message broker");
-        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-        factory.setBrokerURL(DURACLOUD_BROKER_URL);
-        container.setConnectionFactory(factory);
-        container.setDestination(new ActiveMQTopic(Constants.INGEST_TOPIC +
-                "," + Constants.DELETE_TOPIC));
-        container.setMessageListener(listener);
-        container.start();
-        container.initialize();
+        messagingClient = new DuraCloudMessagingClient(listener);
     }
     
     @AfterClass
     public static void tearDown() {
-        logger.info("Disconnecting from message broker");
+        messagingClient.close();
         listener.close();
-        container.stop();
         tempSpace.close();
     }
 
     @Test
-    public void addAndDeleteContentViaDuraCloud() throws Exception {
+    public void addThenDelete() throws Exception {
         String id = "foo";
         String content = "bar";
 
-        // add via duracloud and wait for event
-        tempSpace.addContent(id, "bar");
+        // add via DuraCloud and wait for event
+        tempSpace.addContent(id, content);
         StorageObjectEvent event = waitForEvent();
 
         // check event and storage object
@@ -84,10 +62,10 @@ public class DuraCloudStorageListenerIT {
         Assert.assertEquals("3", metadata.get("content-size"));
         Assert.assertNotNull(metadata.get("content-modified"));
         // content is as expected can be requested multiple times
-        Assert.assertEquals("bar", IOUtils.toString(o.getContent()));
-        Assert.assertEquals("bar", IOUtils.toString(o.getContent()));
+        Assert.assertEquals(content, IOUtils.toString(o.getContent()));
+        Assert.assertEquals(content, IOUtils.toString(o.getContent()));
 
-        // delete via duracloud and wait for event
+        // delete via DuraCloud and wait for event
         processor.setLastEvent(null);
         tempSpace.deleteContent(id);
         event = waitForEvent();
