@@ -25,6 +25,16 @@
     </license>
   </licenses>
 
+  <issueManagement>
+    <system>jira</system>
+    <url>https://jira.duraspace.org/browse/DFR</url>
+  </issueManagement>
+
+  <ciManagement>
+    <system>bamboo</system>
+    <url>https://bamboo.duraspace.org/browse/DFR</url>
+  </ciManagement>
+
   <repositories>
     <repository>
       <id>duraspace-releases</id>
