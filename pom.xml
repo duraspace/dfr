@@ -50,7 +50,7 @@
     <groupId>${project.groupId}</groupId>
     <artifactId>${project.artifactId}</artifactId>
     <currentVersion>${project.version}</currentVersion>
-    <duracloud.version>2.1.0-SNAPSHOT</duracloud.version>
+    <duracloud.version>2.0.3</duracloud.version>
     <fcrepo-misc.version>1.0.0</fcrepo-misc.version>
     <slf4j.version>1.6.4</slf4j.version>
     <org.springframework.version>3.1.1.RELEASE</org.springframework.version>
