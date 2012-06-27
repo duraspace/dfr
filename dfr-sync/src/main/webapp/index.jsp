@@ -1,3 +1,3 @@
 <%
-response.sendRedirect("status");
+response.sendRedirect(request.getContextPath()+"/status");
 %>

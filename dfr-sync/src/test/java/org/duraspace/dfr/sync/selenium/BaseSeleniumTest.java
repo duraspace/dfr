@@ -22,15 +22,15 @@ public abstract class BaseSeleniumTest {
         LoggerFactory.getLogger(BaseSeleniumTest.class);
 
     protected Selenium sc;
-    private String port;
-    private static String DEFAULT_PORT = "9000";
+    private static String DEFAULT_PORT = "8888";
 
     protected String getAppRoot() {
         return "/dfr-sync";
     }
 
     private String getPort() throws Exception {
-         return "8080";
+        String port = System.getProperty("jetty.port");
+        return port != null ? port : DEFAULT_PORT;
     }
 
 

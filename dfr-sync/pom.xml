@@ -8,6 +8,16 @@
   <artifactId>dfr-sync</artifactId>
   <packaging>war</packaging>
   <name>DfR Sync</name>
+  <developers>
+    <developer>
+      <name>Daniel Bernstein</name>
+      <email>dbernstein@duraspace.org</email>
+    </developer>
+    <developer>
+      <name>Bill Branan</name>
+      <email>bbranan@duraspace.org</email>
+    </developer>
+  </developers>
   <properties>
     <unitTests>**/*Test.class</unitTests>
     <seleniumTests>**/Test*.class</seleniumTests>
@@ -22,6 +32,12 @@
           <webApp>
             <contextPath>/${project.artifactId}</contextPath>
           </webApp>
+          <systemProperties>
+            <systemProperty>
+              <name>jetty.port</name>
+              <value>8888</value>
+            </systemProperty>
+          </systemProperties>
         </configuration>
       </plugin>
       <plugin>
@@ -61,6 +77,18 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>${seleniumTests}</exclude>
+          </excludes>
+          <includes>
+            <include>${unitTests}</include>
+          </includes>
+        </configuration>
       </plugin>
     </plugins>
   </build>
