@@ -1,46 +1,52 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  
   <parent>
     <groupId>org.duraspace.dfr</groupId>
     <artifactId>dfr</artifactId>
     <version>0.2.0-SNAPSHOT</version>
-  </parent>  
-  
+  </parent>
   <artifactId>dfr-sync</artifactId>
   <packaging>war</packaging>
   <name>DfR Sync</name>
-   
+  <properties>
+    <unitTests>**/*Test.class</unitTests>
+    <seleniumTests>**/Test*.class</seleniumTests>
+  </properties>
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
-        <version>8.1.2.v20120308</version>
+        <configuration>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+          <webApp>
+            <contextPath>/${project.artifactId}</contextPath>
+          </webApp>
+        </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>1.1</version>
         <executions>
-          <execution><goals><goal>java</goal></goals></execution>
+          <execution>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
         </executions>
         <configuration>
           <mainClass>org.duraspace.dfr.sync.DfrSyncDriver</mainClass>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.3</version>
         <configuration>
           <descriptors>
-              <descriptor>src/main/assembly/dep.xml</descriptor>
-          </descriptors>        
+            <descriptor>src/main/assembly/dep.xml</descriptor>
+          </descriptors>
           <archive>
             <manifest>
               <mainClass>org.duraspace.dfr.sync.DfrSyncDriver</mainClass>
@@ -56,18 +62,170 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
   </build>
-  
   <dependencies>
-   
     <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>8.1.3.v20120416</version>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>8.1.3.v20120416</version>
     </dependency>
-    
-  </dependencies>  
-  
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-template</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-servlet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-jsp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+    </dependency>
+  </dependencies>
+  <profiles>
+    <profile>
+      <id>profile-selenium</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>profile</name>
+          <value>selenium</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>selenium-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>xvfb</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>xvfb</goal>
+                </goals>
+              </execution>
+              <execution>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start-server</goal>
+                </goals>
+                <configuration>
+                  <background>true</background>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>integrationtest</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>test</goal>
+                </goals>
+                <configuration>
+                  <excludes>
+                    <exclude>${unitTests}</exclude>
+                  </excludes>
+                  <includes>
+                    <include>${seleniumTests}</include>
+                  </includes>
+                </configuration>
+              </execution>
+              <execution>
+                <!-- This execution 'default-test' overrides the built-in default execution for the test phase. Thus unit tests aren't run when you running integration tests. It comes in handy when trying 
+                  to debug a single integration test as you only need to attach your debugger once. -->
+                <id>default-test</id>
+                <configuration>
+                  <skipTests>true</skipTests>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-maven-plugin</artifactId>
+            <configuration>
+              <scanIntervalSeconds>10</scanIntervalSeconds>
+              <webApp>
+                <contextPath>/${project.artifactId}</contextPath>
+              </webApp>
+              <stopKey>foo</stopKey>
+              <stopPort>9999</stopPort>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-jetty</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <scanIntervalSeconds>0</scanIntervalSeconds>
+                  <daemon>true</daemon>
+                </configuration>
+              </execution>
+              <execution>
+                <id>stop-jetty</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
