@@ -41,6 +41,18 @@
       <id>duraspace-releases</id>
       <url>https://m2.duraspace.org/content/repositories/releases</url>
     </repository>
+
+    <repository>
+      <id>duraspace-snapshots</id>
+      <name>DuraSpace Snapshots Maven Repository</name>
+      <url>https://m2.duraspace.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <scm>
