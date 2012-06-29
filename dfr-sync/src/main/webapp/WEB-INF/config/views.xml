@@ -12,10 +12,12 @@
   <definition name="app-base" extends="page-base">
     <put-attribute name="body">
       <definition template="/WEB-INF/jsp/template/app-base.jsp">
+        <put-attribute name="subHeader" cascade="true" value="/WEB-INF/jsp/include/primary-tabs.jsp" />
         <put-attribute name="content" cascade="true" />
       </definition>
     </put-attribute>  
   </definition>
+
     
  <!-- global views -->
   <definition name="login" template="/WEB-INF/jsp/login.jsp" />

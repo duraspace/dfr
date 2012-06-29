@@ -5,6 +5,7 @@ package org.duraspace.dfr.sync.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 /**
@@ -16,9 +17,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomeController {
     private static Logger log = LoggerFactory.getLogger(HomeController.class);
+
+    @Autowired SetupHelper setupHelper;
+
     @RequestMapping(value= {"/"})
     public String get(){
         log.debug("accessing welcome page");
-        return "redirect:/status";
+        
+        if(isSetupComplete()){
+            return "redirect:/status";
+        }else{
+            return "redirect:/setup";
+        }
+    }
+    
+    private boolean isSetupComplete() {
+        return this.setupHelper.isComplete();
     }
 }

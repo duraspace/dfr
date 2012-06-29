@@ -142,6 +142,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.springframework.webflow</groupId>
+      <artifactId>spring-webflow</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.tiles</groupId>
       <artifactId>tiles-api</artifactId>
     </dependency>
@@ -167,6 +172,17 @@
     </dependency>
 
     <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>compile</scope>
+    </dependency>
+      
+    <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
     </dependency>
@@ -186,7 +202,18 @@
       <artifactId>selenium-java</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.easymock</groupId>
+      <artifactId>easymock</artifactId>
+    </dependency>
+      
   </dependencies>
+
   <profiles>
 
     <profile>

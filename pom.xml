@@ -264,6 +264,12 @@
         <groupId>org.springframework.webflow</groupId>
         <artifactId>spring-webflow</artifactId>
         <version>${org.springframework.webflow.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
