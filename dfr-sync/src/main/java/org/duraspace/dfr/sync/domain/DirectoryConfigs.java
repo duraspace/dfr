@@ -3,7 +3,7 @@
  */
 package org.duraspace.dfr.sync.domain;
 
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 
 import org.springframework.stereotype.Component;
 
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component("directoryConfigs")
-public class DirectoryConfigs extends LinkedList<DirectoryConfig>{
+public class DirectoryConfigs extends LinkedHashSet<DirectoryConfig>{
 
     /**
      * 
