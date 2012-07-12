@@ -1,3 +1,6 @@
+
+
+
 /*
 * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
 *
@@ -29,10 +32,18 @@ table {
 	width:100%;
 	border-collapse: collapse;
 }
+
 tr {
-	border-bottom: 1px solid #000;
+	border-bottom: 1px solid #AAA;
 }
 
+tr:last-child {
+	border-bottom: 0;
+}
+
+td{
+	padding: 3px 3px 3px 3px;
+}
 
 tr:nth-child(odd) {
 	background-color: #CCC;
@@ -43,8 +54,9 @@ thead > tr:nth-child(odd) {
 }
 
 .yui3-g .content {
-    margin-right:10px; /* "column" gutters */
-    padding: 1em;
+    margin-right:1em; /* "column" gutters */
+    
+    padding: 1em 0em 0em 0em; 
 }
 
 #header .tabs, #footer ul{
@@ -79,6 +91,8 @@ thead > tr:nth-child(odd) {
 }
 
 #content {
+	padding-bottom: 1em;
+	padding-left: 1em;
 	background-color: #555;
 	margin-right: 20px;
 	border-radius: 0px 5px 5px 0px;
@@ -89,7 +103,6 @@ div.section > div.header {
 	height: 20px;
 	border-radius: 5px 5px 0px 0px;
 	color: #FFF;
-	white-space: nowrap;
 	overflow: hidden;
 }
 
@@ -180,4 +193,14 @@ ul.tabs {
 .wizard-panel h2 {
 	margin:0;
 	padding:20px;
+}
+
+
+#active-syncs td:nth-child(1) {
+	width: 150px;
+}
+
+#active-syncs td:nth-child(2) {
+	text-align:center;
+	width:125px;
 }

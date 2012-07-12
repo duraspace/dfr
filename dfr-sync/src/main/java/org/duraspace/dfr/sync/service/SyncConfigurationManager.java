@@ -3,6 +3,8 @@
  */
 package org.duraspace.dfr.sync.service;
 
+import org.duracloud.client.ContentStore;
+import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 
@@ -47,5 +49,6 @@ public interface SyncConfigurationManager {
      * @return
      */
     public boolean isConfigurationComplete();
+    
     
 }

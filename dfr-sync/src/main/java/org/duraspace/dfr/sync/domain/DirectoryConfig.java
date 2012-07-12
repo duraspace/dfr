@@ -17,6 +17,10 @@ public class DirectoryConfig implements Serializable {
 
     private String directoryPath;
 
+    public DirectoryConfig(String directoryPath) {
+        this.directoryPath = directoryPath;
+    }
+
     public String getDirectoryPath() {
         return directoryPath;
     }

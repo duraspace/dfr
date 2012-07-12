@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <%@include file="../include/libraries.jsp"%>
+
 <ul
  class="tabs primary">
   <li class="selected">

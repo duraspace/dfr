@@ -11,6 +11,7 @@ import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.mgmt.ChangedList;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
+import org.duraspace.dfr.sync.service.SyncProcessException;
 import org.duraspace.dfr.sync.service.SyncProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,12 @@ public class StatusController {
     @RequestMapping(value = StatusController.STATUS_MAPPING, method = RequestMethod.POST, params = { "start" })
     public View
         start() {
-        this.syncProcessManager.start();
+        try {
+            this.syncProcessManager.start();
+        } catch (SyncProcessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return redirectTo(STATUS_MAPPING);
     }
 
@@ -71,7 +77,12 @@ public class StatusController {
     @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "cleanStart" })
     public View
         cleanStart() {
-        this.syncProcessManager.cleanStart();
+        try {
+            this.syncProcessManager.cleanStart();
+        } catch (SyncProcessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
@@ -85,14 +96,14 @@ public class StatusController {
         return this.syncProcessManager.getProcessState();
     }
 
-    @ModelAttribute
+    @ModelAttribute("monitoredFiles")
     public List<MonitoredFile> monitoredFiles() {
-        return new LinkedList<MonitoredFile>();
+        return this.syncProcessManager.getMonitoredFiles();
     }
 
-    @ModelAttribute
+    @ModelAttribute("queuedFiles")
     public List<File> queuedFiles() {
-        return ChangedList.getInstance().peek(10);
+        return this.syncProcessManager.getQueuedFiles();
     }
 
 }

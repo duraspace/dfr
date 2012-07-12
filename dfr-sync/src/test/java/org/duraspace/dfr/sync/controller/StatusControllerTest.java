@@ -2,6 +2,7 @@
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */package org.duraspace.dfr.sync.controller;
 
+import org.duraspace.dfr.sync.service.SyncProcessException;
 import org.duraspace.dfr.sync.service.SyncProcessManager;
 import org.duraspace.dfr.test.AbstractTest;
 import org.easymock.EasyMock;
@@ -37,7 +38,7 @@ public class StatusControllerTest extends AbstractTest {
 
     
     @Test
-    public void testStart() {
+    public void testStart() throws SyncProcessException{
         syncProcessManager.start();
         EasyMock.expectLastCall();
         replay();
@@ -47,7 +48,7 @@ public class StatusControllerTest extends AbstractTest {
     }
 
     @Test
-    public void testCleanStart() {
+    public void testCleanStart() throws SyncProcessException {
         syncProcessManager.cleanStart();
         EasyMock.expectLastCall();
         replay();

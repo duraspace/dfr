@@ -54,5 +54,14 @@ public abstract class AbstractTest {
             EasyMock.replay(o);
         }
     }
+
+    protected void sleep() {
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     
 }

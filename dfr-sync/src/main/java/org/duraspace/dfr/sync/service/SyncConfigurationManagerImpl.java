@@ -9,15 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.duracloud.sync.config.SyncToolConfig;
+import org.duraspace.dfr.sync.domain.DirectoryConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 /**
  * 
  * @author Daniel Bernstein
- *
+ * 
  */
 @Component
 public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
@@ -29,14 +31,18 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         syncToolConfig = deserializeSyncToolConfig();
     }
 
+    private void persistSyncToolConfig() throws IOException {
+        SyncToolConfigSerializer.serialize(syncToolConfig,
+                                           getSyncToolConfigXmlPath());
+    }
+
     private SyncToolConfig deserializeSyncToolConfig() {
         SyncToolConfig config;
         try {
             config =
                 SyncToolConfigSerializer.deserialize(getSyncToolConfigXmlPath());
         } catch (IOException ex) {
-            log.warn("unable to deserialize sync config : "
-                + ex.getMessage());
+            log.warn("unable to deserialize sync config : " + ex.getMessage());
             log.info("creating new config...");
             config = new SyncToolConfig();
             initializeDefaultValues(config);
@@ -49,16 +55,19 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         config.setContext("durastore");
         config.setExitOnCompletion(false);
         config.setSyncDeletes(false);
-        
+
         config.setUsername("admin");
         config.setPassword("apw");
+        config.setHost("localhost");
         config.setPort(8080);
         List<File> dirs = new ArrayList<File>();
         dirs.add(new File("/tmp/dfr-test"));
         config.setContentDirs(dirs);
         config.setSpaceId("dfr-test");
-        File workDir = new File(System.getProperty("user.home") + File.separator + ".dfr-sync-work");
-        if(!workDir.mkdirs()){
+        File workDir =
+            new File(System.getProperty("user.home")
+                + File.separator + ".dfr-sync-work");
+        if (!workDir.mkdirs()) {
             log.info(workDir.getAbsolutePath() + " already exists.");
         }
         config.setWorkDir(workDir);
@@ -76,20 +85,40 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
                                               String host,
                                               int port,
                                               String spaceId) {
-        // TODO Auto-generated method stub
+        this.syncToolConfig.setUsername(username);
+        this.syncToolConfig.setPassword(password);
+        this.syncToolConfig.setHost(host);
+        this.syncToolConfig.setPort(port);
+        this.syncToolConfig.setSpaceId(spaceId);
+        
+        try {
+            persistSyncToolConfig();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Override
     public DuracloudConfiguration retrieveDuracloudConfiguration() {
-        // TODO Auto-generated method stub
-        return null;
+        SyncToolConfig s = this.syncToolConfig;
+       return new DuracloudConfiguration(
+                s.getUsername(),
+                s.getPassword(),
+                s.getHost(),
+                s.getPort(),
+                s.getSpaceId()                             
+           );
     }
 
     @Override
     public DirectoryConfigs retrieveDirectoryConfigs() {
-        // TODO Auto-generated method stub
-        return new DirectoryConfigs();
+        DirectoryConfigs c = new DirectoryConfigs();
+        List<File> dirs = this.syncToolConfig.getContentDirs();
+        for(File f : dirs){
+            c.add(new DirectoryConfig(f.getAbsolutePath()));
+        }
+        return c;
     }
 
     @Override

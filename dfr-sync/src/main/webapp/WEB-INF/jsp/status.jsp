@@ -20,10 +20,11 @@
                 method="POST"
                 action="${pageContext.request.contextPath}/status">
 
-              <span> <spring:message code="overview" />
-              </span>
+                <span> <spring:message code="overview" />
+                </span>
 
                 <ul class="button-bar">
+                  <!-- 
                   <li>
                     <button
                       id="cleanStart"
@@ -33,6 +34,8 @@
                       <spring:message code="cleanStart" />
                     </button>
                   </li>
+                  -->
+
                   <li>
                     <button
                       id="start"
@@ -47,7 +50,8 @@
                   </li>
                   <li>
                     <button
-                      id="stop" name="stop"
+                      id="stop"
+                      name="stop"
                       <c:if test="${syncProcessState != 'RUNNING' }">
                         disabled="disabled"
                       </c:if>>
@@ -59,6 +63,10 @@
 
             </div>
             <div class="body">
+              <fmt:formatNumber
+                var="queueSize"
+                value="${syncProcessStats.queueSize}" />
+
               <div
                 id="status-indicator"
                 class="yui3-g">
@@ -77,6 +85,11 @@
                     <td>${syncProcessStats.estimatedCompletionDate}</td>
                   </tr>
                   <tr>
+                    <td><spring:message code="queueSize" /></td>
+                    <td>${queueSize}</td>
+                  </tr>
+
+                  <tr>
                     <td><spring:message code="errorCount" /></td>
                     <td>${syncProcessStats.errorCount}</td>
                   </tr>
@@ -88,18 +101,32 @@
       </div>
       <div class="yui3-u-1-2">
         <div class="content">
-          <div class="section top">
-            <div class="header">Active Uploads</div>
+          <div id="active-syncs" class="section top">
+            <div class="header">Active Syncs</div>
             <div class="body">
               <c:choose>
                 <c:when test="${not empty monitoredFiles}">
-                  <ul>
+                  <table>
                     <c:forEach
                       items="${monitoredFiles}"
                       var="file">
-                      <li>${file.size}/${file.streamBytesRead} ${file.name}</li>
+                      <tr>
+                        <td>
+                        <progress
+                          max="100"
+                          value="${100*file.streamBytesRead/file.length()}">
+                        </progress>
+                        </td>
+                        <td>
+                          <fmt:formatNumber value="${file.length()/(1024*1000)}" maxFractionDigits="2"/> MBs
+                        </td>
+                        <td>
+                          ${file.name}
+                        </td>
+                      </tr>
                     </c:forEach>
-                  </ul>
+                  </table>
+                  
                 </c:when>
                 <c:otherwise>
                   <p>There are no active uploads at this time.</p>
@@ -119,7 +146,8 @@
             class="section">
             <div class="header">
               <ul class="tabs">
-                <li class="selected">Queued for Synchronization</li>
+                <li class="selected">Queued for Synchronization
+                  (${queueSize})</li>
                 <li>Errors</li>
               </ul>
             </div>
@@ -138,10 +166,21 @@
                       <c:forEach
                         items="${queuedFiles}"
                         var="file">
+                        <jsp:useBean
+                          id="lastModifiedDate"
+                          class="java.util.Date" />
+                        <jsp:setProperty
+                          name="lastModifiedDate"
+                          property="time"
+                          value="${file.lastModified()}" />
+
+
                         <tr>
                           <td>${file.absolutePath}</td>
-                          <td>${file.size}</td>
-                          <td>${file.lastModified}</td>
+                          <td><fmt:formatNumber value="${file.length()}" /></td>
+                          <td><fmt:formatDate
+                              value="${lastModifiedDate}"
+                              pattern="MM/dd/yyyy HH:mm a z" /></td>
                         </tr>
                       </c:forEach>
                     </tbody>

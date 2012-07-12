@@ -9,10 +9,22 @@ package org.duraspace.dfr.sync.domain;
  *
  */
 public class DuracloudConfiguration {
+    
     private String username;
+    private String password;
     private String host;
     private int port;
     private String spaceId;
+
+    public DuracloudConfiguration(
+        String username, String password, String host, int port, String spaceId) {
+        super();
+        this.username = username;
+        this.password = password;
+        this.host = host;
+        this.port = port;
+        this.spaceId = spaceId;
+    }
 
     public String getUsername() {
         return username;
@@ -25,6 +37,9 @@ public class DuracloudConfiguration {
     }
     public String getSpaceId() {
         return spaceId;
+    }
+    public String getPassword() {
+        return password;
     }
 
 }
