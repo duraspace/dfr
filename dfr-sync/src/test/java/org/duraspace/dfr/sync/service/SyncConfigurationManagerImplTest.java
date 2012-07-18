@@ -22,6 +22,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     @Before
     public void setUp() throws Exception {
         super.setup();
+        System.setProperty("dfr.test", "true");
         syncConfigurationManager = new SyncConfigurationManagerImpl();
     }
 
@@ -54,7 +55,7 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     public void testRetrieveDuracloudConfiguration() {
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
-        Assert.assertNull(dc);
+        Assert.assertNotNull(dc);
     }
 
 }

@@ -72,6 +72,11 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
 
     protected void setupStart() throws ContentStoreException {
+        
+        File directory = new File(System.getProperty("java.io.tmpdir") + File.separator + "test-" + System.currentTimeMillis());
+        directory.mkdirs();
+        directory.deleteOnExit();
+        
         ContentStoreManager contentStoreManager =
             createMock(ContentStoreManager.class);
         contentStoreManager.login(EasyMock.isA(Credential.class));
@@ -94,7 +99,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
                 });
 
         DirectoryConfigs dconfigs = new DirectoryConfigs();
-        dconfigs.add(new DirectoryConfig("/this/is/a/test/path"));
+        dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
                 .andReturn(dconfigs);
 

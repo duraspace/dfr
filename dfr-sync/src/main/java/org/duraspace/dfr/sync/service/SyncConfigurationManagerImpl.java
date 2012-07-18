@@ -75,7 +75,13 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
 
     private String getSyncToolConfigXmlPath() {
-        return System.getProperty("user.home")
+        String rootDir = System.getProperty("user.home");
+        
+        if("true".equals(System.getProperty("dfr.test"))){
+            rootDir = System.getProperty("java.io.tmpdir");
+        }
+
+        return rootDir
             + File.pathSeparator + ".dfr-sync-config";
     }
 
@@ -123,7 +129,9 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public boolean isConfigurationComplete() {
-        // TODO Auto-generated method stub
+        if(this.syncToolConfig == null){
+            return false;
+        }
         return true;
     }
 

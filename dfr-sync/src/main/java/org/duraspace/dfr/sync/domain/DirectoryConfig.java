@@ -18,6 +18,9 @@ public class DirectoryConfig implements Serializable {
     private String directoryPath;
 
     public DirectoryConfig(String directoryPath) {
+        if (directoryPath == null){
+            throw new NullPointerException("directoryPath must be non-null");
+        }
         this.directoryPath = directoryPath;
     }
 
