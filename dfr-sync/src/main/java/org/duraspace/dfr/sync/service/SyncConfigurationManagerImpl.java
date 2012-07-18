@@ -51,6 +51,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         return config;
     }
 
+    // FIXME - for testing purposes
     private void initializeDefaultValues(SyncToolConfig config) {
         config.setContext("durastore");
         config.setExitOnCompletion(false);
@@ -61,11 +62,12 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         config.setHost("localhost");
         config.setPort(8080);
         List<File> dirs = new ArrayList<File>();
-        dirs.add(new File("/tmp/dfr-test"));
+        dirs.add(new File(System.getProperty("java.io.tmpdir")
+            + File.separator + "dfr-test"));
         config.setContentDirs(dirs);
         config.setSpaceId("dfr-test");
         File workDir =
-            new File(System.getProperty("user.home")
+            new File(System.getProperty("java.io.tmpdir")
                 + File.separator + ".dfr-sync-work");
         if (!workDir.mkdirs()) {
             log.info(workDir.getAbsolutePath() + " already exists.");
@@ -76,13 +78,12 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     private String getSyncToolConfigXmlPath() {
         String rootDir = System.getProperty("user.home");
-        
-        if("true".equals(System.getProperty("dfr.test"))){
+
+        if ("true".equals(System.getProperty("dfr.test"))) {
             rootDir = System.getProperty("java.io.tmpdir");
         }
 
-        return rootDir
-            + File.pathSeparator + ".dfr-sync-config";
+        return rootDir + File.separator + ".dfr-sync-config";
     }
 
     @Override
@@ -96,7 +97,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         this.syncToolConfig.setHost(host);
         this.syncToolConfig.setPort(port);
         this.syncToolConfig.setSpaceId(spaceId);
-        
+
         try {
             persistSyncToolConfig();
         } catch (IOException e) {
@@ -108,20 +109,18 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     @Override
     public DuracloudConfiguration retrieveDuracloudConfiguration() {
         SyncToolConfig s = this.syncToolConfig;
-       return new DuracloudConfiguration(
-                s.getUsername(),
-                s.getPassword(),
-                s.getHost(),
-                s.getPort(),
-                s.getSpaceId()                             
-           );
+        return new DuracloudConfiguration(s.getUsername(),
+                                          s.getPassword(),
+                                          s.getHost(),
+                                          s.getPort(),
+                                          s.getSpaceId());
     }
 
     @Override
     public DirectoryConfigs retrieveDirectoryConfigs() {
         DirectoryConfigs c = new DirectoryConfigs();
         List<File> dirs = this.syncToolConfig.getContentDirs();
-        for(File f : dirs){
+        for (File f : dirs) {
             c.add(new DirectoryConfig(f.getAbsolutePath()));
         }
         return c;
@@ -129,7 +128,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
 
     @Override
     public boolean isConfigurationComplete() {
-        if(this.syncToolConfig == null){
+        if (this.syncToolConfig == null) {
             return false;
         }
         return true;
