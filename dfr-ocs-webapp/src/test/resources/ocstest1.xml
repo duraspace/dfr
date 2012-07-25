@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foxml:digitalObject VERSION="1.1" PID="islandora:ocstest1"
+                     xmlns:foxml="info:fedora/fedora-system:def/foxml#"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="info:fedora/fedora-system:def/foxml# http://www.fedora.info/definitions/1/0/foxml1-1.xsd">
+  <foxml:objectProperties>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#state" VALUE="Active"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#label" VALUE="Test Picture Two"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#ownerId" VALUE="admin"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/model#createdDate" VALUE="2012-06-25T17:25:51.784Z"/>
+    <foxml:property NAME="info:fedora/fedora-system:def/view#lastModifiedDate" VALUE="2012-06-25T17:25:51.784Z"/>
+  </foxml:objectProperties>
+  <foxml:datastream ID="RELS-EXT" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="RELS-EXT1.0" LABEL="RDF Statements about this Object" CREATED="2012-06-25T17:25:51.825Z" MIMETYPE="application/rdf+xml" FORMAT_URI="info:fedora/fedora-system:FedoraRELSExt-1.0">
+      <foxml:xmlContent>
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:fedora="info:fedora/fedora-system:def/relations-external#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:fedora-model="info:fedora/fedora-system:def/model#">
+          <rdf:Description rdf:about="info:fedora/islandora:ocstest1">
+            <fedora:isMemberOfCollection rdf:resource="info:fedora/islandora:sp_basic_image_collection"></fedora:isMemberOfCollection>
+            <fedora-model:hasModel rdf:resource="info:fedora/islandora:sp_basic_image"></fedora-model:hasModel>
+          </rdf:Description>
+        </rdf:RDF>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="OBJ" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="OBJ.0" LABEL="NewContentIngestviaFedora.png" CREATED="2012-06-25T17:25:51.825Z" MIMETYPE="image/png">
+      <foxml:contentLocation TYPE="INTERNAL_ID" REF="http://dfr.duracloud.org:8080/fedora-demo/simple-image-demo/coliseum-thumb.jpg"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="MEDIUM_SIZE" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="MEDIUM_SIZE.0" LABEL="NewContentIngestviaFedora.png_MEDIUM_SIZE.jpg" CREATED="2012-06-25T17:25:51.825Z" MIMETYPE="image/jpeg">
+      <foxml:contentLocation TYPE="INTERNAL_ID" REF="http://dfr.duracloud.org:8080/fedora-demo/simple-image-demo/coliseum-thumb.jpg"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="TN" STATE="A" CONTROL_GROUP="M" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="TN.0" LABEL="NewContentIngestviaFedora.png_TN.jpg" CREATED="2012-06-25T17:25:51.825Z" MIMETYPE="image/jpeg">
+      <foxml:contentLocation TYPE="INTERNAL_ID" REF="http://dfr.duracloud.org:8080/fedora-demo/simple-image-demo/coliseum-thumb.jpg"/>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="MODS" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="MODS.0" LABEL="MODS Record" CREATED="2012-06-25T17:25:51.825Z" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <mods xmlns="http://www.loc.gov/mods/v3" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <titleInfo><title>Test Picture Two</title><subTitle></subTitle></titleInfo>
+          <name type="personal"><namePart></namePart><role><roleTerm authority="marcrelator" type="text"></roleTerm></role></name>
+          <typeOfResource>still image</typeOfResource>
+          <genre authority="lctgm"></genre>
+          <originInfo><dateIssued></dateIssued><publisher></publisher><place><placeTerm authority="marccountry" type="code"></placeTerm></place><place><placeTerm type="text"></placeTerm></place></originInfo>
+          <language>
+            <languageTerm authority="iso639-2b" type="code"></languageTerm>
+          </language>
+          <abstract></abstract>
+          <identifier type="local"></identifier>
+          <physicalDescription><form authority="marcform">nonprojected graphic</form><extent></extent></physicalDescription>
+          <note></note>
+          <subject><topic></topic><geographic></geographic><temporal></temporal><hierarchicalGeographic><continent>Asia</continent><country></country><province></province><region></region><county></county><city></city><citySection></citySection></hierarchicalGeographic><cartographics><coordinates></coordinates></cartographics></subject>
+        </mods>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="DC" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="DC.0" LABEL="Dublin Core Record" CREATED="2012-06-25T17:25:51.826Z" MIMETYPE="text/xml">
+      <foxml:xmlContent>
+        <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+          <dc:title>Test Picture Two</dc:title>
