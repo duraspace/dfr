@@ -6,11 +6,24 @@
                            http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+  <bean id="storageType" class="org.duracloud.storage.domain.StorageProviderType" factory-method="valueOf">
+    <constructor-arg>
+      <value>AMAZON_S3</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="httpHelper" class="org.duracloud.common.web.RestHttpHelper"/>
+
   <!-- This is the storage location. -->
-  <bean id="contentStore" class="org.duracloud.client.ContentStore" />
+  <bean id="contentStore" class="org.duracloud.client.ContentStoreImpl">
+    <constructor-arg type="java.lang.String" value="baseURL"/>
+    <constructor-arg ref="storageType"/>
+    <constructor-arg type="java.lang.String" value="storeID"/>
+    <constructor-arg ref="httpHelper"/>
+  </bean>
 
   <!-- this is the Message Driven POJO (MDP) -->
-  <bean id="messageListener" class="org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListener" >
+  <bean id="messageListener" class="org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListener">
     <constructor-arg ref="contentStore"/>
   </bean>
 
