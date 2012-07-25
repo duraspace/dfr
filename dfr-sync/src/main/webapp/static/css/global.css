@@ -1,0 +1,206 @@
+
+
+
+/*
+* Copyright (c) 2009-2012 DuraSpace. All rights reserved.
+*
+* Author:  Daniel Bernstein
+* 
+* Global look and feel
+*/
+body {
+	margin:0;	
+	background: url("../image/bg_clouds.jpg") no-repeat;
+	
+}
+
+ul, li {
+	margin: 0;
+	padding:0;
+	list-style: none;
+}
+
+form {
+	padding:0;
+	margin:0;
+}
+th {
+	text-align: left;
+}
+
+table {
+	width:100%;
+	border-collapse: collapse;
+}
+
+tr {
+	border-bottom: 1px solid #AAA;
+}
+
+tr:last-child {
+	border-bottom: 0;
+}
+
+td{
+	padding: 3px 3px 3px 3px;
+}
+
+tr:nth-child(odd) {
+	background-color: #CCC;
+}
+
+thead > tr:nth-child(odd) {
+	background-color: transparent;
+}
+
+.yui3-g .content {
+    margin-right:1em; /* "column" gutters */
+    
+    padding: 1em 0em 0em 0em; 
+}
+
+#header .tabs, #footer ul{
+	margin:0;
+	padding:0;	
+}
+
+#header {
+}
+
+#logo {
+	background: url("../image/logo_top_duracloud.png") no-repeat;
+	padding: 25px 0px 10px 110px; 
+	font-size: 18px;
+	font-weight:bold;
+		
+}
+#header .tabs li, #footer ul li{
+	list-style-type: none;
+	display: inline;
+	padding-right:5px;
+}
+
+
+#footer ul li:after{
+	content: "|";
+	padding-left: 10px;
+}
+
+#footer ul li:last-child:after{
+	content: "";
+}
+
+#content {
+	padding-bottom: 1em;
+	padding-left: 1em;
+	background-color: #555;
+	margin-right: 20px;
+	border-radius: 0px 5px 5px 0px;
+}
+
+div.section > div.header {
+	background-color: #999;
+	height: 20px;
+	border-radius: 5px 5px 0px 0px;
+	color: #FFF;
+	overflow: hidden;
+}
+
+div.section {
+	border-radius: 5px;
+}
+
+div.section, div.section > div.body {
+	background-color: #DDD;
+	color: #000;
+}
+
+div.section > div.body, div.section > div.header {
+	padding:10px;
+}
+
+div.section.top {
+	height: 300px;
+}
+
+ul.button-bar li {
+	display:inline;
+}
+
+#recent-activity-graph {
+	height: 100px;
+	border: 1px solid #555;
+}
+
+#status-indicator {
+	padding:10px;
+	border-radius: 5px;
+	background-color: #AAA;
+	margin-bottom:10px;
+}
+
+#status-indicator > div:last-child {
+	text-align: right;
+}
+
+#status-overview .header .button-bar {
+	float:right;
+}
+
+ul.tabs li {
+	display: inline;
+	vertical-align: bottom;
+	font-size: 14px;
+	border-radius: 5px 5px 0px 0px;
+	padding:5px 5px 8px 5px;
+	
+}
+
+ul.tabs li.selected {
+	background-color: #DDD;
+	color: #555; 
+}
+
+ul.tabs {
+	margin-bottom:0;
+}
+
+.tabs a {
+	text-decoration: none;
+}
+
+
+#status-tabs .header {
+	padding-bottom: 0px;
+}
+
+.tabs.primary li:first-child{
+	margin-left: 15px;
+}
+
+.tabs.primary li, .tabs.primary a {
+	font-weight: bold;
+	color: #555;
+}
+
+.tabs.primary li.selected {
+		background-color: #555; 
+}
+.tabs.primary li.selected a {
+	color: #FFF;
+}
+
+.wizard-panel h2 {
+	margin:0;
+	padding:20px;
+}
+
+
+#active-syncs td:nth-child(1) {
+	width: 150px;
+}
+
+#active-syncs td:nth-child(2) {
+	text-align:center;
+	width:125px;
+}
