@@ -30,26 +30,94 @@
   <properties>
     <unitTests>**/*Test.class</unitTests>
     <seleniumTests>**/Test*.class</seleniumTests>
+    <jetty.port>8888</jetty.port>
   </properties>
 
   <build>
     <plugins>
+
+     <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+        </configuration>
+        <executions>
+          <execution>
+            <!-- This execution 'default-test' overrides the built-in default execution for the test phase. 
+                 Thus unit tests aren't run when you running integration tests. 
+                 It comes in handy when trying to debug a single integration test as you only need to attach 
+                 your debugger once. -->
+            <id>default-test</id>
+            <configuration>
+              <skipTests>${skipUTs}</skipTests>
+              <excludes>
+                <exclude>${seleniumTests}</exclude>
+              </excludes>
+              <includes>
+                <include>${unitTests}</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>integrationtest</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skipTests>${skipITs}</skipTests>
+              <excludes>
+                <exclude>${unitTests}</exclude>
+              </excludes>
+              <includes>
+                <include>${seleniumTests}</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
           <scanIntervalSeconds>10</scanIntervalSeconds>
-          <webApp>
-            <contextPath>/${project.artifactId}</contextPath>
-          </webApp>
           <systemProperties>
             <systemProperty>
               <name>jetty.port</name>
               <value>8888</value>
             </systemProperty>
           </systemProperties>
+          <webApp>
+            <contextPath>/${project.artifactId}</contextPath>
+          </webApp>
+          <stopKey>foo</stopKey>
+          <stopPort>9999</stopPort>
         </configuration>
+        <executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <skip>${skipITs}</skip>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <daemon>true</daemon>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+            <configuration>
+              <skip>${skipITs}</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -93,18 +161,31 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>${seleniumTests}</exclude>
-          </excludes>
-          <includes>
-            <include>${unitTests}</include>
-          </includes>
-        </configuration>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>selenium-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>xvfb</id>
+             <phase>pre-integration-test</phase>
+            <goals>
+              <goal>xvfb</goal>
+            </goals>
+            <configuration>
+               <skip>${skipITs}</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start-server</goal>
+            </goals>
+            <configuration>
+              <background>true</background>
+              <skip>${skipITs}</skip>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
-
     </plugins>
   </build>
 
@@ -233,111 +314,4 @@
     </dependency>
       
   </dependencies>
-
-  <profiles>
-
-    <profile>
-      <id>profile-selenium</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <property>
-          <name>profile</name>
-          <value>selenium</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>selenium-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>xvfb</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>xvfb</goal>
-                </goals>
-              </execution>
-              <execution>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start-server</goal>
-                </goals>
-                <configuration>
-                  <background>true</background>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-            </configuration>
-            <executions>
-              <execution>
-                <id>integrationtest</id>
-                <phase>integration-test</phase>
-                <goals>
-                  <goal>test</goal>
-                </goals>
-                <configuration>
-                  <excludes>
-                    <exclude>${unitTests}</exclude>
-                  </excludes>
-                  <includes>
-                    <include>${seleniumTests}</include>
-                  </includes>
-                </configuration>
-              </execution>
-              <execution>
-                <!-- This execution 'default-test' overrides the built-in default execution for the test phase. Thus unit tests aren't run when you running integration tests. It comes in handy when trying 
-                  to debug a single integration test as you only need to attach your debugger once. -->
-                <id>default-test</id>
-                <configuration>
-                  <skipTests>true</skipTests>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-maven-plugin</artifactId>
-            <configuration>
-              <scanIntervalSeconds>10</scanIntervalSeconds>
-              <webApp>
-                <contextPath>/${project.artifactId}</contextPath>
-              </webApp>
-              <stopKey>foo</stopKey>
-              <stopPort>9999</stopPort>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-jetty</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-                <configuration>
-                  <scanIntervalSeconds>0</scanIntervalSeconds>
-                  <daemon>true</daemon>
-                </configuration>
-              </execution>
-              <execution>
-                <id>stop-jetty</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-</project>
+ </project>
