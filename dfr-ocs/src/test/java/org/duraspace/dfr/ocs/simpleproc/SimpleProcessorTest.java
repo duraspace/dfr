@@ -7,7 +7,7 @@ import org.duraspace.dfr.ocs.core.MemoryFedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
-import org.easymock.EasyMock;
+import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,6 +21,7 @@ import java.util.Map;
  * Unit tests for {@link SimpleProcessor}.
  */
 public class SimpleProcessorTest {
+
     private static final String PID_PREFIX = "example.org:";
     private static final String DURASTORE_URL = "http://example.org/durastore";
     private static final String CONTENT_ID = "path/to/content";
@@ -81,7 +82,7 @@ public class SimpleProcessorTest {
     public void processCreatedWithPreExistingObject() {
         processCreated(GOOD_DATE, true);
     }
-    
+
     private void processCreated(String modifiedDate, boolean preExisting) {
         // process a CREATED event, which should add it to our memory store
         SimpleProcessor processor = new SimpleProcessor(PID_PREFIX,
@@ -93,30 +94,29 @@ public class SimpleProcessorTest {
                     "logMessage");
         }
         processor.setFedoraObjectStore(fedoraObjectStore);
-        StorageObjectEvent event = EasyMock.createMock(
-                StorageObjectEvent.class);
-        StorageObject storageObject = EasyMock.createMock(StorageObject.class);
-        EasyMock.expect(storageObject.getId()).andReturn(CONTENT_ID);
+        StorageObjectEvent event = Mockito.mock(StorageObjectEvent.class);
+        StorageObject storageObject = Mockito.mock(StorageObject.class);
+        Mockito.when(storageObject.getId()).thenReturn(CONTENT_ID);
         Map<String, String> metadata = new HashMap<String, String>();
         metadata.put("store-id", "storeId");
         metadata.put("space-id", "spaceId");
-        metadata.put("content-checksum", "37b51d194a7513e45b56f6524f2d51f2");
+        metadata.put("content-checksum", "37b51d194a7513e45b5mockit6f6524f2d51f2");
         metadata.put("content-mimetype", "text/plain");
         metadata.put("content-size", "3");
         if (modifiedDate != null) {
             metadata.put("content-modified", modifiedDate);
         }
-        EasyMock.expect(storageObject.getMetadata()).andReturn(metadata);
-        EasyMock.expect(event.getStorageObject()).andReturn(storageObject);
-        EasyMock.expect(event.getType()).andReturn(
+        Mockito.when(storageObject.getMetadata()).thenReturn(metadata);
+        Mockito.when(event.getStorageObject()).thenReturn(storageObject);
+        Mockito.when(event.getType()).thenReturn(
                 StorageObjectEvent.Type.CREATED);
-        EasyMock.expect(event.getId()).andReturn("eventId");
-        EasyMock.replay(event, storageObject);
+        Mockito.when(event.getId()).thenReturn("eventId");
         processor.process(event);
         Assert.assertEquals(1, fedoraObjectStore.getFedoraObjectMap().size());
-        EasyMock.verify(event, storageObject);
+        Mockito.verify(event).getId();
+        Mockito.verify(storageObject).getMetadata();
         
-        // make sure the object made it in and looks as expected
+        // Make sure the object made it in and looks as expected.
         Iterator<String> keys = fedoraObjectStore.getFedoraObjectMap().
                 keySet().iterator();
         Assert.assertTrue(keys.hasNext());
@@ -162,21 +162,20 @@ public class SimpleProcessorTest {
         MemoryFedoraObjectStore fedoraObjectStore =
                 new MemoryFedoraObjectStore();
         processor.setFedoraObjectStore(fedoraObjectStore);
-        StorageObjectEvent event = EasyMock.createMock(
+        StorageObjectEvent event = Mockito.mock(
                 StorageObjectEvent.class);
-        StorageObject storageObject = EasyMock.createMock(StorageObject.class);
-        EasyMock.expect(storageObject.getId()).andReturn(CONTENT_ID);
+        StorageObject storageObject = Mockito.mock(StorageObject.class);
+        Mockito.when(storageObject.getId()).thenReturn(CONTENT_ID);
         Map<String, String> metadata = new HashMap<String, String>();
         if (storeId != null) {
             metadata.put("store-id", storeId);
         }
         metadata.put("space-id", "spaceId");
-        EasyMock.expect(storageObject.getMetadata()).andReturn(metadata);
-        EasyMock.expect(event.getStorageObject()).andReturn(storageObject);
-        EasyMock.expect(event.getType()).andReturn(
+        Mockito.when(storageObject.getMetadata()).thenReturn(metadata);
+        Mockito.when(event.getStorageObject()).thenReturn(storageObject);
+        Mockito.when(event.getType()).thenReturn(
                 StorageObjectEvent.Type.DELETED);
-        EasyMock.expect(event.getId()).andReturn("eventId");
-        EasyMock.replay(event, storageObject);
+        Mockito.when(event.getId()).thenReturn("eventId");
         fedoraObjectStore.getFedoraObjectMap().put(FEDORA_PID,
                 new FedoraObject());
         Assert.assertEquals(1, fedoraObjectStore.getFedoraObjectMap().size());

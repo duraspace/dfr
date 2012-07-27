@@ -1,6 +1,6 @@
 package org.duraspace.dfr.ocs.core;
 
-import org.easymock.EasyMock;
+import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -8,8 +8,7 @@ import org.junit.Test;
  * Unit tests for {@link StorageObjectEvent}.
  */
 public class StorageObjectEventTest {
-    private StorageObject mockStorageObject =
-            EasyMock.createMock(StorageObject.class);
+    private StorageObject mockStorageObject = Mockito.mock(StorageObject.class);
 
     @Test (expected=NullPointerException.class)
     public void initWithNullId() {
