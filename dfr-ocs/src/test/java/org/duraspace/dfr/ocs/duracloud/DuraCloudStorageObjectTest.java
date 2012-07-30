@@ -74,7 +74,6 @@ public class DuraCloudStorageObjectTest {
             Assert.assertEquals(null, o.getContent());
             Assert.assertEquals(0, o.getMetadata().size());
         }
-        //Mockito.verify(contentStore) DWD: This appears to test that new object are empty;
     }
 
     @Test (expected=OCSException.class)
@@ -84,6 +83,7 @@ public class DuraCloudStorageObjectTest {
                 thenThrow(new ContentStoreException("foo"));
         DuraCloudStorageObject o = getInstance(contentStore, false);
         o.getContent();
+        //Mockito.verify(o) TODO: What do we want to test.
     }
 
     @Test
@@ -99,8 +99,8 @@ public class DuraCloudStorageObjectTest {
         Mockito.when(content.getStream()).thenReturn(stream);
         DuraCloudStorageObject o = getInstance(contentStore, false);
         Assert.assertEquals(0, o.getMetadata().size());
-        o.finalize(); // normally not called explicity; only for test
-        //Mockito.verify(stream);
+        o.finalize(); // normally not called explicitly; only for test
+        //Mockito.verify(stream);  TODO: What do we want to test.
         //Mockito.verify(content);
         //Mockito.verify(contentStore);
     }
