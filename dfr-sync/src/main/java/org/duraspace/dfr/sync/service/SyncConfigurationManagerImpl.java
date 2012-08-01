@@ -6,8 +6,11 @@ package org.duraspace.dfr.sync.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.duracloud.sync.config.SyncToolConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
@@ -56,16 +59,8 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         config.setContext("durastore");
         config.setExitOnCompletion(false);
         config.setSyncDeletes(false);
-
-        config.setUsername("admin");
-        config.setPassword("apw");
-        config.setHost("localhost");
-        config.setPort(8080);
         List<File> dirs = new ArrayList<File>();
-        dirs.add(new File(System.getProperty("java.io.tmpdir")
-            + File.separator + "dfr-test"));
         config.setContentDirs(dirs);
-        config.setSpaceId("dfr-test");
         File workDir =
             new File(System.getProperty("java.io.tmpdir")
                 + File.separator + ".dfr-sync-work");
@@ -73,29 +68,35 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
             log.info(workDir.getAbsolutePath() + " already exists.");
         }
         config.setWorkDir(workDir);
-
     }
 
     private String getSyncToolConfigXmlPath() {
-        String rootDir = System.getProperty("user.home");
+        String configPath =
+            System.getProperty("user.home")
+                + File.separator + ".dfr-sync-config";
 
-        if ("true".equals(System.getProperty("dfr.test"))) {
-            rootDir = System.getProperty("java.io.tmpdir");
+        if (System.getProperty("dfr.config.path") != null) {
+            configPath = System.getProperty("dfr.config.path");
         }
 
-        return rootDir + File.separator + ".dfr-sync-config";
+        return configPath;
     }
 
     @Override
     public void persistDuracloudConfiguration(String username,
                                               String password,
                                               String host,
-                                              int port,
+                                              String port,
                                               String spaceId) {
         this.syncToolConfig.setUsername(username);
         this.syncToolConfig.setPassword(password);
         this.syncToolConfig.setHost(host);
-        this.syncToolConfig.setPort(port);
+        if (!StringUtils.isBlank(port)) {
+            this.syncToolConfig.setPort(Integer.parseInt(port));
+        } else {
+            this.syncToolConfig.setPort(443);
+        }
+
         this.syncToolConfig.setSpaceId(spaceId);
 
         try {
@@ -127,11 +128,38 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     }
 
     @Override
-    public boolean isConfigurationComplete() {
-        if (this.syncToolConfig == null) {
-            return false;
+    public void persistDirectoryConfigs(DirectoryConfigs configs) {
+        List<File> dirs = new LinkedList<File>();
+
+        for (DirectoryConfig f : configs) {
+            dirs.add(new File(f.getDirectoryPath()));
         }
-        return true;
+        this.syncToolConfig.setContentDirs(dirs);
+
+        try {
+            persistSyncToolConfig();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    @Override
+    public boolean isConfigurationComplete() {
+        SyncToolConfig c = this.syncToolConfig;
+        if (c == null) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(c.getUsername())
+            || StringUtils.isBlank(c.getUsername())
+            || StringUtils.isBlank(c.getPassword())
+            || StringUtils.isBlank(c.getHost())
+            || StringUtils.isBlank(c.getSpaceId())
+            || CollectionUtils.isEmpty(c.getContentDirs())) {
+            return false;
+
+        }
+
+        return true;
+    }
 }

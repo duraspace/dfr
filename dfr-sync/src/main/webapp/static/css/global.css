@@ -53,6 +53,25 @@ thead > tr:nth-child(odd) {
 	background-color: transparent;
 }
 
+
+fieldset li {
+  height: 40px; 
+  position: relative;
+}
+
+label {
+}
+
+
+.error {
+  color: rgba(255,0,0,0.5);
+}
+
+ul.global-errors, input.error  {
+  border: 1px solid red;
+  background: #faa;
+  color: #555;
+}
 .yui3-g .content {
     margin-right:1em; /* "column" gutters */
     
@@ -194,6 +213,8 @@ ul.tabs {
 	margin:0;
 	padding:20px;
 }
+
+
 
 
 #active-syncs td:nth-child(1) {

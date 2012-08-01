@@ -3,11 +3,11 @@
  */
 package org.duraspace.dfr.sync.setup;
 
+import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.test.AbstractTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.webflow.execution.Event;
-import org.springframework.webflow.execution.RequestContext;
 
 /**
  * 
@@ -19,13 +19,13 @@ public class AddDirectoryConfigActionTest  extends AbstractTest {
     @Test
     public void testExecute() throws Exception {
         AddDirectoryConfigAction action = new AddDirectoryConfigAction();
-        RequestContext requestContext = createMock(RequestContext.class);
-        
+        DirectoryConfigForm form = new DirectoryConfigForm();
+        form.setDirectoryPath("test");
+        DirectoryConfigs configs = new DirectoryConfigs();
         replay();
         
-        action.execute(requestContext);
-        Event result = action.execute(requestContext);
-        Assert.assertEquals("success", result.getId());
+        action.execute(form, configs);
+        Assert.assertEquals(1, configs.size());
 
     }
 

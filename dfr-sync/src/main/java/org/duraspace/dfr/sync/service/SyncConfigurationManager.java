@@ -3,8 +3,6 @@
  */
 package org.duraspace.dfr.sync.service;
 
-import org.duracloud.client.ContentStore;
-import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 
@@ -28,7 +26,7 @@ public interface SyncConfigurationManager {
     public void persistDuracloudConfiguration(String username,
                                             String password,
                                             String host,
-                                            int port,
+                                            String port,
                                             String spaceId);
 
     /**
@@ -49,6 +47,8 @@ public interface SyncConfigurationManager {
      * @return
      */
     public boolean isConfigurationComplete();
+
+    public void persistDirectoryConfigs(DirectoryConfigs configs);
     
     
 }

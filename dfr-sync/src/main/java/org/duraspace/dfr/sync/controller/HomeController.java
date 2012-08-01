@@ -3,6 +3,7 @@
  */
 package org.duraspace.dfr.sync.controller;
 
+import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +18,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomeController {
     private static Logger log = LoggerFactory.getLogger(HomeController.class);
-
-    @Autowired SetupHelper setupHelper;
+    
+    private SyncConfigurationManager syncConfigurationManager;
+ 
+    @Autowired
+    public HomeController(SyncConfigurationManager syncConfigurationManager){
+        this.syncConfigurationManager = syncConfigurationManager;
+    }
 
     @RequestMapping(value= {"/"})
     public String get(){
         log.debug("accessing welcome page");
-        
-        if(isSetupComplete()){
-            return "redirect:/status";
-        }else{
-            return "redirect:/setup";
-        }
+        return "redirect:/status";
     }
     
-    private boolean isSetupComplete() {
-        return this.setupHelper.isComplete();
-    }
 }

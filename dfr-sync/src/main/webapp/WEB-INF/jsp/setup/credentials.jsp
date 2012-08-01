@@ -17,12 +17,52 @@ file="../include/libraries.jsp"%>
    name="panelMessage"
    cascade="true">[panel message / info here]</tiles:putAttribute>
 
+
+
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
+
+      <%--
+        This bit of ugliness is necessary in order to separate out
+        errors that are associated with the object duracloudCredentialsForm
+        as a whole but not a particular field.  
+        
+        It seems this is a little bit broken in spring. errors.globalErrors should
+        work, but technically the errors associated with a class are not technically
+        global, and thus they are not returned by the errors.getGlobalErrors() method.
+       --%>
+      <spring:hasBindErrors name="duracloudCredentialsForm">
+        <c:if test="${fn:length(errors.allErrors) > 0}">
+          <c:forEach
+            items="${errors.allErrors}"
+            var="errorMessage">
+            <c:if test="${fn:length(errorMessage.field) == 0}">
+              <c:set
+                var="hasGlobal"
+                value="true" />
+            </c:if>
+          </c:forEach>
+          <c:if test="${hasGlobal}">
+
+            <ul class="global-errors">
+              <c:forEach
+                items="${errors.allErrors}"
+                var="errorMessage">
+                <c:if test="${fn:length(errorMessage.field) == 0}">
+                  <li><c:out value="${errorMessage.defaultMessage}" /></li>
+                </c:if>
+              </c:forEach>
+            </ul>
+          </c:if>
+        </c:if>
+      </spring:hasBindErrors>
+
     <form:form
      method="POST"
      modelAttribute="duracloudCredentialsForm">
+
+
       <fieldset>
         <ol>
           <li>
@@ -36,12 +76,14 @@ file="../include/libraries.jsp"%>
             <form:input
              cssErrorClass="error"
              path="username"
-             autofocus="true" />
+             autofocus="true" 
+             placeholder="Your DuraCloud username here"
+             />
 
             <form:errors
              path="username"
              cssClass="error"
-             element="div" />
+             element="span" />
           </li>
 
           <li>
@@ -73,6 +115,13 @@ file="../include/libraries.jsp"%>
             <form:input
              cssErrorClass="error"
              path="host" />
+
+            <form:input
+             cssErrorClass="error"
+             path="port"
+             placeholder="optional"
+              />
+
 
             <form:errors
              path="host"
