@@ -8,7 +8,7 @@ import com.yourmediashelf.fedora.client.request.Ingest;
 import com.yourmediashelf.fedora.client.request.PurgeObject;
 import com.yourmediashelf.fedora.client.response.FedoraResponse;
 import org.duraspace.dfr.ocs.core.OCSException;
-import org.easymock.EasyMock;
+//import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,11 +18,13 @@ import java.io.ByteArrayInputStream;
  * Unit tests for {@link FedoraRepository}.
  */
 public class FedoraRepositoryTest {
+
     @Test (expected=NullPointerException.class)
     public void initWithNullClient() {
         new FedoraRepository(null);
     }
 
+/*
     @Test
     public void ingest() throws Exception {
         Assert.assertTrue(simulateIngest(true, 0, null));
@@ -98,5 +100,6 @@ public class FedoraRepositoryTest {
         EasyMock.verify(fedoraClient, response);
         return result;
     }
+    */
 
 }
