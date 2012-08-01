@@ -51,13 +51,13 @@
           <overlays>
             <overlay>
               <groupId>org.duracloud</groupId>
-              <artifactId>jquery</artifactId>
+              <artifactId>jquery-war</artifactId>
               <type>war</type>
             </overlay>
             
             <overlay>
               <groupId>org.duracloud</groupId>
-              <artifactId>jquery-ui</artifactId>
+              <artifactId>jquery-ui-war</artifactId>
               <type>war</type>
             </overlay>
 
@@ -224,17 +224,14 @@
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>jquery</artifactId>
-      <!-- 
-      <type>zip</type>
-       -->
+      <artifactId>jquery-war</artifactId>
       <type>war</type>
       <version>1.7.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.duracloud</groupId>
-      <artifactId>jquery-ui</artifactId>
+      <artifactId>jquery-ui-war</artifactId>
       <type>war</type>
       <version>1.8.6</version>
     </dependency>

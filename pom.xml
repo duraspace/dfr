@@ -54,6 +54,11 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    
+    <repository>
+      <id>duraspace-thirdparty</id>
+      <url>https://m2.duraspace.org/content/repositories/thirdparty</url>
+    </repository>
   </repositories>
 
   <scm>
