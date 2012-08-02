@@ -113,7 +113,7 @@
           <systemProperties>
             <systemProperty>
               <name>jetty.port</name>
-              <value>8888</value>
+              <value>${jetty.port}</value>
             </systemProperty>
           </systemProperties>
           <webApp>
@@ -136,6 +136,12 @@
               <skip>${skipITs}</skip>
               <scanIntervalSeconds>0</scanIntervalSeconds>
               <daemon>true</daemon>
+              <systemProperties>
+                <systemProperty>
+                  <name>jetty.port</name>
+                  <value>${jetty.port}</value>
+                </systemProperty>
+              </systemProperties>
             </configuration>
           </execution>
           <execution>

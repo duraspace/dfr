@@ -51,7 +51,7 @@ public class SetupCheckFilter implements Filter {
         String ajax = hrequest.getContextPath() + "/ajax";
         
         
-        
+
         if (this.syncConfigurationManager.isConfigurationComplete()
             || path.startsWith(setupPath) || path.startsWith(ajax)) {
             chain.doFilter(request, response);
