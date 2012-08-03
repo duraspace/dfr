@@ -15,8 +15,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * The root application configuration class.
@@ -24,16 +26,19 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * @author Daniel Bernstein
  * 
  */
-public class SetupCheckFilter implements Filter {
+@Component("setupCheckFilter")
+public class SetupCheckFilter implements Filter, ApplicationContextAware {
+
+    private static final String SETUP_PATH = "/setup";
+    private static final String[] EXEMPT_PATHS =
+        { SETUP_PATH, "/init", "/ajax" };
 
     private SyncConfigurationManager syncConfigurationManager;
 
+    private ApplicationContext applicationContext;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        WebApplicationContext springContext =
-            WebApplicationContextUtils.getWebApplicationContext(filterConfig.getServletContext());
-        this.syncConfigurationManager =
-            springContext.getBean(SyncConfigurationManager.class);
     }
 
     @Override
@@ -43,28 +48,47 @@ public class SetupCheckFilter implements Filter {
         throws IOException,
             ServletException {
 
+        if (this.syncConfigurationManager == null) {
+            this.syncConfigurationManager =
+                applicationContext.getBean(SyncConfigurationManager.class);
+        }
+
         HttpServletRequest hrequest = (HttpServletRequest) request;
 
-        String path = hrequest.getRequestURI();
-
-        String setupPath = hrequest.getContextPath() + "/setup";
-        String ajax = hrequest.getContextPath() + "/ajax";
-        
-        
-
         if (this.syncConfigurationManager.isConfigurationComplete()
-            || path.startsWith(setupPath) || path.startsWith(ajax)) {
+            || isExemptPath((hrequest))) {
             chain.doFilter(request, response);
         } else {
             HttpServletResponse hresponse = (HttpServletResponse) response;
-            hresponse.sendRedirect(setupPath);
+            hresponse.sendRedirect(hrequest.getContextPath() + SETUP_PATH);
         }
+
+    }
+
+    private boolean isExemptPath(HttpServletRequest r) {
+        String path = r.getRequestURI();
+        String c = r.getContextPath();
+
+        for (String p : EXEMPT_PATHS) {
+            if (path.startsWith(c + p)) {
+                return true;
+            }
+        }
+
+        return false;
 
     }
 
     @Override
     public void destroy() {
         // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext)
+        throws BeansException {
+        this.applicationContext = applicationContext;
 
     }
 

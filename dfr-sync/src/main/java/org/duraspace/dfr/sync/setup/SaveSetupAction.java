@@ -8,6 +8,7 @@ import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,20 +23,22 @@ public class SaveSetupAction {
     private SyncConfigurationManager syncConfigurationManager;
 
     @Autowired
-    public SaveSetupAction(SyncConfigurationManager syncConfigurationManager) {
+    public SaveSetupAction(
+        @Qualifier("syncConfigurationManager") SyncConfigurationManager syncConfigurationManager) {
         this.syncConfigurationManager = syncConfigurationManager;
     }
 
     public String execute(DuracloudCredentialsForm credentials,
                           SpaceForm spaceForm,
-                          DirectoryConfigs configs) throws Exception {
+                          DirectoryConfigs configs) {
         syncConfigurationManager.persistDuracloudConfiguration(credentials.getUsername(),
                                                                credentials.getPassword(),
                                                                credentials.getHost(),
                                                                credentials.getPort(),
                                                                spaceForm.getSpaceId());
         syncConfigurationManager.persistDirectoryConfigs(configs);
-        
+
+        log.info("successfully saved setup.");
         return "success";
     }
 }

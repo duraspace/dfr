@@ -5,6 +5,7 @@ package org.duraspace.dfr.sync.service;
 
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
+import org.springframework.stereotype.Component;
 
 /**
  * Provides persist operations for configuration related operations.
@@ -49,6 +50,11 @@ public interface SyncConfigurationManager {
     public boolean isConfigurationComplete();
 
     public void persistDirectoryConfigs(DirectoryConfigs configs);
+
+    public void setWorkingDirectory(String workingDirectory);
+
+    public void setConfigXmlPath(String configXml);
     
+    public void persist();
     
 }

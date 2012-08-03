@@ -36,7 +36,10 @@ public class SyncToolConfigSerializer {
         throws IOException {
         XStream xstream = new XStream();
         configure(xstream);
-        Writer w = new FileWriter(new File(syncToolConfigXmlPath));
+        File file = new File(syncToolConfigXmlPath);
+        file.getParentFile().mkdirs();
+        
+        Writer w = new FileWriter(file);
         xstream.toXML(syncToolConfig, w);
     }
 

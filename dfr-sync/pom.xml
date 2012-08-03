@@ -32,7 +32,7 @@
     <seleniumTests>**/Test*.class</seleniumTests>
     <jetty.port>8888</jetty.port>
   </properties>
-
+  
   <build>
     <plugins>
       <plugin>

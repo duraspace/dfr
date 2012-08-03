@@ -26,10 +26,10 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
     public void setUp() throws Exception {
         super.setup();
         configPath = System.getProperty("java.io.tmpdir")
-            + File.separator + ".dfr-sync-config";
+            + File.separator + ".dfr-sync-config" + System.currentTimeMillis();
         
-        System.setProperty("dfr.config.path", configPath);
         syncConfigurationManager = new SyncConfigurationManagerImpl();
+        syncConfigurationManager.setConfigXmlPath(configPath);
     }
     
     @Override
@@ -40,7 +40,6 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
 
     @Test
     public void testIsConfigurationCompleteFalse() {
-
         Assert.assertFalse(this.syncConfigurationManager.isConfigurationComplete());
     }
 

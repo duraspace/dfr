@@ -17,6 +17,8 @@ import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,62 +26,64 @@ import org.springframework.stereotype.Component;
  * @author Daniel Bernstein
  * 
  */
-@Component
+@Component("syncConfigurationManager")
 public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     private static Logger log =
         LoggerFactory.getLogger(SyncConfigurationManagerImpl.class);
     private SyncToolConfig syncToolConfig;
+    private String configXmlPath;
+
+    private static final String DEFAULT_WORKING_DIRECTORY =
+        System.getProperty("java.io.tmpdir")
+            + File.separator + ".dfr-sync-work";
+
+    private static final String DEFAULT_CONFIG_XML_PATH =
+        System.getProperty("user.home") + File.separator + ".dfr-sync-config";
 
     public SyncConfigurationManagerImpl() {
-        syncToolConfig = deserializeSyncToolConfig();
+        String configPath =
+            System.getProperty("dfr.config", DEFAULT_CONFIG_XML_PATH);
+        setConfigXmlPath(configPath);
+
+        initializeSyncToolConfig();
+
     }
 
-    private void persistSyncToolConfig() throws IOException {
-        SyncToolConfigSerializer.serialize(syncToolConfig,
-                                           getSyncToolConfigXmlPath());
-    }
-
-    private SyncToolConfig deserializeSyncToolConfig() {
-        SyncToolConfig config;
+    private void persistSyncToolConfig() throws RuntimeException {
         try {
-            config =
+            SyncToolConfigSerializer.serialize(syncToolConfig,
+                                               getSyncToolConfigXmlPath());
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private void initializeSyncToolConfig() {
+        try {
+            this.syncToolConfig =
                 SyncToolConfigSerializer.deserialize(getSyncToolConfigXmlPath());
         } catch (IOException ex) {
             log.warn("unable to deserialize sync config : " + ex.getMessage());
             log.info("creating new config...");
-            config = new SyncToolConfig();
-            initializeDefaultValues(config);
+            this.syncToolConfig = new SyncToolConfig();
+            initializeDefaultValues();
         }
 
-        return config;
     }
+    
+    
 
-    // FIXME - for testing purposes
-    private void initializeDefaultValues(SyncToolConfig config) {
-        config.setContext("durastore");
-        config.setExitOnCompletion(false);
-        config.setSyncDeletes(false);
+    private void initializeDefaultValues() {
+        this.syncToolConfig.setContext("durastore");
+        this.syncToolConfig.setExitOnCompletion(false);
+        this.syncToolConfig.setSyncDeletes(false);
         List<File> dirs = new ArrayList<File>();
-        config.setContentDirs(dirs);
-        File workDir =
-            new File(System.getProperty("java.io.tmpdir")
-                + File.separator + ".dfr-sync-work");
-        if (!workDir.mkdirs()) {
-            log.info(workDir.getAbsolutePath() + " already exists.");
-        }
-        config.setWorkDir(workDir);
+        this.syncToolConfig.setContentDirs(dirs);
+        setWorkingDirectory(DEFAULT_WORKING_DIRECTORY);
     }
 
     private String getSyncToolConfigXmlPath() {
-        String configPath =
-            System.getProperty("user.home")
-                + File.separator + ".dfr-sync-config";
-
-        if (System.getProperty("dfr.config.path") != null) {
-            configPath = System.getProperty("dfr.config.path");
-        }
-
-        return configPath;
+        return this.configXmlPath;
     }
 
     @Override
@@ -98,12 +102,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         }
 
         this.syncToolConfig.setSpaceId(spaceId);
-
-        try {
-            persistSyncToolConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        persistSyncToolConfig();
 
     }
 
@@ -135,12 +134,7 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
             dirs.add(new File(f.getDirectoryPath()));
         }
         this.syncToolConfig.setContentDirs(dirs);
-
-        try {
-            persistSyncToolConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        persistSyncToolConfig();
     }
 
     @Override
@@ -161,5 +155,30 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
         }
 
         return true;
+    }
+
+    @Override
+    public void setWorkingDirectory(String workingDirectory) {
+        File file = new File(workingDirectory);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        this.syncToolConfig.setWorkDir(file);
+        log.info("working directory set to {}", file);
+    }
+
+    @Override
+    public void setConfigXmlPath(String configXml) {
+        if(this.configXmlPath != configXml){
+            this.configXmlPath = configXml;
+            initializeSyncToolConfig();
+        }
+        log.info("xml config path set to {}", this.configXmlPath);
+        
+    }
+
+    @Override
+    public void persist() {
+        persistSyncToolConfig();
     }
 }

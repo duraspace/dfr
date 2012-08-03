@@ -30,10 +30,10 @@ public class TestSetupWizard extends BaseSeleniumTest {
         log.debug("welcome screen ok");
         //enter credentials screen
         Assert.assertTrue(isTextPresent("Username"));
-        sc.type("id=username", System.getProperty("duracloud.username", "admin"));
-        sc.type("id=password", System.getProperty("duracloud.password", "apw"));
-        sc.type("id=host", System.getProperty("duracloud.host", "danny.duracloud.org"));
-        sc.type("id=port", System.getProperty("duracloud.port", "443"));
+        sc.type("id=username", props.getProperty("username"));
+        sc.type("id=password", props.getProperty("password"));
+        sc.type("id=host", props.getProperty("host"));
+        sc.type("id=port", props.getProperty("port"));
 
         log.debug("credentials form filled out");
 
@@ -45,7 +45,7 @@ public class TestSetupWizard extends BaseSeleniumTest {
 
         log.debug("space selector page ready for input");
 
-        String duracloudSpaceId = System.getProperty("dfr.test.spaceId", "dfr-test");
+        String duracloudSpaceId = props.getProperty("spaceId");
         
         
         sc.select("id=spaceId", "value=" + duracloudSpaceId);
