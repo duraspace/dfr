@@ -3,25 +3,31 @@
  */
 package org.duraspace.dfr.sync.setup;
 
+import org.apache.commons.lang.StringUtils;
+import org.duraspace.dfr.sync.domain.DirectoryConfig;
+import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.webflow.action.AbstractAction;
-import org.springframework.webflow.execution.Event;
-import org.springframework.webflow.execution.RequestContext;
 
 /**
  * 
- * @author Daniel Bernstein 
+ * @author Daniel Bernstein
  * 
  */
 @Component
-public class AddDirectoryConfigAction extends AbstractAction {
-  
-    private static Logger log = LoggerFactory.getLogger(AddDirectoryConfigAction.class);
-    
-    public Event doExecute(RequestContext context) throws Exception {
-        log.debug("executing...");
-        return success();
+public class AddDirectoryConfigAction {
+
+    private static Logger log =
+        LoggerFactory.getLogger(AddDirectoryConfigAction.class);
+
+    public void execute(DirectoryConfigForm form, DirectoryConfigs directoryConfigs) throws Exception {
+        String path = form.getDirectoryPath();
+        if(StringUtils.isNotBlank(path)){
+            log.debug("adding selected directory {} to list", form.getDirectoryPath());
+            directoryConfigs.add(new DirectoryConfig(path));
+        }else{
+            log.debug("the directory path is blank; ignoring...");
+        }
     }
 }

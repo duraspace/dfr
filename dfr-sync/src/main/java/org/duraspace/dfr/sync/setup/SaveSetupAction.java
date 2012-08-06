@@ -3,35 +3,42 @@
  */
 package org.duraspace.dfr.sync.setup;
 
-import org.duraspace.dfr.sync.controller.SetupHelper;
+import org.duraspace.dfr.sync.domain.DirectoryConfigs;
+import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.webflow.action.AbstractAction;
-import org.springframework.webflow.execution.Event;
-import org.springframework.webflow.execution.RequestContext;
 
 /**
  * 
- * @author Daniel Bernstein 
+ * @author Daniel Bernstein
  * 
  */
 @Component
-public class SaveSetupAction extends AbstractAction {
-  
+public class SaveSetupAction {
+
     private static Logger log = LoggerFactory.getLogger(SaveSetupAction.class);
-    
+    private SyncConfigurationManager syncConfigurationManager;
+
     @Autowired
-    private SetupHelper setupHelper;
-    
-    public Event doExecute(RequestContext context) throws Exception {
-        log.debug("executing...");
-        setupHelper.setComplete(true);
-        return success();
+    public SaveSetupAction(
+        @Qualifier("syncConfigurationManager") SyncConfigurationManager syncConfigurationManager) {
+        this.syncConfigurationManager = syncConfigurationManager;
     }
-    
-    public void setSetupHelper(SetupHelper setupHelper){
-        this.setupHelper = setupHelper;
+
+    public String execute(DuracloudCredentialsForm credentials,
+                          SpaceForm spaceForm,
+                          DirectoryConfigs configs) {
+        syncConfigurationManager.persistDuracloudConfiguration(credentials.getUsername(),
+                                                               credentials.getPassword(),
+                                                               credentials.getHost(),
+                                                               credentials.getPort(),
+                                                               spaceForm.getSpaceId());
+        syncConfigurationManager.persistDirectoryConfigs(configs);
+
+        log.info("successfully saved setup.");
+        return "success";
     }
 }

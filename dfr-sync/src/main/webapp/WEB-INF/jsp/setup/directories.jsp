@@ -34,9 +34,20 @@
           </button>
         </thead>
         <tbody>
-          <tr>
-            <td>Directory Config List goes here.
-          </tr>
+          <c:choose>
+            <c:when test="${not empty directoryConfigs}">
+              <c:forEach
+                items="${directoryConfigs}"
+                var="dc">
+                <tr>
+                  <td>${dc.directoryPath}</td>
+                </tr>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <p>There are no configured directories at this time.</p>
+            </c:otherwise>
+          </c:choose>
         </tbody>
       </table>
       <fieldset class="button-bar">

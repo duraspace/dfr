@@ -4,6 +4,8 @@
 
 package org.duraspace.dfr.sync.service;
 
+import java.io.File;
+
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 import org.duraspace.dfr.test.AbstractTest;
@@ -14,28 +16,38 @@ import org.junit.Test;
 /**
  * 
  * @author Daniel Bernstein
- *
+ * 
  */
 public class SyncConfigurationManagerImplTest extends AbstractTest {
     private SyncConfigurationManager syncConfigurationManager;
+    private String configPath;
 
     @Before
     public void setUp() throws Exception {
         super.setup();
-        System.setProperty("dfr.test", "true");
+        configPath = System.getProperty("java.io.tmpdir")
+            + File.separator + ".dfr-sync-config" + System.currentTimeMillis();
+        
         syncConfigurationManager = new SyncConfigurationManagerImpl();
+        syncConfigurationManager.setConfigXmlPath(configPath);
+    }
+    
+    @Override
+    public void tearDown() {
+        new File(configPath).delete();
+        super.tearDown();
     }
 
     @Test
-    public void testIsConfigurationComplete() {
-        Assert.assertTrue(this.syncConfigurationManager.isConfigurationComplete());
+    public void testIsConfigurationCompleteFalse() {
+        Assert.assertFalse(this.syncConfigurationManager.isConfigurationComplete());
     }
 
     @Test
     public void testPersistDuracloudConfiguration() {
+
         String username = "username", password = "password", host =
-            "host.duracloud.org", spaceId = "test-space-id";
-        int port = 80;
+            "host.duracloud.org", spaceId = "test-space-id", port = "";
 
         this.syncConfigurationManager.persistDuracloudConfiguration(username,
                                                                     password,

@@ -8,6 +8,96 @@
   flush="true">
   <tiles:putAttribute
     name="content"
-    cascade="true">Configuration Content Goes Here</tiles:putAttribute>
+    cascade="true">
+
+    <div class="yui3-g">
+      <div
+        id="watched-directories"
+        class="yui3-u-1-2 ">
+        <div class="content">
+          <div class="section top">
+            <div class="header">
+              <span> <spring:message code="watchedDirectories" />
+              </span>
+              <!-- 
+              <ul class="button-bar">
+                <li><a
+                  href="#"
+                  id="add"> <spring:message code="add" />
+                </a></li>
+              </ul>
+               -->
+              
+            </div>
+            <div class="body">
+              <table id="directories">
+                <tbody>
+                  <c:choose>
+                    <c:when test="${not empty directoryConfigs}">
+                      <c:forEach
+                        items="${directoryConfigs}"
+                        var="dc">
+                        <tr>
+                          <td>${dc.directoryPath}</td>
+                        </tr>
+                      </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                      <p>There are no configured directories at this time.</p>
+                    </c:otherwise>
+                  </c:choose>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+            <div
+        id="duracloud-configuration"
+        class="yui3-u-1-2 ">
+        <div class="content">
+          <div class="section top">
+            <div class="header">
+              <span> <spring:message code="duracloudConfiguration" /></span>
+              <!-- 
+              <ul class="button-bar">
+                <li><a
+                  href="#"
+                  id="edit"> <spring:message code="edit" />
+                </a></li>
+              </ul>
+               -->              
+              
+            </div>
+            <div class="body">
+              <table>
+                <tr>
+                  <td>Username</td>
+                  <td>${duracloudConfiguration.username}</td>
+                </tr>
+                <tr>
+                  <td>Host</td>
+                  <td>${duracloudConfiguration.host}</td>
+                </tr>
+                <c:if test="${!empty port}">
+                  <tr>
+                    <td>Port</td>
+                    <td>${duracloudConfiguration.port}</td>
+                  </tr>
+                </c:if>
+                <tr>
+                  <td>SpaceId</td>
+                  <td>${duracloudConfiguration.spaceId}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+
+  </tiles:putAttribute>
 </tiles:insertDefinition>
 

@@ -20,11 +20,23 @@ file="../include/libraries.jsp"%>
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
+
+            <label>Select Path</label>
+
+            <div
+             id="filetree"
+             style="height: 300px; width: 300px; overflow: auto; background-color: #FFF">
+            <!--  -->
+            </div>
+
     <form:form
      method="POST"
      modelAttribute="directoryConfigForm">
       <fieldset>
+
+
         <ol>
+
           <li>
             <form:label
              cssErrorClass="error"
@@ -33,15 +45,12 @@ file="../include/libraries.jsp"%>
                code="directoryPath" />
             </form:label>
 
-            <form:input
-             cssErrorClass="error"
-             path="directoryPath"
-             autofocus="true" />
+            <form:hidden id="directoryPath"
+             path="directoryPath" />
 
-            <form:errors
-             path="directoryPath"
-             cssClass="error"
-             element="div" />
+            <span
+             id="directoryPathText">
+            </span>
           </li>
         </ol>
       </fieldset>
@@ -65,6 +74,20 @@ file="../include/libraries.jsp"%>
         </button>
       </fieldset>
     </form:form>
+
+<script xml:space="preserve">
+                    $(function() {
+
+                        $('#filetree').fileTree({
+                            root : '',
+                            script : '${pageContext.request.contextPath}/ajax/jqueryFileTree'
+                        }, function(file) {
+                            $("#directoryPathText").html(file);
+                            $("#directoryPath").val(file);
+                        });
+                    });
+                
+</script>
   </tiles:putAttribute>
 </tiles:insertDefinition>
 

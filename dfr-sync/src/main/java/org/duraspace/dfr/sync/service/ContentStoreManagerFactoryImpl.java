@@ -8,6 +8,7 @@ import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,7 +23,7 @@ public class ContentStoreManagerFactoryImpl
 
     @Autowired
     public ContentStoreManagerFactoryImpl(
-        SyncConfigurationManager syncConfigurationManager) {
+        @Qualifier("syncConfigurationManager") SyncConfigurationManager syncConfigurationManager) {
         this.syncConfigurationManager = syncConfigurationManager;
     }
 

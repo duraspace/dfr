@@ -32,10 +32,38 @@
     <seleniumTests>**/Test*.class</seleniumTests>
     <jetty.port>8888</jetty.port>
   </properties>
-
+  
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>**/*.jsp</include>
+              </includes>
+              <filtering>true</filtering>
+            </resource>
+          </webResources>
+          <overlays>
+            <overlay>
+              <groupId>org.duracloud</groupId>
+              <artifactId>jquery-war</artifactId>
+              <type>war</type>
+            </overlay>
+            
+            <overlay>
+              <groupId>org.duracloud</groupId>
+              <artifactId>jquery-ui-war</artifactId>
+              <type>war</type>
+            </overlay>
 
+          </overlays>
+        </configuration>
+      </plugin>
      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -85,12 +113,15 @@
           <systemProperties>
             <systemProperty>
               <name>jetty.port</name>
-              <value>8888</value>
+              <value>${jetty.port}</value>
             </systemProperty>
           </systemProperties>
           <webApp>
-            <contextPath>/${project.artifactId}</contextPath>
+           <contextPath>/${project.artifactId}</contextPath>
           </webApp>
+          <webAppConfig>
+            <unpackOverlays>true</unpackOverlays>
+          </webAppConfig>
           <stopKey>foo</stopKey>
           <stopPort>9999</stopPort>
         </configuration>
@@ -105,6 +136,12 @@
               <skip>${skipITs}</skip>
               <scanIntervalSeconds>0</scanIntervalSeconds>
               <daemon>true</daemon>
+              <systemProperties>
+                <systemProperty>
+                  <name>jetty.port</name>
+                  <value>${jetty.port}</value>
+                </systemProperty>
+              </systemProperties>
             </configuration>
           </execution>
           <execution>
@@ -192,11 +229,24 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>jquery-war</artifactId>
+      <type>war</type>
+      <version>1.7.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.duracloud</groupId>
+      <artifactId>jquery-ui-war</artifactId>
+      <type>war</type>
+      <version>1.8.6</version>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>8.1.3.v20120416</version>
     </dependency>
-
+    
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>jcl-over-slf4j</artifactId>

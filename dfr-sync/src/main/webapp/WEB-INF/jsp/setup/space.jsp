@@ -33,10 +33,11 @@ file="../include/libraries.jsp"%>
                code="spaceId" />
             </form:label>
 
-            <form:input
+            <form:select
              cssErrorClass="error"
              path="spaceId"
-             autofocus="true" />
+             items="${spaces}"
+             autofocus="true"/>
 
             <form:errors
              path="spaceId"

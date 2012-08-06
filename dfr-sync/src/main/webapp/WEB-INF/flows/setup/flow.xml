@@ -16,8 +16,11 @@
     <transition on="cancel" to="end" validate="false" />
   </view-state>
 
+
   <decision-state id="isSpaceAvailable">
     <on-entry>
+  <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
+    result="requestScope.contentStore" />
       <evaluate expression="contentStore.getSpaces()" result="flowScope.spaces" />
     </on-entry>
     <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError" />
@@ -54,7 +57,7 @@
   </view-state>
 
   <action-state id="addDirectoryConfig">
-    <evaluate expression="addDirectoryConfigAction" />
+    <evaluate expression="addDirectoryConfigAction.execute(flowScope.directoryConfigForm, flowScope.directoryConfigs)" />
     <transition to="directoryConfigsList" />
   </action-state>
 
@@ -66,7 +69,9 @@
   </view-state>
 
   <action-state id="saveSetup">
-    <evaluate expression="saveSetupAction" />
+    <evaluate
+
+      expression="saveSetupAction.execute(flowScope.duracloudCredentialsForm, flowScope.spaceForm, flowScope.directoryConfigs)" />
     <transition to="finish" />
   </action-state>
 

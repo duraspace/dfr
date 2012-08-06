@@ -3,8 +3,16 @@
  */
 package org.duraspace.dfr.sync.selenium;
 
+import java.util.List;
+import java.util.Properties;
+
+import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.model.Credential;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +25,16 @@ import com.thoughtworks.selenium.Selenium;
  */
 public abstract class BaseSeleniumTest {
 
-
+    // initialize dfr-sync with test config
+    protected Properties props = null;
+    
     protected static Logger log =
         LoggerFactory.getLogger(BaseSeleniumTest.class);
 
     protected Selenium sc;
+
+    public static String DEFAULT_PAGE_LOAD_WAIT_IN_MS = "60000";
+
     private static String DEFAULT_PORT = "8888";
 
     protected String getAppRoot() {
@@ -35,15 +48,47 @@ public abstract class BaseSeleniumTest {
 
 
 
+    protected String getBaseUrl() throws Exception {
+        return "http://localhost:" + getPort() + getAppRoot();
+    }
     @Before
     public void before() throws Exception {
-        String url = "http://localhost:" + getPort() + getAppRoot() + "/";
+        String url = getBaseUrl() + "/";
         sc = createSeleniumClient(url);
         sc.start();
         log.info("started selenium client on " + url);
+        props = getProperties();
+    }
+    
+    protected static Properties getProperties() throws Exception{
+        Properties p = new Properties();
+        p.load(BaseSeleniumTest.class.getClassLoader()
+                   .getResourceAsStream("test-init.properties"));
+
+        return p;
     }
 
 
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+       Properties properties = getProperties();
+       String username = properties.getProperty("username");
+       String password = properties.getProperty("password");
+       String host = properties.getProperty("host");
+       String port = properties.getProperty("port");
+       String spaceId = properties.getProperty("spaceId");
+       
+       ContentStoreManager csm = new ContentStoreManagerImpl(host, port);
+       
+       csm.login(new Credential(username, password));
+       
+       ContentStore cs = csm.getPrimaryContentStore();
+       List<String> spaces = cs.getSpaces();
+       
+       if(!spaces.contains(spaceId)){
+           cs.createSpace(spaceId, null);
+       }
+    }
 
 
     @After
@@ -81,10 +126,6 @@ public abstract class BaseSeleniumTest {
         log.debug("clicked " + locator);
         waitForPage(sc);
     }
-
-    
-    public static String DEFAULT_PAGE_LOAD_WAIT_IN_MS = "30000";
-    
 
     
 
