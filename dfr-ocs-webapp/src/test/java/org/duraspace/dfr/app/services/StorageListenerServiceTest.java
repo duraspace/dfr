@@ -1,13 +1,11 @@
-package services;
+package org.duraspace.dfr.app.services;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//import org.springframework.jms.listener.DefaultMessageListenerContainer;
-import org.springframework.jms.listener.SimpleMessageListenerContainer;
-import javax.jms.ExceptionListener;
+import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,17 +14,19 @@ import javax.jms.ExceptionListener;
  * Time: 4:14 PM
  * To change this template use File | Settings | File Templates.
  */
-public class ReceiverServiceTest {
+public class StorageListenerServiceTest {
 
     private static final Logger logger = LoggerFactory.getLogger(
-        ReceiverServiceTest.class);
+        StorageListenerServiceTest.class);
 
     //SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 
     @Test
-    public void basicTest() {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        ReceiverService service = new ReceiverService(container);
+    public void constructorTest() {
+        DefaultMessageListenerContainer container =
+            new DefaultMessageListenerContainer();
+        assertNotNull(container);
+        StorageListenerService service = new StorageListenerService(container);
         assertNotNull(service);
     }
 }

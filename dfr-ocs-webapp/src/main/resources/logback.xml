@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+  <!--
+    | Appenders
+    +-->
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%-3p [%t]: %c{3}@%L %d %m %n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>dcs-ui.log</file>
+    <append>true</append>
+    <encoder>
+      <pattern>%-3p [%t]: %c{3}@%L %d %m %n</pattern>
+    </encoder>
+  </appender>
+
+  <!--
+  | Loggers
+  +-->
+
+  <root level="ERROR">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </root>
+
+  <logger name="org.duraspace.dfr.app" level="DEBUG" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <logger name="org.springframework" level="WARN" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <logger name="org.springframework.web" level="WARN" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <logger name="org.springframework.security" additivity="false" level="WARN">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <!--
+  | "Useful" classes
+  |
+  | Adusting the log level of these classes can be useful (e.g. to DEBUG or TRACE),
+  | because they give specific insight into what the system is doing, without
+  | requring you to set the entire package (like Spring Security) to DEBUG or TRACE.
+  +-->
+
+  <!-- Logs interactions of the UI with the DCS Archive -->
+  <logger name="org.duraspace.dfr.app.services.StorageListenerService" additivity="false" level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <!-- Setting this logger to DEBUG will reveal all HTTP traffic -->
+  <logger name="org.apache.http.wire" additivity="false" level="ERROR">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+  <!--
+  | "Noisy" classes
+  |
+  | These classes are typically noisy at DEBUG or INFO levels, so we call them
+  | out here, and mute them by setting them to ERROR or WARN levels.
+  +-->
+
+  <logger name="org.springframework.beans.factory.support.DefaultListableBeanFactory" additivity="false" level="ERROR">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+</configuration>
