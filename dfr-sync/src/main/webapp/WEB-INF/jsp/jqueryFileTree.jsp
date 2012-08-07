@@ -13,7 +13,7 @@
     <c:if test="${child.directory}">
       <li class="directory collapsed"><a
         href="#"
-        rel="${child.absolutePath}/"> ${child.name}</a></li>
+        rel="${child.getAbsolutePath()}/"> ${child.getName()}</a></li>
     </c:if>
   </c:forEach>
   <c:forEach
@@ -31,7 +31,7 @@
 
       <li class="file ext_${ext}"><a
         href="#"
-        rel="${child.absolutePath}"> ${child.name}</a></li>
+        rel="${child.getAbsolutePath()}"> ${child.getName()}</a></li>
     </c:if>
   </c:forEach>
 </ul>

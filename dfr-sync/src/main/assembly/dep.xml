@@ -15,13 +15,24 @@
     <fileSet>
       <directory>target/classes</directory>
       <outputDirectory></outputDirectory>
-    </fileSet>    
+    </fileSet>
+
   </fileSets>
 
   <dependencySets>
     <dependencySet>
       <unpack>true</unpack>
+      <!-- I added the exclusion below because jetty unpacking routine was blowing up
+          when a LICENSE file was present at the same level as a license directory.
+          -dbernstein
+       -->
+      <unpackOptions>
+        <excludes>
+          <exclude>LICENSE</exclude>
+        </excludes>
+      </unpackOptions>
     </dependencySet>
+
   </dependencySets>
 
 </assembly>
