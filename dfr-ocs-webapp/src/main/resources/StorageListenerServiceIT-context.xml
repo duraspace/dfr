@@ -52,7 +52,7 @@
   -->
 
   <!-- this is the Message Driven POJO (MDP) -->
-  <bean id="messageListener" class="org.duraspace.dfr.app.services.DfRMessageListener"/>
+  <bean id="messageListener" class="org.duraspace.dfr.app.services.MockBasicMessageListener"/>
 
   <!--  ActiveMQ destinations to use  -->
   <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic">

@@ -3,6 +3,7 @@ package org.duraspace.dfr.app.services;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import org.junit.*;
+//import org.junit.Assert.*;
 import org.junit.runner.RunWith;
 import org.junit.Test;
 
@@ -35,9 +36,11 @@ public class StorageListenerServiceIT {
     //@Qualifier("storageListenerService")
     //private StorageListenerService service;
 
-    //@Autowired
-    //@Qualifier("messageListener")
-    //private DfRMessageListener listener;
+    // DWD: Note, even though this an integration test, we may change this
+    // to a Mockito mocked object.
+    @Autowired
+    @Qualifier("messageListener")
+    private MockBasicMessageListener messageListener;
 
     @Autowired
     @Qualifier("connectionFactory")
@@ -80,6 +83,8 @@ public class StorageListenerServiceIT {
             producer = session.createProducer(null);
 
             try {
+                // If these sends go through a local vm broker URI, they may
+                // happen too fast.  Give them a little time.
                 Thread.sleep(10);
                 sendMessage(session, producer);
                 Thread.sleep(10);
@@ -94,6 +99,9 @@ public class StorageListenerServiceIT {
         } catch (JMSException e) {
             logger.info("Failed to create send test connection.");
         }
+
+        // Check the number of messages sent.
+        Assert.assertEquals(messageListener.getMessageCounter(), 3);
 
     }
 
@@ -110,8 +118,8 @@ public class StorageListenerServiceIT {
 
             // Tell the producer to send the message
             logger.info("Sending message: " +
-                        message.hashCode()  +
-                        " : " + Thread.currentThread().getName());
+                message.hashCode() +
+                " : " + Thread.currentThread().getName());
 
             producer.send(destination, message);
 

@@ -6,11 +6,11 @@ import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.util.ErrorHandler;
 
 /**
- * Implements the MDP service.
+ * Implements the service that wraps a storage-related MDP. It supports Spring
+ * error handling that may occur during asynchronous execution where it may
+ * not be possible to throw the error to the original caller.
  *
- * Currently this duplicated code that is found in the dfr-ocs. The code
- * should be one place or the other. If modified to use dfr-ocs classes
- * this code can be moved to test and repurposed as testing framework.
+ * As written, this is dependent on the Spring JMS framework support.
  */
 public class StorageListenerService implements ErrorHandler {
 
@@ -24,7 +24,7 @@ public class StorageListenerService implements ErrorHandler {
     /**
      * Creates an instance.
      *
-     * @param container the container impl to connect to the broker.
+     * @param container the listener container impl to connect to the broker.
      */
     public StorageListenerService(DefaultMessageListenerContainer container) {
         logger.debug("Constructing a StorageListenerService");
@@ -39,6 +39,9 @@ public class StorageListenerService implements ErrorHandler {
     /**
      * Releases any resources held by this class.
      * NOTE: This does NOT close the message listener given in the constructor.
+     * DWD: This may interfere with HA functionality (or may help it) since
+     * many Spring listener containers and the JMS brokers have recovery
+     * functionality included in them.
      */
     public void close() {
         logger.info("Disconnecting from message broker");
