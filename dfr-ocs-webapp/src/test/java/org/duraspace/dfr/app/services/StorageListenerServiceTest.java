@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
+import javax.jms.JMSException;
+
 /**
  * Created with IntelliJ IDEA.
  * User: ddavis
@@ -19,13 +21,13 @@ public class StorageListenerServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(
         StorageListenerServiceTest.class);
 
-    //SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-
     @Test
     public void constructorTest() {
         DefaultMessageListenerContainer container =
             new DefaultMessageListenerContainer();
         assertNotNull(container);
+
+        // TODO: Move to Spring Config
         StorageListenerService service = new StorageListenerService(container);
         assertNotNull(service);
     }

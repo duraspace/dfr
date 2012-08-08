@@ -92,12 +92,6 @@
           </contextHandlers>
           -->
           <systemProperties>
-            <!--
-            <systemProperty>
-              <name>logback.configurationFile</name>
-              <value>${project.basedir}/src/main/resources/logback.xml</value>
-            </systemProperty>
-            -->
             <systemProperty>
               <name>dfr.ocs.home</name>
               <value>${project.build.directory}</value>
@@ -163,13 +157,6 @@
       <artifactId>spring-beans</artifactId>
       <scope>runtime</scope>
     </dependency>
-
-    <!--
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>jcl-over-slf4j</artifactId>
-    </dependency>
-    -->
 
     <dependency>
       <groupId>org.apache.activemq</groupId>

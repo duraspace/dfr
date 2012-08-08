@@ -1,6 +1,7 @@
 package org.duraspace.dfr.app.services;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.jms.core.JmsTemplate;
 
 import javax.jms.*;
 
@@ -14,13 +15,19 @@ import javax.jms.*;
 public class DfRMessageProducer {
 
     private ActiveMQConnectionFactory connectionFactory;
+    private JmsTemplate jmsTemplate;
+    private Topic topic;
+
 
     public DfRMessageProducer(ActiveMQConnectionFactory factory) {
         connectionFactory = factory;
+        //this.jmsTemplate = new JmsTemplate(factory);
+        //this.topic = new Topic("org.duracloud.topic.change.content.ingest");
     }
 
     public void sendMessage() {
 
+        System.out.println("Sending a message.");
         try {
 
             // Create a ConnectionFactory
@@ -37,26 +44,28 @@ public class DfRMessageProducer {
 
             // Create the destination (Topic or Queue)
             Destination destination =
-                session.createTopic("org.duracloud.topic.change.content.ingest");
+                session.createQueue("org.duracloud.topic.change.content.ingest");
 
             // Create a MessageProducer from the Session to the Topic or Queue
             MessageProducer producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+            //producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
             // Create a good message
-            MapMessage message = session.createMapMessage();
+            TextMessage message = session.createTextMessage("A message.");
+
+            //MapMessage message = session.createMapMessage();
             message.setJMSMessageID("messageId");
-            message.setString("spaceId", "spaceId");
-            message.setString("storeId", "storeId");
-            message.setString("contentId", "contentId");
+            //message.setString("spaceId", "spaceId");
+            //message.setString("storeId", "storeId");
+            //message.setString("contentId", "contentId");
 
             // Tell the producer to send the message
             System.out.println("Sent message: "+ message.hashCode() + " : " + Thread.currentThread().getName());
             producer.send(message);
 
             // Clean up
-            session.close();
-            connection.close();
+            //session.close();
+            //connection.close();
 
         } catch (Exception e) {
             System.out.println("Caught: " + e);

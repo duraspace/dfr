@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.util.ErrorHandler;
 
+import javax.jms.*;
+
 /**
  * Created with IntelliJ IDEA.
  * User: ddavis
@@ -17,7 +19,7 @@ public class StorageListenerService implements ErrorHandler {
     private static final Logger logger =
         LoggerFactory.getLogger(StorageListenerService.class);
 
-    private final DefaultMessageListenerContainer container;
+    private DefaultMessageListenerContainer container;
 
     private Throwable lastError;
 
@@ -27,18 +29,9 @@ public class StorageListenerService implements ErrorHandler {
      * @param container the container impl to connect to the broker.
      */
     public StorageListenerService(DefaultMessageListenerContainer container) {
-        System.out.println("Creating the storage message listener container");
-        logger.info("Creating the storage message listener container");
+        logger.debug("Constructing a StorageListenerService");
         this.container = container;
-        //ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
-        //factory.setBrokerURL(ITConstants.DURACLOUD_BROKER_URL);
-        //container.setConnectionFactory(factory);
-        //container.setDestination(new ActiveMQTopic(Constants.INGEST_TOPIC +
-        //    "," + Constants.DELETE_TOPIC));
-        //container.setMessageListener(listener);
-        //container.setErrorHandler(this);
-        //container.start();
-        //container.initialize();
+        this.container.setErrorHandler(this);
     }
 
     public DefaultMessageListenerContainer getContainer() {
