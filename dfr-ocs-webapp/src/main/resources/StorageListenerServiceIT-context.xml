@@ -17,7 +17,7 @@
   <!--
   <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
     <property name="config" ref="brokerURL" />
-    <property name="start" value="true" />                                                                                 implements ErrorHandler
+    <property name="start" value="true" />
   </bean>
   -->
 
@@ -72,11 +72,9 @@
   </bean>
 
   <!-- and this is the storage message listener service -->
-  <!--
   <bean id="storageListenerService" class="org.duraspace.dfr.app.services.StorageListenerService">
-    <constructor-arg ref="messageContainer"/>
+    <constructor-arg ref="listenerContainer"/>
   </bean>
-  -->
 
   <!--
   <bean id="jmsQueueTemplate" class="org.springframework.jms.core.JmsTemplate">

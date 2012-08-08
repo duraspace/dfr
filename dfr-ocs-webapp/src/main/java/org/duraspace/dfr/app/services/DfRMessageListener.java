@@ -22,16 +22,27 @@ public class DfRMessageListener implements MessageListener {
     }
 
     public void onMessage(Message message) {
+
         // If this is a well-formed DuraCloud message?
-        if (message instanceof TextMessage) {
-            logger.debug("Received a well-formed DuraCloud message.");
-            //message.setJMSMessageID("messageId");
-            //message.setString("spaceId", "spaceId");
-            //message.setString("storeId", "storeId");
-            //message.setString("contentId", "contentId");
+        if (message instanceof MapMessage) {
+
+            logger.debug("Received a well-formed DuraCloud message");
+
+            try {
+
+                String messageID = message.getJMSMessageID();
+                //message.setString("spaceId", "spaceId");
+                //message.setString("storeId", "storeId");
+                //message.setString("contentId", "contentId");
+                logger.debug("Message ID - " + messageID);
+
+            } catch (JMSException e) {
+                logger.debug("Unable to get message contents");
+            }
         } else {
            logger.debug("The message was not a well-formed DuraCloud message");
         }
+
     }
 
 }

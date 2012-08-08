@@ -2,6 +2,7 @@ package org.duraspace.dfr.app.services;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import org.apache.activemq.benchmark.Producer;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -31,9 +32,9 @@ public class StorageListenerServiceIT {
     private Logger logger =
         LoggerFactory.getLogger(this.getClass());
 
-    //@Autowired
-    //@Qualifier("storageListenerService")
-    //private StorageListenerService service;
+    @Autowired
+    @Qualifier("storageListenerService")
+    private StorageListenerService service;
 
     //@Autowired
     //@Qualifier("messageListener")
@@ -47,15 +48,9 @@ public class StorageListenerServiceIT {
     @Qualifier("listenerContainer")
     private DefaultMessageListenerContainer listenerContainer;
 
-    StorageListenerService service;
-
-    Session session;
-
     @Autowired
     @Qualifier("destination")
     private Destination destination;
-
-    MessageProducer producer;
 
     @BeforeClass
     public static void runBeforeClass() {
@@ -75,50 +70,54 @@ public class StorageListenerServiceIT {
     @Test
     public void testListener() {
 
+        Session session;
+        MessageProducer producer;
+
         try {
-            service = new StorageListenerService(listenerContainer);
 
             Connection connection = connectionFactory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             producer = session.createProducer(null);
-        } catch (Exception e) {
-            System.out.println("Failed to create connection.");
-        }
 
-        try {
-            sendMessage();
-            Thread.sleep(10);
-            sendMessage();
-            Thread.sleep(10);
-            sendMessage();
-            Thread.sleep(10);
-        } catch (Exception e) {
-            System.out.println("Failed to send the fracking message." + e);
-            e.printStackTrace();
+            try {
+                Thread.sleep(10);
+                sendMessage(session, producer);
+                Thread.sleep(10);
+                sendMessage(session, producer);
+                Thread.sleep(10);
+                sendMessage(session, producer);
+                Thread.sleep(10);
+            } catch (Exception e) {
+                logger.info("Failed to send the test message - " + e);
+            }
+
+        } catch (JMSException e) {
+            logger.info("Failed to create send test connection.");
         }
 
     }
 
-    public void sendMessage() {
+    public void sendMessage(Session session, MessageProducer producer) {
 
         try {
-            // Create a good message
-            TextMessage message = session.createTextMessage("A message.");
 
-            //MapMessage message = session.createMapMessage();
+            // Create a good DuraCloud message
+            MapMessage message = session.createMapMessage();
             message.setJMSMessageID("messageId");
-            //message.setString("spaceId", "spaceId");
-            //message.setString("storeId", "storeId");
-            //message.setString("contentId", "contentId");
+            message.setString("spaceId", "spaceId");
+            message.setString("storeId", "storeId");
+            message.setString("contentId", "contentId");
 
             // Tell the producer to send the message
-            System.out.println("Sent message: "+ message.hashCode() +
-                               " : " + Thread.currentThread().getName());
+            logger.info("Sending message: " +
+                        message.hashCode()  +
+                        " : " + Thread.currentThread().getName());
 
             producer.send(destination, message);
+
         } catch (JMSException e) {
-            logger.info("Unable to send message");
+            logger.info("Unable to send test message");
         }
 
     }
