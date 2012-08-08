@@ -7,14 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 
-import javax.jms.JMSException;
-
 /**
- * Created with IntelliJ IDEA.
- * User: ddavis
- * Date: 7/29/12
- * Time: 4:14 PM
- * To change this template use File | Settings | File Templates.
+ * Unit test for the storage listener service.
+ *
+ * DWD: This test barely has anything in it yet and needs to be extended to
+ * cover the MDP.
  */
 public class StorageListenerServiceTest {
 
@@ -23,12 +20,16 @@ public class StorageListenerServiceTest {
 
     @Test
     public void constructorTest() {
+
+        // Just a placeholder for real tests.
+        logger.debug("Performing constructor test");
+
         DefaultMessageListenerContainer container =
             new DefaultMessageListenerContainer();
         assertNotNull(container);
 
-        // TODO: Move to Spring Config
         StorageListenerService service = new StorageListenerService(container);
         assertNotNull(service);
+
     }
 }

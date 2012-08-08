@@ -6,15 +6,14 @@ import org.slf4j.LoggerFactory;
 import javax.jms.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ddavis
- * Date: 8/6/12
- * Time: 5:23 PM
- * To change this template use File | Settings | File Templates.
+ * Provides a webapp JMS message listener.
+ *
+ * DWD: This is to be replaced by the one in dfr-ocs and will move to the test
+ * code.
  */
 public class DfRMessageListener implements MessageListener {
 
-    private Logger logger =
+    private static final Logger logger =
         LoggerFactory.getLogger(DfRMessageListener.class);
 
     public DfRMessageListener() {

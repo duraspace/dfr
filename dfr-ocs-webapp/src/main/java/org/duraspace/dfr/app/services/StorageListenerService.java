@@ -5,21 +5,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.util.ErrorHandler;
 
-import javax.jms.*;
-
 /**
- * Created with IntelliJ IDEA.
- * User: ddavis
- * Date: 7/29/12
- * Time: 2:49 PM
- * To change this template use File | Settings | File Templates.
+ * Implements the MDP service.
+ *
+ * Currently this duplicated code that is found in the dfr-ocs. The code
+ * should be one place or the other. If modified to use dfr-ocs classes
+ * this code can be moved to test and repurposed as testing framework.
  */
 public class StorageListenerService implements ErrorHandler {
 
     private static final Logger logger =
         LoggerFactory.getLogger(StorageListenerService.class);
 
-    private DefaultMessageListenerContainer container;
+    final private DefaultMessageListenerContainer container;
 
     private Throwable lastError;
 

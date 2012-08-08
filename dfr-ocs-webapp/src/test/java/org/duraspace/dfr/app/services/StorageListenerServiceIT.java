@@ -2,8 +2,6 @@ package org.duraspace.dfr.app.services;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
-import org.apache.activemq.benchmark.Producer;
-import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.Test;
@@ -19,22 +17,23 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import javax.jms.*;
 
 /**
- * Created with IntelliJ IDEA.
- * User: ddavis
- * Date: 7/29/12
- * Time: 4:14 PM
- * To change this template use File | Settings | File Templates.
+ * Integration test of the storage listener service messaging using an
+ * container internal broker and a mocked test receiver.
+ *
+ * DWD: Note this is incomplete. It really does not automatically check
+ * the results yet but it serves to provide a driver for messaging tests.
+ * It will be completed as the MDP framework is fleshed out.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/StorageListenerServiceIT-context.xml")
 public class StorageListenerServiceIT {
 
-    private Logger logger =
-        LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger =
+        LoggerFactory.getLogger(StorageListenerServiceIT.class);
 
-    @Autowired
-    @Qualifier("storageListenerService")
-    private StorageListenerService service;
+    //@Autowired
+    //@Qualifier("storageListenerService")
+    //private StorageListenerService service;
 
     //@Autowired
     //@Qualifier("messageListener")
@@ -44,9 +43,9 @@ public class StorageListenerServiceIT {
     @Qualifier("connectionFactory")
     private ActiveMQConnectionFactory connectionFactory;
 
-    @Autowired
-    @Qualifier("listenerContainer")
-    private DefaultMessageListenerContainer listenerContainer;
+    //@Autowired
+    //@Qualifier("listenerContainer")
+    //private DefaultMessageListenerContainer listenerContainer;
 
     @Autowired
     @Qualifier("destination")
