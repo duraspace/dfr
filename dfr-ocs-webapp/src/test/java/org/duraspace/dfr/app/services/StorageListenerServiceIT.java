@@ -85,13 +85,13 @@ public class StorageListenerServiceIT {
             try {
                 // If these sends go through a local vm broker URI, they may
                 // happen too fast.  Give them a little time.
-                Thread.sleep(10);
+                Thread.sleep(30);
                 sendMessage(session, producer);
-                Thread.sleep(10);
+                Thread.sleep(30);
                 sendMessage(session, producer);
-                Thread.sleep(10);
+                Thread.sleep(30);
                 sendMessage(session, producer);
-                Thread.sleep(10);
+                Thread.sleep(30);
             } catch (Exception e) {
                 logger.info("Failed to send the test message - " + e);
             }
