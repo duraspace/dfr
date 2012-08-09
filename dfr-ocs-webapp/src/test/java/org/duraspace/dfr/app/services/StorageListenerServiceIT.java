@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -26,7 +25,7 @@ import javax.jms.*;
  * It will be completed as the MDP framework is fleshed out.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/StorageListenerServiceIT-context.xml")
+@ContextConfiguration("classpath:/storageListenerServiceIT-context.xml")
 public class StorageListenerServiceIT {
 
     private static final Logger logger =
@@ -92,6 +91,9 @@ public class StorageListenerServiceIT {
                 Thread.sleep(30);
                 sendMessage(session, producer);
                 Thread.sleep(30);
+
+                connection.close();
+
             } catch (Exception e) {
                 logger.info("Failed to send the test message - " + e);
             }

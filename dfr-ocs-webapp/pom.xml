@@ -21,6 +21,9 @@
     <jetty.stop.port>8005</jetty.stop.port>
     <skipITs>true</skipITs>
     <jetty.skip>${skipITs}</jetty.skip>
+    <fedora.host>http://localhost:8080</fedora.host>
+    <fedora.username>changeme</fedora.username>
+    <fedora.password>changeme</fedora.password>
   </properties>
 
   <!-- Build  ===================================================== -->
@@ -78,6 +81,10 @@
             <contextPath>${dfr.ocs.contextPath}</contextPath>
           </webApp>
           -->
+          <webAppConfig>
+            <extraClasspath>${basedir}/test/resources/</extraClasspath>
+          </webAppConfig>
+
           <!--
           <webAppConfig>
             <defaultsDescriptor>${project.baseUri}src/main/resources/org/eclipse/jetty/webapp/webdefault.xml</defaultsDescriptor>
@@ -126,6 +133,7 @@
             </goals>
           </execution>
         </executions>
+
         <dependencies>
           <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -133,9 +141,32 @@
             <version>1.0.6</version>
           </dependency>
         </dependencies>
+
       </plugin>
 
     </plugins>
+
+    <!--
+    <resources>
+
+      <resource>
+        <directory>test/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*-context.xml</include>
+        </includes>
+      </resource>
+
+      <resource>
+        <directory>test/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>**/*-context.xml</exclude>
+        </excludes>
+      </resource>
+
+    </resources>
+    -->
 
   </build>
 

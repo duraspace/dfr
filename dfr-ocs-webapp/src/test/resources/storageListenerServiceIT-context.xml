@@ -12,9 +12,9 @@
 
   <!-- Location and login credentials to the target repository -->
   <bean id="repositoryCredentials" class="com.yourmediashelf.fedora.client.FedoraCredentials">
-    <constructor-arg type="java.lang.String" value="http://localhost/changeme"/>
-    <constructor-arg type="java.lang.String" value="usernamechangeme"/>
-    <constructor-arg type="java.lang.String" value="passwordchangeme"/>
+    <constructor-arg type="java.lang.String" value="http://localhost"/>
+    <constructor-arg type="java.lang.String" value="${fedora.username}"/>
+    <constructor-arg type="java.lang.String" value="${fedora.password}"/>
   </bean>
 
   <!-- The client to use to interact with the repository -->

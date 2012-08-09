@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xmlns:amq="http://activemq.apache.org/schema/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/jms
+                           http://www.springframework.org/schema/jms/spring-jms-3.0.xsd
+                           http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://activemq.apache.org/schema/core
+                           http://activemq.apache.org/schema/core/activemq-core.xsd">
+
+  <!-- Location and login credentials to the target repository -->
+  <bean id="repositoryCredentials" class="com.yourmediashelf.fedora.client.FedoraCredentials">
+    <constructor-arg type="java.lang.String" value="http://localhost"/>
+    <constructor-arg type="java.lang.String" value="${fedora.username}"/>
+    <constructor-arg type="java.lang.String" value="${fedora.password}"/>
+  </bean>
+
+  <!-- The client to use to interact with the repository -->
+  <bean id="repositoryClient" class="com.yourmediashelf.fedora.client.FedoraClient">
+    <constructor-arg ref="repositoryCredentials"/>
+  </bean>
+
+  <!-- The repository itself -->
+  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository">
+    <constructor-arg ref="repositoryClient"/>
+  </bean>
+
+  <!-- The OCS object creation processor -->
+  <bean id="contentProcessor" class="org.duraspace.dfr.ocs.simpleproc.SimpleProcessor">
+    <constructor-arg type="java.lang.String" value="sidora:"/>
+    <constructor-arg type="java.lang.String" value="http://www.duracloud.org/changeme"/>
+    <property name="fedoraObjectStore" ref="objectRepository"/>
+  </bean>
+
+
+  <!--
+  <bean id="storageType" class="org.duracloud.storage.domain.StorageProviderType" factory-method="valueOf">
+    <constructor-arg>
+      <value>AMAZON_S3</value>
+    </constructor-arg>
+  </bean>
+  -->
+
+  <!--
+  <bean id="httpHelper" class="org.duracloud.common.web.RestHttpHelper"/>
+  -->
+
+  <!-- This is the storage location. -->
+  <!--
+  <bean id="contentStore" class="org.duracloud.client.ContentStoreImpl">
+    <constructor-arg type="java.lang.String" value="baseURL"/>
+    <constructor-arg ref="storageType"/>
+    <constructor-arg type="java.lang.String" value="storeID"/>
+    <constructor-arg ref="httpHelper"/>
+  </bean>
+  -->
+
+
+
+</beans>
