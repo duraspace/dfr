@@ -22,11 +22,6 @@
     <jetty.stop.port>8005</jetty.stop.port>
     <skipITs>true</skipITs>
     <jetty.skip>${skipITs}</jetty.skip>
-    <!--
-    <fedora.host>http://localhost:8080/fedora</fedora.host>
-    <fedora.username>changeme</fedora.username>
-    <fedora.password>changeme</fedora.password>
-    -->
 
   </properties>
 

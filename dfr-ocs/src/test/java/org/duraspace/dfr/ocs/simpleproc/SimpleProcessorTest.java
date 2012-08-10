@@ -7,6 +7,7 @@ import org.duraspace.dfr.ocs.core.MemoryFedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
+import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,6 +65,7 @@ public class SimpleProcessorTest {
     }
 
     @Test
+    @Ignore
     public void processCreated() {
         processCreated(GOOD_DATE, false);
     }

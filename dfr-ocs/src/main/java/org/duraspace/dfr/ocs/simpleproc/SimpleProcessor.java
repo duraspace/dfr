@@ -1,9 +1,6 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
-import com.github.cwilper.fcrepo.dto.core.ControlGroup;
-import com.github.cwilper.fcrepo.dto.core.Datastream;
-import com.github.cwilper.fcrepo.dto.core.DatastreamVersion;
-import com.github.cwilper.fcrepo.dto.core.FedoraObject;
+import com.github.cwilper.fcrepo.dto.core.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.duracloud.client.ContentStore;
 import org.duraspace.dfr.ocs.core.FedoraObjectStore;
@@ -14,6 +11,7 @@ import org.duraspace.dfr.ocs.core.StorageObjectEventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -148,6 +146,7 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         fedoraObject.pid(pid);
         fedoraObject.label(contentURL);
         fedoraObject.putDatastream(getContentDatastream(contentURL, metadata));
+        fedoraObject.putDatastream(getRelsDatastream(pid, metadata));
         return fedoraObject;
     }
     
@@ -177,6 +176,54 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         datastream.versions().add(version);
         return datastream;
     }
+
+    private Datastream getRelsDatastream(String pid,
+                                         Map<String, String> metadata) {
+        Datastream datastream = new Datastream("RELS-EXT");
+        datastream.controlGroup(ControlGroup.INLINE_XML);
+        Date date = parseRFC822Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
+        DatastreamVersion version = new DatastreamVersion("REL-EXT.0", date);
+        // TODO: Activate this after Fedora has been updated to either
+        //       not require auto-validating checksums for externals
+        //       datastreams or to allow configuration of credentials for
+        //       actually getting remote datastreams.
+        //       See https://jira.duraspace.org/browse/FCREPO-752
+        //       and https://jira.duraspace.org/browse/FCREPO-748
+        //version.contentDigest(new ContentDigest()
+        //        .type("MD5")
+        //        .hexValue(metadata.get(ContentStore.CONTENT_CHECKSUM)));
+        String inlineXML =
+            "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" " +
+            "xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" " +
+            "xmlns:fedora=\"info:fedora/fedora-system:def/relations-external#\" " +
+            "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
+            "xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" " +
+            "xmlns:fedora-model=\"info:fedora/fedora-system:def/model#\">\n";
+        inlineXML = inlineXML +
+            "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">";
+        inlineXML = inlineXML +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:8238\"></fedora:isMemberOfCollection> " +
+            "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
+            "</rdf:Description> " +
+            "</rdf:RDF>";
+
+        logger.debug(inlineXML);
+
+        try {
+            version.inlineXML(new InlineXML(inlineXML));
+            version.label("RDF Statements about this Object");
+            version.size((long) inlineXML.length());
+            version.mimeType("application/rdf+xml");
+            datastream.versions().add(version);
+
+        } catch (IOException e) {
+            logger.info("Could not create XML for RELS-EXT");
+        }
+
+        return datastream;
+    }
+
 
     private static void requireValues(Map<String, String> map, String...keys) {
         for (String key : keys) {
