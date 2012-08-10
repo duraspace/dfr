@@ -15,26 +15,30 @@
   <name>Object Creation Service Webapp</name>
 
   <properties>
+
     <!-- These properties can be overridden on the command line. e.g. mvn verify -Docs.webapp.port=8081 -->
     <dfr.ocs.port>8080</dfr.ocs.port>
     <dfr.ocs.contextPath>/</dfr.ocs.contextPath>
     <jetty.stop.port>8005</jetty.stop.port>
     <skipITs>true</skipITs>
     <jetty.skip>${skipITs}</jetty.skip>
-    <fedora.host>http://localhost:8080</fedora.host>
+    <!--
+    <fedora.host>http://localhost:8080/fedora</fedora.host>
     <fedora.username>changeme</fedora.username>
     <fedora.password>changeme</fedora.password>
-  </properties>
+    -->
 
-  <!-- Build  ===================================================== -->
+  </properties>
 
   <build>
 
     <plugins>
 
       <plugin>
+
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
+
         <configuration>
           <skipITs>${skipITs}</skipITs>
           <systemPropertyVariables>
@@ -42,7 +46,9 @@
             <dfr.ocs.contextPath>${dfr.ocs.contextPath}</dfr.ocs.contextPath>
           </systemPropertyVariables>
         </configuration>
+
         <executions>
+
           <execution>
             <id>failsafe-integration-test</id>
             <phase>integration-test</phase>
@@ -50,6 +56,7 @@
               <goal>integration-test</goal>
             </goals>
           </execution>
+
           <execution>
             <id>failsafe-verify</id>
             <phase>verify</phase>
@@ -57,63 +64,47 @@
               <goal>verify</goal>
             </goals>
           </execution>
+
         </executions>
+
       </plugin>
 
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>jetty-maven-plugin</artifactId>
         <configuration>
+
           <stopKey>STOP</stopKey>
           <stopPort>${jetty.stop.port}</stopPort>
           <scanIntervalSeconds>2</scanIntervalSeconds>
-          <!--<classesDirectory>${basedir}/target/classes</classesDirectory>-->
+          <useTestClasspath>${skipITs}</useTestClasspath>
           <!--
-          <connectors>
-            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-              <port>${dfr.ocs.port}</port>
-            </connector>
-          </connectors>
-          -->
-          <!--<webAppSourceDirectory>${basedir}/src/main/webapp</webAppSourceDirectory>-->
-          <!--
-          <webApp>
-            <contextPath>${dfr.ocs.contextPath}</contextPath>
-          </webApp>
-          -->
           <webAppConfig>
             <extraClasspath>${basedir}/test/resources/</extraClasspath>
           </webAppConfig>
-
-          <!--
-          <webAppConfig>
-            <defaultsDescriptor>${project.baseUri}src/main/resources/org/eclipse/jetty/webapp/webdefault.xml</defaultsDescriptor>
-          </webAppConfig>
-          -->
-          <!-- Later use in setting up sender.
-          <contextHandlers>
-            <contextHandler implementation="org.eclipse.jetty.webapp.WebAppContext">
-              <war>${project.build.directory}/dfr/dfr.war</war>
-              <contextPath>/dfr</contextPath>
-            </contextHandler>
-          </contextHandlers>
           -->
           <systemProperties>
+
             <systemProperty>
               <name>dfr.ocs.home</name>
               <value>${project.build.directory}</value>
             </systemProperty>
+
             <systemProperty>
               <name>dfr.ocs.baseurl</name>
               <value>http://localhost:${dfr.ocs.port}/dfr</value>
             </systemProperty>
+
             <systemProperty>
               <name>dfr.connector.port</name>
               <value>${dfr.ocs.port}</value>
             </systemProperty>
           </systemProperties>
+
         </configuration>
+
         <executions>
+
           <execution>
             <id>start-jetty</id>
             <phase>pre-integration-test</phase>
@@ -125,6 +116,7 @@
               <daemon>true</daemon>
             </configuration>
           </execution>
+
           <execution>
             <id>stop-jetty</id>
             <phase>post-integration-test</phase>
@@ -132,6 +124,7 @@
               <goal>stop</goal>
             </goals>
           </execution>
+
         </executions>
 
         <dependencies>

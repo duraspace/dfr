@@ -11,6 +11,8 @@ import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.core.StorageObjectEventProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -51,12 +53,16 @@ import java.util.TimeZone;
  * If any additional metadata is provided, it will be ignored.
  */
 public class SimpleProcessor implements StorageObjectEventProcessor {
+
+    private static final Logger logger =
+        LoggerFactory.getLogger(SimpleProcessor.class);
+
     private static final String RFC822_FORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
     private static final String STORE_ID = "store-id";
     private static final String SPACE_ID = "space-id";
 
-    private final String pidPrefix;
-    private final String duraStoreURL;
+    private String pidPrefix;
+    private String duraStoreURL;
     
     private FedoraObjectStore fedoraObjectStore;
 
@@ -95,15 +101,21 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
                     duraStoreURL);
         }
         this.duraStoreURL = duraStoreURL;
+
+        logger.debug("Constructing a simple processor");
     }
 
     @Override
     public void setFedoraObjectStore(FedoraObjectStore fedoraObjectStore) {
+        logger.debug("Setting the object store.");
         this.fedoraObjectStore = fedoraObjectStore;
     }
 
     @Override
     public void process(StorageObjectEvent event) throws OCSException {
+
+        logger.debug("Processing a storage event");
+
         StorageObject storageObject = event.getStorageObject();
         String contentId = storageObject.getId();
         Map<String, String> metadata = storageObject.getMetadata();

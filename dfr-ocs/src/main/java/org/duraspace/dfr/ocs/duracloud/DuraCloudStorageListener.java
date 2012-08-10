@@ -2,6 +2,10 @@ package org.duraspace.dfr.ocs.duracloud;
 
 import org.apache.activemq.command.ActiveMQTopic;
 import org.duracloud.client.ContentStore;
+import org.duracloud.client.ContentStoreManager;
+import org.duracloud.client.ContentStoreManagerImpl;
+import org.duracloud.common.model.Credential;
+import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.core.StorageObjectEventListener;
@@ -22,10 +26,13 @@ import java.util.Map;
  */
 public class DuraCloudStorageListener
         implements StorageObjectEventListener, MessageListener {
+
     private static final Logger logger = LoggerFactory.getLogger(
             DuraCloudStorageListener.class);
 
-    private final ContentStore contentStore;
+    private ContentStore contentStore;
+    private ContentStoreManager contentStoreManager;
+    private Credential contentStoreCredential;
 
     private StorageObjectEventProcessor processor;
 
@@ -37,15 +44,51 @@ public class DuraCloudStorageListener
      *                     <code>null</code>.
      */
     public DuraCloudStorageListener(ContentStore contentStore) {
+
         if (contentStore == null) {
             throw new NullPointerException();
         }
         this.contentStore = contentStore;
+
+        logger.debug("Constructing a DuraCloudStorageListener(1)");
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param manager the DuraCloud <code>ContentStoreManager</code> to use when
+     *                     getting storage object content and metadata, never
+     *                     <code>null</code>.
+     * @param username
+     * @param password
+     */
+    public DuraCloudStorageListener(ContentStoreManagerImpl manager,
+                                    StorageObjectEventProcessor processor,
+                                    String username, String password) {
+
+        logger.debug("Constructing a DuraCloudStorageListener(2)");
+
+        if (manager == null) {
+            throw new NullPointerException();
+        }
+
+        this.contentStoreManager = manager;
+        this.contentStoreCredential = new Credential(username, password);
+        this.setProcessor(processor);
+
+        try {
+            manager.login(contentStoreCredential);
+            this.contentStore = manager.getPrimaryContentStore();
+        } catch (ContentStoreException e) {
+            logger.info("Unable to create primary store");
+        }
+
     }
 
     @Override
     public void setProcessor(StorageObjectEventProcessor processor) {
         this.processor = processor;
+        logger.debug("Setting the processor");
     }
 
     @Override
@@ -55,6 +98,8 @@ public class DuraCloudStorageListener
 
     @Override
     public void onMessage(Message message) {
+
+        logger.debug("Received a message");
         if (message instanceof MapMessage) {
             try {
                 String topic = ((ActiveMQTopic) message.getJMSDestination())
