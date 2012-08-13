@@ -26,6 +26,7 @@ public class SimpleProcessorTest {
     private static final String CONTENT_ID = "path/to/content";
     private static final String CONTENT_URL =
             DURASTORE_URL + "/spaceId/path/to/content?storeID=storeId";
+    private static final String LABEL = "content";
     private static final String CONTENT_URL_DIGEST =
             "4d58c9c531d805cad3522d22cb049553";
     private static final String FEDORA_PID = PID_PREFIX + CONTENT_URL_DIGEST;
@@ -159,13 +160,11 @@ public class SimpleProcessorTest {
 
         FedoraObject expectedFedoraObject = new FedoraObject()
                 .pid(FEDORA_PID)
-                .label(CONTENT_URL)
+                .label(LABEL)
                 .putDatastream(expectedDatastream)
                 .putDatastream(expectedDatastream2);
-        System.out.println(expectedFedoraObject);
-        System.out.println(fedoraObject);
-        Assert.assertEquals(expectedFedoraObject, fedoraObject);
-        Assert.assertEquals(
+            Assert.assertEquals(expectedFedoraObject, fedoraObject);
+            Assert.assertEquals(
                 "Ingest requested by DFR Object Creation Service. "
                 + "Event ID: eventId",
                 fedoraObjectStore.getLogMessageMap().get(key));

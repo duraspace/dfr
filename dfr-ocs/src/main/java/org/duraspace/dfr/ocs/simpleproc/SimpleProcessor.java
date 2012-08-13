@@ -142,9 +142,11 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
 
     private FedoraObject getFedoraObject(String pid, String contentURL,
             Map<String, String> metadata) {
+        String label = prettyLabel(contentURL);
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
-        fedoraObject.label(contentURL);
+        //fedoraObject.label(contentURL);
+        fedoraObject.label(label);
         fedoraObject.putDatastream(getContentDatastream(contentURL, metadata));
         fedoraObject.putDatastream(getRelsDatastream(pid, metadata));
         return fedoraObject;
@@ -245,4 +247,22 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
                     contentDate);
         }
     }
+
+    public static String prettyLabel(String inLabel) {
+        // Don't care if they send in a null
+        if (inLabel == null) { return inLabel; }
+        String label = inLabel;
+        try {
+            // If its a URL, we only want the last part.
+            URL labelURL = new URL(inLabel);
+            String labelPath = labelURL.getPath();
+            int lastSlash = labelPath.lastIndexOf("/") + 1;
+            label = labelPath.substring(lastSlash);
+        } catch (MalformedURLException e) {
+            // Don't care
+        }
+
+        return label;
+    }
+
 }
