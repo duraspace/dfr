@@ -3,7 +3,6 @@ package org.duraspace.dfr.ocs.duracloud;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
-import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.ocs.core.StorageObject;
@@ -59,10 +58,10 @@ public class DuraCloudStorageListener
      * @param manager the DuraCloud <code>ContentStoreManager</code> to use when
      *                     getting storage object content and metadata, never
      *                     <code>null</code>.
-     * @param username
-     * @param password
+     * @param username the identity to use for storage provider connections.
+     * @param password the password to use for storage provider connections.
      */
-    public DuraCloudStorageListener(ContentStoreManagerImpl manager,
+    public DuraCloudStorageListener(ContentStoreManager manager,
                                     StorageObjectEventProcessor processor,
                                     String username, String password) {
 
@@ -80,7 +79,7 @@ public class DuraCloudStorageListener
             manager.login(contentStoreCredential);
             this.contentStore = manager.getPrimaryContentStore();
         } catch (ContentStoreException e) {
-            logger.info("Unable to create primary store");
+            logger.info("Unable to connect to content store");
         }
 
     }

@@ -183,7 +183,7 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
             ContentStore.CONTENT_MODIFIED));
-        DatastreamVersion version = new DatastreamVersion("REL-EXT.0", date);
+        DatastreamVersion version = new DatastreamVersion("RELS-EXT.0", date);
         // TODO: Activate this after Fedora has been updated to either
         //       not require auto-validating checksums for externals
         //       datastreams or to allow configuration of credentials for
