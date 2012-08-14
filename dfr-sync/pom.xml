@@ -36,10 +36,29 @@
   
   <build>
     <plugins>
+
+      <!-- jsps need to be precompiled. otherwise the executable jar 
+      will choke on machines that are running on a JRE rather than JDK -->
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-jspc-maven-plugin</artifactId>
+        <version>${jetty.version}</version>
+        <executions>
+          <execution>
+            <id>jspc</id>
+            <goals>
+              <goal>jspc</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+          
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
+          <webXml>${basedir}/target/web.xml</webXml>
+          <warSourceExcludes>**/*.jsp</warSourceExcludes>
           <webResources>
             <resource>
               <directory>src/main/webapp</directory>
@@ -55,16 +74,15 @@
               <artifactId>jquery-war</artifactId>
               <type>war</type>
             </overlay>
-            
             <overlay>
               <groupId>org.duracloud</groupId>
               <artifactId>jquery-ui-war</artifactId>
               <type>war</type>
             </overlay>
-
           </overlays>
         </configuration>
       </plugin>
+
      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
