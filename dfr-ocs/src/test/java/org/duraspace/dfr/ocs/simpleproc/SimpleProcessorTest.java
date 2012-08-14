@@ -1,17 +1,15 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
-import com.github.cwilper.fcrepo.dto.core.ControlGroup;
-import com.github.cwilper.fcrepo.dto.core.Datastream;
-import com.github.cwilper.fcrepo.dto.core.FedoraObject;
+import com.github.cwilper.fcrepo.dto.core.*;
 import org.duraspace.dfr.ocs.core.MemoryFedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
-import org.junit.Ignore;
 import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +26,7 @@ public class SimpleProcessorTest {
     private static final String CONTENT_ID = "path/to/content";
     private static final String CONTENT_URL =
             DURASTORE_URL + "/spaceId/path/to/content?storeID=storeId";
+    private static final String LABEL = "content";
     private static final String CONTENT_URL_DIGEST =
             "4d58c9c531d805cad3522d22cb049553";
     private static final String FEDORA_PID = PID_PREFIX + CONTENT_URL_DIGEST;
@@ -65,7 +64,6 @@ public class SimpleProcessorTest {
     }
 
     @Test
-    @Ignore
     public void processCreated() {
         processCreated(GOOD_DATE, false);
     }
@@ -132,12 +130,41 @@ public class SimpleProcessorTest {
                 .mimeType("text/plain")
                 .size(3L)
                 .contentLocation(URI.create(CONTENT_URL));
+
+        String inlineXML =
+            "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" " +
+                "xmlns:rdfs=\"http://www.w3.org/2000/01/rdf-schema#\" " +
+                "xmlns:fedora=\"info:fedora/fedora-system:def/relations-external#\" " +
+                "xmlns:dc=\"http://purl.org/dc/elements/1.1/\" " +
+                "xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" " +
+                "xmlns:fedora-model=\"info:fedora/fedora-system:def/model#\">\n";
+        inlineXML = inlineXML +
+            "<rdf:Description rdf:about=\"info:fedora/" + fedoraObject.pid() + "\">";
+        inlineXML = inlineXML +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:importedObjects\"></fedora:isMemberOfCollection> " +
+            "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
+            "</rdf:Description> " +
+            "</rdf:RDF>";
+
+        Datastream expectedDatastream2 = new Datastream("RELS-EXT")
+                .controlGroup(ControlGroup.INLINE_XML);
+        try {
+            expectedDatastream2.addVersion(new Date(GOOD_DATE_MILLIS))
+                .label("RDF Statements about this Object")
+                .mimeType("application/rdf+xml")
+                .size((long) inlineXML.length())
+                .inlineXML(new InlineXML(inlineXML));
+        } catch (IOException e) {
+            // The equality test will fail.
+        }
+
         FedoraObject expectedFedoraObject = new FedoraObject()
                 .pid(FEDORA_PID)
-                .label(CONTENT_URL)
-                .putDatastream(expectedDatastream);
-        Assert.assertEquals(expectedFedoraObject, fedoraObject);
-        Assert.assertEquals(
+                .label(LABEL)
+                .putDatastream(expectedDatastream)
+                .putDatastream(expectedDatastream2);
+            Assert.assertEquals(expectedFedoraObject, fedoraObject);
+            Assert.assertEquals(
                 "Ingest requested by DFR Object Creation Service. "
                 + "Event ID: eventId",
                 fedoraObjectStore.getLogMessageMap().get(key));
