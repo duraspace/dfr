@@ -111,7 +111,6 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
 
     @Override
     public void process(StorageObjectEvent event) throws OCSException {
-
         logger.debug("Processing a storage event");
 
         StorageObject storageObject = event.getStorageObject();
@@ -205,7 +204,7 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         inlineXML = inlineXML +
             "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:8238\"></fedora:isMemberOfCollection> " +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:importedObjects\"></fedora:isMemberOfCollection> " +
             "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
             "</rdf:Description> " +
             "</rdf:RDF>";

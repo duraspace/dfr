@@ -141,7 +141,7 @@ public class SimpleProcessorTest {
         inlineXML = inlineXML +
             "<rdf:Description rdf:about=\"info:fedora/" + fedoraObject.pid() + "\">";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:8238\"></fedora:isMemberOfCollection> " +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:importedObjects\"></fedora:isMemberOfCollection> " +
             "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
             "</rdf:Description> " +
             "</rdf:RDF>";

@@ -67,7 +67,7 @@ public class DuraCloudStorageListener
 
         logger.debug("Constructing a DuraCloudStorageListener(2)");
 
-        if (manager == null) {
+        if (manager == null || processor == null) {
             throw new NullPointerException();
         }
 

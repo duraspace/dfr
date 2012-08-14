@@ -35,4 +35,6 @@ public interface FedoraObjectStore {
      * @throws OCSException if an IO or remote error occurs.
      */
     void purge(String pid, String logMessage) throws OCSException;
+
+    //void initialize();
 }
