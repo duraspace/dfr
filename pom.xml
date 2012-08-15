@@ -631,6 +631,7 @@
               <exclude>**/Util.class</exclude>
             </excludes>
           </instrumentation>
+          <check/>
         </configuration>
       </plugin>
  

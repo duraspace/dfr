@@ -71,7 +71,8 @@
 
           <stopKey>STOP</stopKey>
           <stopPort>${jetty.stop.port}</stopPort>
-          <scanIntervalSeconds>2</scanIntervalSeconds>
+          <!-- Scan set to zero to use for IDE debugging support. -->
+          <scanIntervalSeconds>0</scanIntervalSeconds>
           <useTestClasspath>${skipITs}</useTestClasspath>
           <!--
           <webAppConfig>

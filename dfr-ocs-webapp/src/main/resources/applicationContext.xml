@@ -103,7 +103,7 @@
     <property name="connectionFactory" ref="connectionFactory"/>
     <property name="destination" ref="destination"/>
     <property name="messageListener" ref="messageListener" />
-    <property name="messageSelector" value="spaceId NOT IN ('x-duracloud-admin', 'x-service-out', 'x-service-work')" />
+    <property name="messageSelector" value="spaceId NOT IN ('x-duracloud-admin', 'x-service-out', 'x-service-work', 'fedora-objects')" />
   </bean>
 
   <!-- and this is the storage message listener service -->
