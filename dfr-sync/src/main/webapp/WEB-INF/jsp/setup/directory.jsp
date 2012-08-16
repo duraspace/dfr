@@ -15,7 +15,7 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true">[panel message / info here]</tiles:putAttribute>
+   cascade="true">Select a directory by clicking on the file tree below and click 'Add'</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"
@@ -25,35 +25,15 @@ file="../include/libraries.jsp"%>
 
             <div
              id="filetree"
-             style="height: 300px; width: 300px; overflow: auto; background-color: #FFF">
+             style="height: 200px; width: 400px; overflow: auto; background-color: #FFF">
             <!--  -->
             </div>
 
     <form:form
      method="POST"
      modelAttribute="directoryConfigForm">
-      <fieldset>
-
-
-        <ol>
-
-          <li>
-            <form:label
-             cssErrorClass="error"
-             path="directoryPath">
-              <spring:message
-               code="directoryPath" />
-            </form:label>
-
-            <form:hidden id="directoryPath"
-             path="directoryPath" />
-
-            <span
-             id="directoryPathText">
-            </span>
-          </li>
-        </ol>
-      </fieldset>
+      <form:hidden id="directoryPath"
+       path="directoryPath" />
 
       <fieldset
        class="button-bar">
@@ -75,19 +55,18 @@ file="../include/libraries.jsp"%>
       </fieldset>
     </form:form>
 
-<script xml:space="preserve">
-                    $(function() {
+    <script xml:space="preserve">
+      $(function() {
 
-                        $('#filetree').fileTree({
-                            root : '',
-                            script : '${pageContext.request.contextPath}/ajax/jqueryFileTree'
-                        }, function(file) {
-                            $("#directoryPathText").html(file);
-                            $("#directoryPath").val(file);
-                        });
-                    });
-                
-</script>
+          $('#filetree').fileTree({
+              root : '',
+              script : '${pageContext.request.contextPath}/ajax/jqueryFileTree'
+          }, function(file) {
+              $("#directoryPathText").html(file);
+              $("#directoryPath").val(file);
+          });
+      });
+    </script>
   </tiles:putAttribute>
 </tiles:insertDefinition>
 

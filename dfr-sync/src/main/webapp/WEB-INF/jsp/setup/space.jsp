@@ -15,7 +15,10 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true">[panel message / info here]</tiles:putAttribute>
+   cascade="true">
+    Select a destination space for your content.
+   
+   </tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"

@@ -15,12 +15,24 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true">[welcome message and instructions go
-  here]</tiles:putAttribute>
+   cascade="true">
+   </tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
+    <div class="welcome">
+      <h1> 
+        Welcome to the <br/>
+        Duracloud for Research<br/>
+        Sync Tool
+      </h1>
+      <p>
+      Once set up, this application will automatically backup your vital 
+      digital files to multiple cloud storage providers, thus ensuring
+      your data is always accessible and secure.
+      </p>      
+    </div>
     <form
      method="POST">
       <fieldset

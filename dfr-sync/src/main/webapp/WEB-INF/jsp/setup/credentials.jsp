@@ -11,11 +11,11 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">Enter Duracloud Credentials</tiles:putAttribute>
+   cascade="true">Enter Your Duracloud Account Info</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true">[panel message / info here]</tiles:putAttribute>
+   cascade="true"> </tiles:putAttribute>
 
 
 
@@ -72,18 +72,21 @@ file="../include/libraries.jsp"%>
               <spring:message
                code="username" />
             </form:label>
-
-            <form:input
-             cssErrorClass="error"
-             path="username"
-             autofocus="true" 
-             placeholder="Your DuraCloud username here"
-             />
-
-            <form:errors
-             path="username"
-             cssClass="error"
-             element="span" />
+            
+            <div class="fieldgroup">
+              <form:input
+               cssErrorClass="error"
+               path="username"
+               autofocus="true" 
+               placeholder="Your DuraCloud username here"
+               />
+  
+              <form:errors
+               path="username"
+               cssClass="error"
+               element="span" />
+             </div>
+            
           </li>
 
           <li>
@@ -94,14 +97,16 @@ file="../include/libraries.jsp"%>
                code="password" />
             </form:label>
 
-            <form:input
-             cssErrorClass="error"
-             path="password" />
-
-            <form:errors
-             path="password"
-             cssClass="error"
-             element="div" />
+            <div class="fieldgroup">
+              <form:input
+               cssErrorClass="error"
+               path="password" />
+  
+              <form:errors
+               path="password"
+               cssClass="error"
+               element="div" />
+             </div>
           </li>
 
           <li>
@@ -109,24 +114,28 @@ file="../include/libraries.jsp"%>
              cssErrorClass="error"
              path="host">
               <spring:message
-               code="host" />
+               code="host" /> /<spring:message
+               code="port" />
             </form:label>
+            <div class="fieldgroup">
+              <form:input
+                cssErrorClass="error"
+                path="host" 
+                placeholder="e.g. myinstance.duracloud.org"
+                />
 
-            <form:input
-             cssErrorClass="error"
-             path="host" />
-
-            <form:input
-             cssErrorClass="error"
-             path="port"
-             placeholder="optional"
-              />
-
+             <form:input
+               cssErrorClass="error"
+               path="port"
+               id="port"
+               placeholder="optional, e.g. 443"
+                />
 
             <form:errors
              path="host"
              cssClass="error"
              element="div" />
+             </div>
           </li>
         </ol>
       </fieldset>

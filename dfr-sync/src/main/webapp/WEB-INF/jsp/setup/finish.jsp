@@ -15,7 +15,9 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelMessage"
-   cascade="true">[panel message / info here]</tiles:putAttribute>
+   cascade="true">
+   Click the start button to begin syncing your content.
+   </tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"
@@ -31,7 +33,7 @@ file="../include/libraries.jsp"%>
           <spring:message
            code="startNow" />
         </button>
-
+        <!-- 
         <button
          id="startLater"
          type="submit"
@@ -39,6 +41,7 @@ file="../include/libraries.jsp"%>
           <spring:message
            code="startLater" />
         </button>
+        -->
       </fieldset>
     </form>
   </tiles:putAttribute>

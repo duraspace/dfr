@@ -16,7 +16,7 @@
   <tiles:putAttribute
     name="panelMessage"
     cascade="true">
-      [panel message / info here]
+       
     </tiles:putAttribute>
 
   <tiles:putAttribute
@@ -55,7 +55,7 @@
           id="next"
           type="submit"
           name="_eventId_save">
-          <spring:message code="save" />
+          <spring:message code="next" />
         </button>
         <button
           id="cancel"
