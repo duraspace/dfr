@@ -26,6 +26,8 @@
   type="text/css"
   href="${pageContext.request.contextPath}/static/js/jqueryFileTree.css"/>
 
+  <tiles:insertAttribute name="head-extension" ignore="true"/>
+
 </head>
 
 <body>

@@ -6,6 +6,25 @@
 <tiles:insertDefinition
   name="app-base"
   flush="true">
+
+  <tiles:putAttribute
+    name="head-extension"  >
+    <script>
+    	$(function(){
+
+    	    var refresh = function(){
+    			var x = $.get(window.location) 
+				 .done(function(){
+				     var body = $(x.responseText, "body");
+				     $(document.body).empty().append(body.children());
+				 });			
+    	    };
+    	    
+    	    setInterval(refresh, 5000);
+    	    
+    	})
+    </script>
+  </tiles:putAttribute>
   <tiles:putAttribute
     name="content"
     cascade="true">
@@ -71,8 +90,8 @@
                 id="status-indicator"
                 class="yui3-g">
 
-                <div class="yui3-u-1-2">${syncProcessState }</div>
-                <div class="yui3-u-1-2">[state message text]</div>
+                <div class="yui3-u-1-2  state ${fn:toLowerCase(syncProcessState)}"></div>
+                <div class="yui3-u-1-2">${syncProcessState}</div>
               </div>
               <table>
                 <tbody>

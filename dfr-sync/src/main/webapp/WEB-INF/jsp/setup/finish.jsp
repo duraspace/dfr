@@ -11,12 +11,21 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">You're ready to start syncing.</tiles:putAttribute>
+   cascade="true">DuraCloud Sync Setup</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
    cascade="true">
-   Click the start button to begin syncing your content.
+   <div class="welcome">
+    <div class="green-check">
+    
+    </div>
+    <h1>
+      You're ready to start syncing!
+    </h1>
+    <p>Click the start button to begin syncing your content now.</p>
+   </div>
+   
    </tiles:putAttribute>
 
   <tiles:putAttribute
@@ -33,15 +42,13 @@ file="../include/libraries.jsp"%>
           <spring:message
            code="startNow" />
         </button>
-        <!-- 
         <button
          id="startLater"
          type="submit"
          name="_eventId_startLater">
           <spring:message
-           code="startLater" />
+           code="continue" />
         </button>
-        -->
       </fieldset>
     </form>
   </tiles:putAttribute>

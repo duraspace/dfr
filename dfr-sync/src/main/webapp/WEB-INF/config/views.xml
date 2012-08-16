@@ -6,11 +6,15 @@
 <tiles-definitions >
   
   <definition name="page-base" template="/WEB-INF/jsp/template/page-base.jsp">
+    <put-attribute name="head-extension" value=""></put-attribute>  
+
     <put-attribute name="body"></put-attribute>  
   </definition>
  
   <definition name="app-base" extends="page-base">
+
     <put-attribute name="body">
+
       <definition template="/WEB-INF/jsp/template/app-base.jsp">
         <put-attribute name="subHeader" cascade="true" value="/WEB-INF/jsp/include/primary-tabs.jsp" />
         <put-attribute name="content" cascade="true" />

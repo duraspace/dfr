@@ -248,6 +248,21 @@ div.welcome {
   height: 250px;
 }
 
+div.green-check {
+  background: url("../image/green_check_icon_03.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100px;
+  width: 100px;
+  display: block;
+  position: absolute;
+  margin-left: 300px;
+  margin-top: 100px;
+  z-index: 100;
+   
+ 
+}
+
 .welcome h1 {
   font-size: 28px;
 }
@@ -267,3 +282,27 @@ div.welcome {
 	text-align:center;
 	width:125px;
 }
+
+/* sync states */
+.state {
+  height: 20px;
+  background-repeat: no-repeat;
+
+}
+
+.stopping {
+  background-image: url("../image/stopping.gif");
+}
+
+.starting {
+  background-image: url("../image/starting.gif");
+}
+
+.stopped {
+  background-image: url("../image/stopped.png") ;
+}
+
+.running {
+  background-image: url("../image/running.png") ;
+}
+
