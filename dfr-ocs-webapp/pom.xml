@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.duraspace.dfr</groupId>
     <artifactId>dfr</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>dfr-ocs-webapp</artifactId>
@@ -71,7 +71,8 @@
 
           <stopKey>STOP</stopKey>
           <stopPort>${jetty.stop.port}</stopPort>
-          <scanIntervalSeconds>2</scanIntervalSeconds>
+          <!-- Scan set to zero to use for IDE debugging support. -->
+          <scanIntervalSeconds>0</scanIntervalSeconds>
           <useTestClasspath>${skipITs}</useTestClasspath>
           <!--
           <webAppConfig>
@@ -168,7 +169,7 @@
     <dependency>
       <groupId>org.duraspace.dfr</groupId>
       <artifactId>dfr-ocs</artifactId>
-      <version>0.2.0-SNAPSHOT</version>
+      <version>0.3.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

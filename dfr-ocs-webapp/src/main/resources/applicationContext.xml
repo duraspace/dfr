@@ -30,12 +30,12 @@
   </bean>
 
   <!-- The client to use to interact with the repository -->
-  <bean id="repositoryClient" class="com.yourmediashelf.fedora.client.FedoraClient">
+  <bean id="repositoryClient" class="com.yourmediashelf.fedora.client.FedoraClient" depends-on="repositoryCredentials">
     <constructor-arg ref="repositoryCredentials"/>
   </bean>
 
   <!-- The repository itself -->
-  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository">
+  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository" depends-on="repositoryClient" init-method="initialize">
     <constructor-arg ref="repositoryClient"/>
   </bean>
 
@@ -103,6 +103,7 @@
     <property name="connectionFactory" ref="connectionFactory"/>
     <property name="destination" ref="destination"/>
     <property name="messageListener" ref="messageListener" />
+    <property name="messageSelector" value="spaceId NOT IN ('x-duracloud-admin', 'x-service-out', 'x-service-work', 'fedora-objects')" />
   </bean>
 
   <!-- and this is the storage message listener service -->

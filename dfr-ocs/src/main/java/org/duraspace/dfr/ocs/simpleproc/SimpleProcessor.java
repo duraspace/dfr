@@ -111,7 +111,6 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
 
     @Override
     public void process(StorageObjectEvent event) throws OCSException {
-
         logger.debug("Processing a storage event");
 
         StorageObject storageObject = event.getStorageObject();
@@ -142,9 +141,11 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
 
     private FedoraObject getFedoraObject(String pid, String contentURL,
             Map<String, String> metadata) {
+        String label = prettyLabel(contentURL);
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
-        fedoraObject.label(contentURL);
+        //fedoraObject.label(contentURL);
+        fedoraObject.label(label);
         fedoraObject.putDatastream(getContentDatastream(contentURL, metadata));
         fedoraObject.putDatastream(getRelsDatastream(pid, metadata));
         return fedoraObject;
@@ -183,7 +184,7 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
             ContentStore.CONTENT_MODIFIED));
-        DatastreamVersion version = new DatastreamVersion("REL-EXT.0", date);
+        DatastreamVersion version = new DatastreamVersion("RELS-EXT.0", date);
         // TODO: Activate this after Fedora has been updated to either
         //       not require auto-validating checksums for externals
         //       datastreams or to allow configuration of credentials for
@@ -203,7 +204,7 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         inlineXML = inlineXML +
             "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:8238\"></fedora:isMemberOfCollection> " +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:importedObjects\"></fedora:isMemberOfCollection> " +
             "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
             "</rdf:Description> " +
             "</rdf:RDF>";
@@ -245,4 +246,22 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
                     contentDate);
         }
     }
+
+    public static String prettyLabel(String inLabel) {
+        // Don't care if they send in a null
+        if (inLabel == null) { return inLabel; }
+        String label = inLabel;
+        try {
+            // If its a URL, we only want the last part.
+            URL labelURL = new URL(inLabel);
+            String labelPath = labelURL.getPath();
+            int lastSlash = labelPath.lastIndexOf("/") + 1;
+            label = labelPath.substring(lastSlash);
+        } catch (MalformedURLException e) {
+            // Don't care
+        }
+
+        return label;
+    }
+
 }
