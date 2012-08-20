@@ -13,7 +13,17 @@
     <c:if test="${child.directory}">
       <li class="directory collapsed"><a
         href="#"
-        rel="${child.getAbsolutePath()}/"> ${child.getName()}</a></li>
+        rel="${child.getAbsolutePath()}/"> 
+        <%--on windows, child.getName() will be empty when called on root directories --%>
+        <c:choose>
+         <c:when test="${not empty child.getName()}">
+          ${child.getName()}
+         </c:when>
+         <c:otherwise>
+            ${child.getAbsolutePath()}
+         </c:otherwise>
+         </c:choose>
+       </a></li>
     </c:if>
   </c:forEach>
   <c:forEach
