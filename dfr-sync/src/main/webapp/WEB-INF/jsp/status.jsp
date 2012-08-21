@@ -7,6 +7,8 @@
   name="app-base"
   flush="true">
 
+  <tiles:putAttribute name="primaryTab" value="status" cascade="true"/>
+
   <tiles:putAttribute
     name="head-extension"  >
     <script>

@@ -16,7 +16,11 @@
     <put-attribute name="body">
 
       <definition template="/WEB-INF/jsp/template/app-base.jsp">
-        <put-attribute name="subHeader" cascade="true" value="/WEB-INF/jsp/include/primary-tabs.jsp" />
+        <put-attribute name="subHeader" cascade="true">
+          <definition template="/WEB-INF/jsp/include/primary-tabs.jsp">
+            <put-attribute name="primaryTab" cascade="true" />
+          </definition>
+        </put-attribute>
         <put-attribute name="content" cascade="true" />
       </definition>
     </put-attribute>  

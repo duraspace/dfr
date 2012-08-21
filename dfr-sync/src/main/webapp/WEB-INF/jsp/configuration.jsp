@@ -6,6 +6,7 @@
 <tiles:insertDefinition
   name="app-base"
   flush="true">
+  <tiles:putAttribute name="primaryTab" value="configuration" cascade="true"/>
   <tiles:putAttribute
     name="content"
     cascade="true">

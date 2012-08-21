@@ -1,8 +1,8 @@
 <%@include file="../include/libraries.jsp"%>
-
+<tiles:importAttribute  name="primaryTab"   />
 <ul
  class="tabs primary">
-  <li class="selected">
+  <li class='<c:if test="${primaryTab == 'status'}">selected</c:if>'>
     <a
      href="${pageContext.request.contextPath}/status">
       <spring:message
@@ -10,7 +10,7 @@
     </a>
   </li>
 
-  <li>
+  <li class='<c:if test="${primaryTab == 'configuration'}">selected</c:if>'>
     <a
      href="${pageContext.request.contextPath}/configuration">
       <spring:message
@@ -20,7 +20,7 @@
 
   <li>
     <a
-     href="${pageContext.request.contextPath}/log">
+     href="#${pageContext.request.contextPath}/log">
       <spring:message
        code="log" />
     </a>
