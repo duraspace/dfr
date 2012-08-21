@@ -28,14 +28,27 @@ public class SyncProcessStateTransitionValidator {
                 return true;
             }
         } else if (from == SyncProcessState.RUNNING) {
-            if (to == SyncProcessState.STOPPING || to == SyncProcessState.ERROR) {
+            if (to == SyncProcessState.STOPPING || to == SyncProcessState.PAUSING ||  to == SyncProcessState.ERROR) {
                 return true;
             }
         } else if (from == SyncProcessState.STOPPING) {
             if (to == SyncProcessState.STOPPED || to == SyncProcessState.ERROR) {
                 return true;
             }
+        } else if (from == SyncProcessState.PAUSING) {
+            if (to == SyncProcessState.PAUSED || to == SyncProcessState.ERROR) {
+                return true;
+            }
+        } else if (from == SyncProcessState.PAUSED) {
+            if (to == SyncProcessState.RESUMING || to == SyncProcessState.ERROR) {
+                return true;
+            }
+        } else if (from == SyncProcessState.RESUMING) {
+            if (to == SyncProcessState.RUNNING || to == SyncProcessState.ERROR) {
+                return true;
+            }
         }
+
         return false;
     }
 }

@@ -19,7 +19,7 @@ import org.junit.Test;
  * 
  */
 public class SyncConfigurationManagerImplTest extends AbstractTest {
-    private SyncConfigurationManager syncConfigurationManager;
+    private SyncConfigurationManagerImpl syncConfigurationManager;
     private String configPath;
 
     @Before
@@ -68,6 +68,27 @@ public class SyncConfigurationManagerImplTest extends AbstractTest {
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
         Assert.assertNotNull(dc);
+    }
+
+    @Test
+    public void testPurgeWorkDirectory() {
+        File workDir = this.syncConfigurationManager.getWorkDirectory();
+        if(workDir != null){
+
+            if(!workDir.exists()){
+                workDir.mkdirs();
+            }
+            
+            if(workDir.list().length == 0){
+                new File(workDir, "test"+System.currentTimeMillis()).mkdir();
+            }
+        }
+
+        this.syncConfigurationManager.purgeWorkDirectory();
+
+        if(workDir != null){
+            Assert.assertTrue(workDir.list().length == 0);
+        }
     }
 
 }

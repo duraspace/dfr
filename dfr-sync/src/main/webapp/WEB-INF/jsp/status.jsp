@@ -24,6 +24,7 @@
     	    
     	    setInterval(refresh, 5000);
     	    
+    	    
     	})
     </script>
   </tiles:putAttribute>
@@ -45,17 +46,16 @@
                 </span>
 
                 <ul class="button-bar">
-                  <!-- 
                   <li>
                     <button
-                      id="cleanStart"
-                      <c:if test="${syncProcessState != 'STOPPED' }">
+                      id="stop"
+                      name="stop"
+                      <c:if test="${syncProcessState != 'RUNNING' }">
                         disabled="disabled"
                       </c:if>>
-                      <spring:message code="cleanStart" />
+                      <spring:message code="stop" />
                     </button>
                   </li>
-                  -->
 
                   <li>
                     <button
@@ -67,18 +67,33 @@
                       </c:if>>
                       <spring:message code="start" />
                     </button>
-
                   </li>
+                  
+                  
+                  
                   <li>
                     <button
-                      id="stop"
-                      name="stop"
+                      id="pause"
+                      name="pause"
+                      
                       <c:if test="${syncProcessState != 'RUNNING' }">
                         disabled="disabled"
                       </c:if>>
-                      <spring:message code="stop" />
+                      <spring:message code="pause" />
                     </button>
                   </li>
+
+                  <li>
+                    <button
+                      id="resume"
+                      name="resume"
+                      <c:if test="${syncProcessState != 'PAUSED' }">
+                        disabled="disabled"
+                      </c:if>>
+                      <spring:message code="resume" />
+                    </button>
+                  </li>
+
                 </ul>
               </form>
 
@@ -93,7 +108,16 @@
                 class="yui3-g">
 
                 <div class="yui3-u-1-2  state ${fn:toLowerCase(syncProcessState)}"></div>
-                <div class="yui3-u-1-2">${syncProcessState}</div>
+                <div class="yui3-u-1-2">
+                  <c:choose>
+                    <c:when test="${syncProcessState == 'RUNNING' and queueSize == 0 }">
+                      WAITING                                            
+                    </c:when>
+                    <c:otherwise>
+                      ${syncProcessState}
+                    </c:otherwise>
+                  </c:choose>
+                </div>
               </div>
               <table>
                 <tbody>

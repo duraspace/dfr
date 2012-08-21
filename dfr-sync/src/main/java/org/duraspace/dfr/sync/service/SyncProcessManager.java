@@ -53,4 +53,5 @@ public interface SyncProcessManager extends SyncProcess{
      * 
      */
     void clearError();
+
 }

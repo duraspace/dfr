@@ -1,5 +1,8 @@
 package org.duraspace.dfr.sync.service;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,40 +23,50 @@ public class SyncProcessStateTransitionValidatorTest {
 
     @Test
     public void testValidate() {
+
         validate(SyncProcessState.STOPPED, SyncProcessState.STARTING);
-        validate(SyncProcessState.STARTING, SyncProcessState.RUNNING);
-        validate(SyncProcessState.RUNNING, SyncProcessState.STOPPING);
-        validate(SyncProcessState.STOPPING, SyncProcessState.STOPPED);
+        
+        validate(SyncProcessState.STARTING,
+                 SyncProcessState.RUNNING,
+                 SyncProcessState.ERROR);
 
-        validate(SyncProcessState.STOPPED, SyncProcessState.RUNNING, false);
-        validate(SyncProcessState.STOPPED, SyncProcessState.STOPPING, false);
+        validate(SyncProcessState.RUNNING,
+                 SyncProcessState.STOPPING,
+                 SyncProcessState.PAUSING,
+                 SyncProcessState.ERROR);
 
-        validate(SyncProcessState.STARTING, SyncProcessState.STOPPED, false);
-        validate(SyncProcessState.STARTING, SyncProcessState.STOPPING, false);
+        validate(SyncProcessState.PAUSING,
+                 SyncProcessState.PAUSED,
+                 SyncProcessState.ERROR);
 
-        validate(SyncProcessState.RUNNING, SyncProcessState.STOPPED, false);
-        validate(SyncProcessState.RUNNING, SyncProcessState.STARTING, false);
+        validate(SyncProcessState.PAUSED,
+                 SyncProcessState.RESUMING,
+                 SyncProcessState.ERROR);
 
-        validate(SyncProcessState.STOPPING, SyncProcessState.STARTING, false);
-        validate(SyncProcessState.STOPPING, SyncProcessState.RUNNING, false);
+        validate(SyncProcessState.RESUMING,
+                 SyncProcessState.RUNNING,
+                 SyncProcessState.ERROR);
 
-        validate(SyncProcessState.STOPPED, SyncProcessState.ERROR, false);
-        validate(SyncProcessState.STARTING, SyncProcessState.ERROR);
-        validate(SyncProcessState.RUNNING, SyncProcessState.ERROR);
-        validate(SyncProcessState.STOPPING, SyncProcessState.ERROR);
-
+        validate(SyncProcessState.STOPPING,
+                 SyncProcessState.STOPPED,
+                 SyncProcessState.ERROR);
     }
 
-    private void validate(SyncProcessState from, SyncProcessState to) {
-        validate(from, to, true);
-    }
+    private void validate(SyncProcessState from, SyncProcessState... to) {
+        List<SyncProcessState> states =
+            Arrays.asList(SyncProcessState.values());
+        List<SyncProcessState> toStates = Arrays.asList(to);
 
-    private void validate(SyncProcessState from,
-                          SyncProcessState to,
-                          boolean expectedResult) {
-        Assert.assertEquals(expectedResult,
-                            v.validate(from,
-                                                                         to));
+        // for each possible state
+        for (SyncProcessState state : states) {
+            // if it is in the to states list, affirm that transition is valid
+            if (toStates.contains(state)) {
+                Assert.assertTrue(v.validate(from, state));
+            } else {
+                // otherwise assume false
+                Assert.assertFalse(v.validate(from, state));
+            }
+        }
     }
 
 }

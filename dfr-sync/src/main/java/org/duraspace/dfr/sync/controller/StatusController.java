@@ -67,22 +67,28 @@ public class StatusController {
         return redirectView;
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "stop" })
+    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "pause" })
     public View
-        stop() {
-        this.syncProcessManager.stop();
+        pause() {
+        this.syncProcessManager.pause();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 
-    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "cleanStart" })
+    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "resume" })
     public View
-        cleanStart() {
+        resume() {
         try {
-            this.syncProcessManager.cleanStart();
+            this.syncProcessManager.resume();
         } catch (SyncProcessException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        return redirectTo(STATUS_MAPPING);
+    }
+
+    @RequestMapping(value = STATUS_MAPPING, method = RequestMethod.POST, params = { "stop" })
+    public View
+        stop() {
+            this.syncProcessManager.stop();
         return redirectTo(StatusController.STATUS_MAPPING);
     }
 

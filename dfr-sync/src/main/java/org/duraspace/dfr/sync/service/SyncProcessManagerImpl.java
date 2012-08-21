@@ -28,7 +28,6 @@ import org.duraspace.dfr.sync.domain.SyncProcessStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**
@@ -49,6 +48,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private StartingState startingState = new StartingState();
     private RunningState runningState = new RunningState();
     private StoppingState stoppingState = new StoppingState();
+    private PausingState pausingState = new PausingState();
+    private PausedState pausedState = new PausedState();
+    private ResumingState resumingState = new ResumingState();
+    
     private List<SyncStateChangeListener> listeners;
     private SyncProcessStateTransitionValidator syncProcessStateTransitionValidator;
 
@@ -91,13 +94,18 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     }
 
     @Override
+    public void resume() throws SyncProcessException {
+        this.currentState.resume();
+    }
+
+    @Override
     public void stop() {
         this.currentState.stop();
     }
 
     @Override
-    public void cleanStart() throws SyncProcessException {
-        this.currentState.cleanStart();
+    public void pause() {
+        this.currentState.pause();
     }
 
     @Override
@@ -142,6 +150,17 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void startImpl() throws SyncProcessException {
         changeState(startingState);
+        startSyncProcess();
+        changeState(runningState);
+    }
+    
+    private void resumeImpl() throws SyncProcessException {
+        changeState(resumingState);
+        startSyncProcess();
+        changeState(runningState);
+    }
+    
+    private void startSyncProcess() throws SyncProcessException {
         DuracloudConfiguration dc =
             this.syncConfigurationManager.retrieveDuracloudConfiguration();
 
@@ -177,8 +196,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             throw new SyncProcessException(message, e);
         }
         // perfrom start logic here
-        changeState(runningState);
+                
     }
+
 
     private SyncProcessStats getProcessStatsImpl() {
         int queueSize = ChangedList.getInstance().getListSize();
@@ -197,6 +217,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         this.syncStartedDate = null;
     }
 
+    @SuppressWarnings("unused")
     private class InternalListener implements SyncStateChangeListener {
         private CountDownLatch latch = new CountDownLatch(1);
         private SyncProcessState state;
@@ -212,7 +233,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             }
         }
 
-        public void waitForStateChange() {
+        private void waitForStateChange() {
             try {
                 latch.await();
             } catch (InterruptedException e) {
@@ -221,27 +242,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
     }
 
-    private void cleanStartImpl() throws SyncProcessException {
-        InternalListener listener =
-            new InternalListener(SyncProcessState.STOPPED);
-        addSyncStateChangeListener(listener);
-
-        if (this.currentState.getProcessState()
-                             .equals(SyncProcessState.RUNNING)) {
-            stopImpl();
-        }
-
-        // wait for complete stop
-        if (getProcessState() != SyncProcessState.STOPPED) {
-            listener.waitForStateChange();
-        }
-
-        removeSyncStateChangeListener(listener);
-        // set clean
-        startImpl();
-    }
-
-    private void stopImpl() {
+    private void stopImpl()  {
         changeState(stoppingState);
         shutdownSyncProcess();
         final Thread t = new Thread() {
@@ -264,6 +265,30 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         t.start();
     }
 
+    private void pauseImpl() {
+        changeState(pausingState);
+        shutdownSyncProcess();
+        final Thread t = new Thread() {
+            @Override
+            public void run() {
+                SyncManager sm = SyncProcessManagerImpl.this.syncManager;
+                while (!sm.getFilesInTransfer().isEmpty()) {
+                    try {
+                        sleep(3000);
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                changeState(pausedState);
+                syncConfigurationManager.purgeWorkDirectory();
+            }
+        };
+
+        t.start();
+    }
+
     // internally the SyncProcessManagerImpl makes use of the Gof4 State
     // pattern.
     private abstract class InternalState implements SyncProcess {
@@ -278,8 +303,13 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
 
         @Override
-        public void cleanStart() throws SyncProcessException {
-            cleanStartImpl();
+        public void resume() throws SyncProcessException{
+            // do nothing by default
+        }
+
+        @Override
+        public void pause() {
+            //do nothing by default
         }
 
         @Override
@@ -300,10 +330,31 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
     }
 
+    
+    private class PausedState extends InternalState {
+        @Override
+        public void resume() throws SyncProcessException {
+            resumeImpl();
+        }
+
+        @Override
+        public SyncProcessState getProcessState() {
+            return SyncProcessState.PAUSED;
+        }
+    }
+
+    
     private class StartingState extends InternalState {
         @Override
         public SyncProcessState getProcessState() {
             return SyncProcessState.STARTING;
+        }
+    }
+
+    private class ResumingState extends InternalState {
+        @Override
+        public SyncProcessState getProcessState() {
+            return SyncProcessState.RESUMING;
         }
     }
 
@@ -312,6 +363,11 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         @Override
         public void stop() {
             stopImpl();
+        }
+        
+        @Override
+        public void pause() {
+            pauseImpl();
         }
 
         @Override
@@ -327,6 +383,13 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
     }
 
+    private class PausingState extends InternalState {
+        @Override
+        public SyncProcessState getProcessState() {
+            return SyncProcessState.PAUSING;
+        }
+    }
+
     @Override
     public List<MonitoredFile> getMonitoredFiles() {
         if (this.syncManager != null) {
@@ -334,6 +397,8 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         }
         return new LinkedList<MonitoredFile>();
     }
+
+
 
     @Override
     public List<File> getQueuedFiles() {

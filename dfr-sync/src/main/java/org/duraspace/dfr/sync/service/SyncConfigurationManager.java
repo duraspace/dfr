@@ -56,5 +56,7 @@ public interface SyncConfigurationManager {
     public void setConfigXmlPath(String configXml);
     
     public void persist();
+
+    public void purgeWorkDirectory();
     
 }

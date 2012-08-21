@@ -48,12 +48,22 @@ public class StatusControllerTest extends AbstractTest {
     }
 
     @Test
-    public void testCleanStart() throws SyncProcessException {
-        syncProcessManager.cleanStart();
+    public void testResume() throws SyncProcessException{
+        syncProcessManager.resume();
         EasyMock.expectLastCall();
         replay();
         
-        View v = statusController.cleanStart();
+        View v = statusController.resume();
+        Assert.assertNotNull(v);
+    }
+
+    @Test
+    public void testPause() throws SyncProcessException {
+        syncProcessManager.pause();
+        EasyMock.expectLastCall();
+        replay();
+        
+        View v = statusController.pause();
         Assert.assertNotNull(v);
     }
 

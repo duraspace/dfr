@@ -181,4 +181,18 @@ public class SyncConfigurationManagerImpl implements SyncConfigurationManager {
     public void persist() {
         persistSyncToolConfig();
     }
+
+    File getWorkDirectory() {
+        return this.syncToolConfig.getWorkDir();
+    }
+
+    @Override
+    public void purgeWorkDirectory() {
+        File workDir = this.syncToolConfig.getWorkDir();
+        if(workDir != null && workDir.exists()){
+           for(File file : workDir.listFiles()){
+               file.delete();
+           }
+        }
+    }
 }

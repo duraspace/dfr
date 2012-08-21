@@ -290,16 +290,20 @@ div.green-check {
 
 }
 
-.stopping {
+.stopping, .pausing {
   background-image: url("../image/stopping.gif");
 }
 
-.starting {
+.starting,.resuming {
   background-image: url("../image/starting.gif");
 }
 
 .stopped {
   background-image: url("../image/stopped.png") ;
+}
+
+.paused {
+  background-image: url("../image/paused.png") ;
 }
 
 .running {

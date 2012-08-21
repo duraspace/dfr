@@ -27,6 +27,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
 public class SyncProcessManagerImplTest extends AbstractTest {
     private SyncProcessManagerImpl syncProcessManagerImpl;
     private SyncConfigurationManager syncConfigurationManager;
@@ -50,7 +55,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
 
         public boolean success() {
             try {
-                return latch.await(2000, TimeUnit.MILLISECONDS);
+                return latch.await(10000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return false;
@@ -72,6 +77,9 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
 
     protected void setupStart() throws ContentStoreException {
+        setupStart(1);
+    }
+    protected void setupStart(int times) throws ContentStoreException {
         
         File directory = new File(System.getProperty("java.io.tmpdir") + File.separator + "test-" + System.currentTimeMillis());
         directory.mkdirs();
@@ -81,13 +89,13 @@ public class SyncProcessManagerImplTest extends AbstractTest {
             createMock(ContentStoreManager.class);
         contentStoreManager.login(EasyMock.isA(Credential.class));
 
-        EasyMock.expectLastCall();
+        EasyMock.expectLastCall().times(times);
 
         EasyMock.expect(contentStoreManagerFactory.create())
-                .andReturn(contentStoreManager);
+                .andReturn(contentStoreManager).times(times);
 
         EasyMock.expect(contentStoreManager.getPrimaryContentStore())
-                .andReturn(contentStore);
+                .andReturn(contentStore).times(times);
 
         EasyMock.expect(this.contentStore.getSpaceContents(EasyMock.isA(String.class)))
                 .andAnswer(new IAnswer<Iterator<String>>() {
@@ -96,20 +104,20 @@ public class SyncProcessManagerImplTest extends AbstractTest {
                         return Arrays.asList(new String[] {
                             "testFile1", "testFile2" }).iterator();
                     }
-                });
+                }).times(times);
 
         DirectoryConfigs dconfigs = new DirectoryConfigs();
         dconfigs.add(new DirectoryConfig(directory.getAbsolutePath()));
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs())
-                .andReturn(dconfigs);
+                .andReturn(dconfigs).times(times);
 
         DuracloudConfiguration dc = createMock(DuracloudConfiguration.class);
-        EasyMock.expect(dc.getUsername()).andReturn("testusername");
-        EasyMock.expect(dc.getPassword()).andReturn("testpassword");
-        EasyMock.expect(dc.getSpaceId()).andReturn("testspace");
+        EasyMock.expect(dc.getUsername()).andReturn("testusername").times(times);
+        EasyMock.expect(dc.getPassword()).andReturn("testpassword").times(times);
+        EasyMock.expect(dc.getSpaceId()).andReturn("testspace").times(times);
 
         EasyMock.expect(this.syncConfigurationManager.retrieveDuracloudConfiguration())
-                .andReturn(dc);
+                .andReturn(dc).times(times);
     }
 
     @Test
@@ -126,6 +134,57 @@ public class SyncProcessManagerImplTest extends AbstractTest {
     }
 
     @Test
+    public void testPaused() throws SyncProcessException, ContentStoreException {
+        setupStart();
+        this.syncConfigurationManager.purgeWorkDirectory();
+        EasyMock.expectLastCall();
+        replay();
+
+        TestSyncStateListener listener =
+            new TestSyncStateListener(SyncProcessState.PAUSED);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener);
+        syncProcessManagerImpl.start();
+        syncProcessManagerImpl.pause();
+        Assert.assertTrue(listener.success());
+    }
+
+    @Test
+    public void testResume() throws SyncProcessException, ContentStoreException {
+        setupStart(2);
+        this.syncConfigurationManager.purgeWorkDirectory();
+        EasyMock.expectLastCall();
+
+        replay();
+
+        TestSyncStateListener listener0 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+        TestSyncStateListener listener1 =
+            new TestSyncStateListener(SyncProcessState.PAUSING);
+        TestSyncStateListener listener2 =
+            new TestSyncStateListener(SyncProcessState.PAUSED);
+        TestSyncStateListener listener3 =
+            new TestSyncStateListener(SyncProcessState.RESUMING);
+        TestSyncStateListener listener4 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+
+        syncProcessManagerImpl.addSyncStateChangeListener(listener0);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener1);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener2);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener3);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener4);
+
+        syncProcessManagerImpl.start();
+        Assert.assertTrue(listener0.success());
+        syncProcessManagerImpl.pause();
+        Assert.assertTrue(listener1.success());
+        Assert.assertTrue(listener2.success());
+
+        syncProcessManagerImpl.resume();
+        Assert.assertTrue(listener3.success());
+        Assert.assertTrue(listener4.success());
+    }
+    
+    @Test
     public void testStart()
         throws SyncProcessException,
             ContentStoreException {
@@ -135,19 +194,6 @@ public class SyncProcessManagerImplTest extends AbstractTest {
             new TestSyncStateListener(SyncProcessState.RUNNING);
         syncProcessManagerImpl.addSyncStateChangeListener(listener);
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener.success());
-    }
-
-    @Test
-    public void testCleanStart()
-        throws SyncProcessException,
-            ContentStoreException {
-        setupStart();
-        replay();
-        TestSyncStateListener listener =
-            new TestSyncStateListener(SyncProcessState.RUNNING);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener);
-        syncProcessManagerImpl.cleanStart();
         Assert.assertTrue(listener.success());
     }
 

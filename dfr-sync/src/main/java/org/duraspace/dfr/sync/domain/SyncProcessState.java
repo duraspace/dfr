@@ -6,12 +6,17 @@ package org.duraspace.dfr.sync.domain;
 /**
  * 
  * @author Daniel Bernstein
- *
+ * 
  */
 public enum SyncProcessState {
     STOPPED, // the sync process is not running
-    STARTING,
-    RUNNING, // the sync process is running - ie it is monitoring directories and trying to upload
-    STOPPING,
-    ERROR // the system is not running.
+    STARTING, 
+    RUNNING, // the sync process is running - ie it is monitoring
+                       // directories and trying to upload
+    STOPPING, 
+    ERROR, // the system is not running.
+    PAUSING,
+    PAUSED, // the sync process is not running; upon resuming it will begin
+           // processing the queue from where it left off.
+    RESUMING
 }
