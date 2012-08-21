@@ -279,9 +279,15 @@ div.green-check {
 }
 
 #active-syncs td:nth-child(2) {
-	text-align:center;
-	width:125px;
+	text-align:right;
+	min-width:30px;
 }
+
+#active-syncs td:nth-child(3){
+  text-align:left;
+  min-width:30px;
+}
+
 
 /* sync states */
 .state {

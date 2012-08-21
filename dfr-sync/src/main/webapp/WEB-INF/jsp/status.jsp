@@ -155,15 +155,19 @@
                     <c:forEach
                       items="${monitoredFiles}"
                       var="file">
+                      <c:set var="percent" value="${100*file.streamBytesRead/file.length()}"/>
                       <tr>
                         <td>
                         <progress
                           max="100"
-                          value="${100*file.streamBytesRead/file.length()}">
+                          value="${percent}">
                         </progress>
                         </td>
                         <td>
-                          <fmt:formatNumber value="${file.length()/(1024*1000)}" maxFractionDigits="2"/> MBs
+                          <fmt:formatNumber value="${percent}" maxFractionDigits="0"/>%  of                     
+                        </td>
+                        <td>
+                           <fmt:formatNumber value="${file.length()/(1024*1000)}" maxFractionDigits="2"/> MBs
                         </td>
                         <td>
                           ${file.name}
