@@ -40,6 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class SyncProcessManagerImpl implements SyncProcessManager {
+    private static final int CHANGE_LIST_MONITOR_FREQUENCY = 5000;
     private static Logger log =
         LoggerFactory.getLogger(SyncProcessManagerImpl.class);
     private InternalState currentState;
@@ -158,12 +159,13 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             DirectoryConfigs directories =
                 this.syncConfigurationManager.retrieveDirectoryConfigs();
             List<File> dirs = directories.toFileList();
+            
             syncManager = new SyncManager(dirs, syncEndpoint, 3, // threads
-                                          10000); // change list poll frequency
+                                          CHANGE_LIST_MONITOR_FREQUENCY); // change list poll frequency
             syncManager.beginSync();
 
             dirWalker = DirWalker.start(dirs);
-            dirMonitor = new DirectoryUpdateMonitor(dirs, 10000, false);
+            dirMonitor = new DirectoryUpdateMonitor(dirs, CHANGE_LIST_MONITOR_FREQUENCY, false);
             dirMonitor.startMonitor();
             this.syncStartedDate = new Date();
         } catch (ContentStoreException e) {
