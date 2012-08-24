@@ -229,6 +229,15 @@ ul.tabs {
 	color: #FFF;
 }
 
+.section .tabs li a {
+	color: #FFF; 
+}
+
+.section .tabs li.selected a {
+	color: #555;
+}
+
+
 .wizard-panel{
 	width: 600px;
 	max-height: 400px ;

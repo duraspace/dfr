@@ -50,7 +50,7 @@
                     <button
                       id="stop"
                       name="stop"
-                      <c:if test="${syncProcessState != 'RUNNING' }">
+                      <c:if test="${syncProcessState != 'RUNNING' && syncProcessState != 'PAUSED' }">
                         disabled="disabled"
                       </c:if>>
                       <spring:message code="stop" />
@@ -110,7 +110,7 @@
                 <div class="yui3-u-1-2  state ${fn:toLowerCase(syncProcessState)}"></div>
                 <div class="yui3-u-1-2">
                   <c:choose>
-                    <c:when test="${syncProcessState == 'RUNNING' and queueSize == 0 }">
+                    <c:when test="${syncProcessState == 'RUNNING' && queueSize == 0 && empty monitoredFiles }">
                       WAITING                                            
                     </c:when>
                     <c:otherwise>
@@ -195,53 +195,93 @@
             class="section">
             <div class="header">
               <ul class="tabs">
-                <li class="selected">Queued for Synchronization
+                <li class='<c:if test="${statusTab == 'queued'}">selected</c:if>'><a href="?statusTab=queued">Queued for Synchronization</a>
                   (${queueSize})</li>
-                <li>Errors</li>
+                <li id="errors-tab" class='<c:if test="${statusTab == 'errors'}">selected</c:if>'><a href="?statusTab=errors">Errors</a></li>
               </ul>
             </div>
             <div class="body">
               <c:choose>
-                <c:when test="${not empty queuedFiles}">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>File Path</th>
-                        <th>Size</th>
-                        <th>Last Modified Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <c:forEach
-                        items="${queuedFiles}"
-                        var="file">
-                        <jsp:useBean
-                          id="lastModifiedDate"
-                          class="java.util.Date" />
-                        <jsp:setProperty
-                          name="lastModifiedDate"
-                          property="time"
-                          value="${file.lastModified()}" />
-
-
-                        <tr>
-                          <td>${file.absolutePath}</td>
-                          <td><fmt:formatNumber value="${file.length()}" /></td>
-                          <td><fmt:formatDate
-                              value="${lastModifiedDate}"
-                              pattern="MM/dd/yyyy HH:mm a z" /></td>
-                        </tr>
-                      </c:forEach>
-                    </tbody>
-                  </table>
-
+                <c:when test="${statusTab == 'queued' }">
+                  <%-- begin queued --%>
+                  <div id="queued">
+                  <c:choose>
+                      <c:when test="${not empty queuedFiles}">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>File Path</th>
+                              <th>Size</th>
+                              <th>Last Modified Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <c:forEach
+                              items="${queuedFiles}"
+                              var="file">
+                              <jsp:useBean
+                                id="lastModifiedDate"
+                                class="java.util.Date" />
+                              <jsp:setProperty
+                                name="lastModifiedDate"
+                                property="time"
+                                value="${file.lastModified()}" />
+                              <tr>
+                                <td>${file.absolutePath}</td>
+                                <td><fmt:formatNumber value="${file.length()}" /></td>
+                                <td><fmt:formatDate
+                                    value="${lastModifiedDate}"
+                                    pattern="MM/dd/yyyy HH:mm a z" /></td>
+                              </tr>
+                            </c:forEach>
+                          </tbody>
+                        </table>
+                      </c:when>
+                      <c:otherwise>
+                        <p>There are no files currently queued for
+                          synchronization.</p>
+                      </c:otherwise>
+                    </c:choose>
+                  </div>
+                  
+                  <%-- end queued --%> 
                 </c:when>
                 <c:otherwise>
-                  <p>There are no files currently queued for
-                    synchronization.
+                  <%-- start errors --%>
+                  <div id="errors">
+                  <c:choose>
+                    <c:when test="${not empty errors}">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th><input type="checkbox"/></th>
+                              <th>File Path</th>
+                              <th>Cause</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <c:forEach
+                              items="${queuedFiles}"
+                              var="file">
+                              <tr>
+                                <td><input type="checkbox"/>
+                                <td>${file.absolutePath}</td>
+                                <td>cause here</td>
+                              </tr>
+                            </c:forEach>
+                          </tbody>
+                        </table>
+                    </c:when>
+                    <c:otherwise>
+                        <p>There are no files currently queued for
+                          synchronization.</p>
+                       </c:otherwise>
+                    </c:choose>
+                    </div>                  
+                  <%-- end errors --%>
                 </c:otherwise>
               </c:choose>
-            </div>
+              </div>
           </div>
         </div>
       </div>

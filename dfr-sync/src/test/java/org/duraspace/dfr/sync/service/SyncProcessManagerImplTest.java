@@ -55,7 +55,7 @@ public class SyncProcessManagerImplTest extends AbstractTest {
 
         public boolean success() {
             try {
-                return latch.await(10000, TimeUnit.MILLISECONDS);
+                return latch.await(20000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return false;
@@ -119,70 +119,44 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         EasyMock.expect(this.syncConfigurationManager.retrieveDuracloudConfiguration())
                 .andReturn(dc).times(times);
     }
-
+    
     @Test
-    public void testStop() throws SyncProcessException, ContentStoreException {
-        setupStart();
-        replay();
-
-        TestSyncStateListener listener =
-            new TestSyncStateListener(SyncProcessState.STOPPED);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener);
-        syncProcessManagerImpl.start();
-        syncProcessManagerImpl.stop();
-        Assert.assertTrue(listener.success());
-    }
-
-    @Test
-    public void testPaused() throws SyncProcessException, ContentStoreException {
-        setupStart();
-        this.syncConfigurationManager.purgeWorkDirectory();
-        EasyMock.expectLastCall();
-        replay();
-
-        TestSyncStateListener listener =
-            new TestSyncStateListener(SyncProcessState.PAUSED);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener);
-        syncProcessManagerImpl.start();
-        syncProcessManagerImpl.pause();
-        Assert.assertTrue(listener.success());
-    }
-
-    @Test
-    public void testResume() throws SyncProcessException, ContentStoreException {
+    public void testResume() throws Exception {
         setupStart(2);
-        this.syncConfigurationManager.purgeWorkDirectory();
-        EasyMock.expectLastCall();
 
         replay();
+        
+        TestSyncStateListener[] listeners =  {
+            new TestSyncStateListener(SyncProcessState.RUNNING),
+            new TestSyncStateListener(SyncProcessState.PAUSING),
+            new TestSyncStateListener(SyncProcessState.PAUSED),
+            new TestSyncStateListener(SyncProcessState.RESUMING),
+            new TestSyncStateListener(SyncProcessState.RUNNING)            
+        };
 
-        TestSyncStateListener listener0 =
-            new TestSyncStateListener(SyncProcessState.RUNNING);
-        TestSyncStateListener listener1 =
-            new TestSyncStateListener(SyncProcessState.PAUSING);
-        TestSyncStateListener listener2 =
-            new TestSyncStateListener(SyncProcessState.PAUSED);
-        TestSyncStateListener listener3 =
-            new TestSyncStateListener(SyncProcessState.RESUMING);
-        TestSyncStateListener listener4 =
-            new TestSyncStateListener(SyncProcessState.RUNNING);
 
-        syncProcessManagerImpl.addSyncStateChangeListener(listener0);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener1);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener2);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener3);
-        syncProcessManagerImpl.addSyncStateChangeListener(listener4);
+        for(TestSyncStateListener listener : listeners){
+            syncProcessManagerImpl.addSyncStateChangeListener(listener);
+        }
 
         syncProcessManagerImpl.start();
-        Assert.assertTrue(listener0.success());
+        int i = -1;
+        Assert.assertTrue(listeners[++i].success());
         syncProcessManagerImpl.pause();
-        Assert.assertTrue(listener1.success());
-        Assert.assertTrue(listener2.success());
+        Assert.assertTrue(listeners[++i].success());
+        Assert.assertTrue(listeners[++i].success());
 
         syncProcessManagerImpl.resume();
-        Assert.assertTrue(listener3.success());
-        Assert.assertTrue(listener4.success());
-    }
+        
+        Assert.assertTrue(listeners[++i].success());
+        Assert.assertTrue(listeners[++i].success());
+        
+        //this sleep seems to be necessary: otherwise 
+        //the verify step is returning strange info: 
+        //namely it complains about a verify problem
+        //even though the expected and actual calls are equal.
+        Thread.sleep(1000);
+    }    
     
     @Test
     public void testStart()
@@ -195,6 +169,44 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         syncProcessManagerImpl.addSyncStateChangeListener(listener);
         syncProcessManagerImpl.start();
         Assert.assertTrue(listener.success());
+    }
+
+    @Test
+    public void testStop() throws SyncProcessException, ContentStoreException {
+        setupStart();
+        this.syncConfigurationManager.purgeWorkDirectory();
+        EasyMock.expectLastCall();
+
+        replay();
+
+        TestSyncStateListener listener0 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+        TestSyncStateListener listener1 =
+            new TestSyncStateListener(SyncProcessState.STOPPED);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener0);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener1);
+        syncProcessManagerImpl.start();
+        Assert.assertTrue(listener0.success());
+        syncProcessManagerImpl.stop();
+        Assert.assertTrue(listener1.success());
+    }
+
+    @Test
+    public void testPaused() throws SyncProcessException, ContentStoreException {
+        setupStart();
+        replay();
+
+        TestSyncStateListener listener0 =
+            new TestSyncStateListener(SyncProcessState.RUNNING);
+
+        TestSyncStateListener listener1 =
+            new TestSyncStateListener(SyncProcessState.PAUSED);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener0);
+        syncProcessManagerImpl.addSyncStateChangeListener(listener1);
+        syncProcessManagerImpl.start();
+        Assert.assertTrue(listener0.success());
+        syncProcessManagerImpl.pause();
+        Assert.assertTrue(listener1.success());
     }
 
     @Test

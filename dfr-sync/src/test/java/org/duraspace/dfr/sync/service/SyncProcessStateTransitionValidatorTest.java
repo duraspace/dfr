@@ -41,7 +41,8 @@ public class SyncProcessStateTransitionValidatorTest {
 
         validate(SyncProcessState.PAUSED,
                  SyncProcessState.RESUMING,
-                 SyncProcessState.ERROR);
+                 SyncProcessState.ERROR,
+                 SyncProcessState.STOPPING);
 
         validate(SyncProcessState.RESUMING,
                  SyncProcessState.RUNNING,

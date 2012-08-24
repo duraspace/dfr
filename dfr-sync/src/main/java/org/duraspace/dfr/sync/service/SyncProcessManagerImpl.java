@@ -150,14 +150,28 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void startImpl() throws SyncProcessException {
         changeState(startingState);
-        startSyncProcess();
-        changeState(runningState);
+        this.syncStartedDate = new Date();
+        startAsynchronously();
     }
     
+    private void startAsynchronously() {
+        new Thread(new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    startSyncProcess();
+                    changeState(runningState);
+                } catch (SyncProcessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     private void resumeImpl() throws SyncProcessException {
         changeState(resumingState);
-        startSyncProcess();
-        changeState(runningState);
+        startAsynchronously();
     }
     
     private void startSyncProcess() throws SyncProcessException {
@@ -186,11 +200,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             dirWalker = DirWalker.start(dirs);
             dirMonitor = new DirectoryUpdateMonitor(dirs, CHANGE_LIST_MONITOR_FREQUENCY, false);
             dirMonitor.startMonitor();
-            this.syncStartedDate = new Date();
         } catch (ContentStoreException e) {
             String message = "unable to get primary content store.";
             log.error(message, e);
-            this.error = new SyncProcessError(e.getMessage());
+            setError(new SyncProcessError(e.getMessage()));
             shutdownSyncProcess();
             changeState(stoppedState);
             throw new SyncProcessException(message, e);
@@ -199,6 +212,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 
     }
 
+
+    private void setError(SyncProcessError error) {
+        this.error = error;
+    }
 
     private SyncProcessStats getProcessStatsImpl() {
         int queueSize = ChangedList.getInstance().getListSize();
@@ -212,11 +229,18 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void shutdownSyncProcess() {
         this.syncManager.terminateSync();
-        this.dirMonitor.stopMonitor();
+        try{
+            this.dirMonitor.stopMonitor();
+        }catch(Exception ex){
+            log.warn("stop monitor failed: " + ex.getMessage());
+        }
         this.dirWalker.stopWalk();
-        this.syncStartedDate = null;
     }
-
+    
+    private void resetChangeList() {
+        ChangedList.getInstance().clear();
+    }
+    
     @SuppressWarnings("unused")
     private class InternalListener implements SyncStateChangeListener {
         private CountDownLatch latch = new CountDownLatch(1);
@@ -244,10 +268,13 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void stopImpl()  {
         changeState(stoppingState);
-        shutdownSyncProcess();
+        
         final Thread t = new Thread() {
             @Override
             public void run() {
+                shutdownSyncProcess();
+                syncStartedDate = null;
+                
                 SyncManager sm = SyncProcessManagerImpl.this.syncManager;
                 while (!sm.getFilesInTransfer().isEmpty()) {
                     try {
@@ -258,6 +285,9 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                     }
                 }
 
+                syncConfigurationManager.purgeWorkDirectory();
+                resetChangeList();
+
                 changeState(stoppedState);
             }
         };
@@ -267,10 +297,10 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
 
     private void pauseImpl() {
         changeState(pausingState);
-        shutdownSyncProcess();
         final Thread t = new Thread() {
             @Override
             public void run() {
+                shutdownSyncProcess();
                 SyncManager sm = SyncProcessManagerImpl.this.syncManager;
                 while (!sm.getFilesInTransfer().isEmpty()) {
                     try {
@@ -282,7 +312,6 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                 }
 
                 changeState(pausedState);
-                syncConfigurationManager.purgeWorkDirectory();
             }
         };
 
@@ -335,6 +364,11 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         @Override
         public void resume() throws SyncProcessException {
             resumeImpl();
+        }
+
+        @Override
+        public void stop() {
+            stopImpl();
         }
 
         @Override

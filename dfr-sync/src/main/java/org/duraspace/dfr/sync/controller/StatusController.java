@@ -4,11 +4,9 @@
 package org.duraspace.dfr.sync.controller;
 
 import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.duracloud.sync.endpoint.MonitoredFile;
-import org.duracloud.sync.mgmt.ChangedList;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
 import org.duraspace.dfr.sync.service.SyncProcessException;
@@ -17,10 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
@@ -43,9 +45,12 @@ public class StatusController {
         this.syncProcessManager = syncProcessManager;
     }
 
+
+
     @RequestMapping(value = { "" })
-    public String get() {
+    public String get(@RequestParam(required=false, defaultValue="queued") String statusTab, Model model) {
         log.debug("accessing status page");
+        model.addAttribute("statusTab", statusTab);
         return "status";
     }
 

@@ -12,7 +12,7 @@
       </p>
 
       <tiles:insertAttribute name="panelContent" />
-
+      
     </div>
   </div>
 </div>

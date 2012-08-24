@@ -40,7 +40,8 @@ public class SyncProcessStateTransitionValidator {
                 return true;
             }
         } else if (from == SyncProcessState.PAUSED) {
-            if (to == SyncProcessState.RESUMING || to == SyncProcessState.ERROR) {
+            if (to == SyncProcessState.RESUMING || to == SyncProcessState.ERROR || 
+                    to == SyncProcessState.STOPPING) {
                 return true;
             }
         } else if (from == SyncProcessState.RESUMING) {

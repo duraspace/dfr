@@ -27,5 +27,19 @@ public class TestStatusPage extends BasePostSetupPage {
     public void testGet() {
         sc.open(getAppRoot() + "/status");
         Assert.assertTrue(isElementPresent("id=active-syncs"));
+        Assert.assertTrue(isElementPresent("id=queued"));
+        Assert.assertFalse(isElementPresent("id=errors"));
+        clickAndWait("css=#errors-tab a");
+        Assert.assertTrue(isElementPresent("id=errors"));
+        Assert.assertFalse(isElementPresent("id=queued"));
+        
     }
+
+    @Test
+    public void testGetErrorsTabActivated() {
+        sc.open(getAppRoot() + "/status?statusTab=errors");
+        Assert.assertTrue(isElementPresent("id=errors"));
+
+    }
+
 }

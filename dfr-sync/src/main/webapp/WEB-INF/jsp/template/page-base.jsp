@@ -32,5 +32,17 @@
 
 <body>
   <tiles:insertAttribute name="body" />
+
+      <script>
+        $(function(){
+            $("button").click(function(evt){
+                setTimeout(function(){
+                    $("button").attr("disabled", "disabled");
+                    //$(evt.target).html("<i class='working'></i>");
+                },100);
+            });
+        });
+      </script>
+
 </body>
 </html>

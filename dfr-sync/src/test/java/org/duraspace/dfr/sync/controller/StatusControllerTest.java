@@ -9,6 +9,7 @@ import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.web.servlet.View;
 
 /**
@@ -32,7 +33,7 @@ public class StatusControllerTest extends AbstractTest {
     public void testStatus() {
         replay();
         
-        String s = statusController.get();
+        String s = statusController.get("queued", new ExtendedModelMap());
         Assert.assertNotNull(s);
     }
 
