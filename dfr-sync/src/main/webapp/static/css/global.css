@@ -178,6 +178,10 @@ ul.button-bar li {
 	margin-bottom:10px;
 }
 
+#status-indicator.error {
+  background-color: rgba(255,0,0,0.3);  
+}
+
 #status-indicator > div:last-child {
 	text-align: right;
 }

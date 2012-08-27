@@ -151,6 +151,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     private void startImpl() throws SyncProcessException {
         changeState(startingState);
         this.syncStartedDate = new Date();
+        setError(null);
         startAsynchronously();
     }
     
@@ -162,8 +163,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
                     startSyncProcess();
                     changeState(runningState);
                 } catch (SyncProcessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    log.error("start failed: " + e.getMessage(), e);
                 }
             }
         }).start();
@@ -205,6 +205,7 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             log.error(message, e);
             setError(new SyncProcessError(e.getMessage()));
             shutdownSyncProcess();
+            changeState(stoppingState);
             changeState(stoppedState);
             throw new SyncProcessException(message, e);
         }
@@ -228,13 +229,18 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
     }
 
     private void shutdownSyncProcess() {
-        this.syncManager.terminateSync();
+        if(this.syncManager != null){
+            this.syncManager.terminateSync();
+        }
         try{
             this.dirMonitor.stopMonitor();
         }catch(Exception ex){
             log.warn("stop monitor failed: " + ex.getMessage());
         }
-        this.dirWalker.stopWalk();
+        
+        if(this.dirWalker != null){
+            this.dirWalker.stopWalk();
+        }
     }
     
     private void resetChangeList() {

@@ -43,5 +43,9 @@ public class SyncProcessError {
         this.descriptionMessageKey = descriptionMessageKey;
         this.suggestedResolutionMessgeKey = suggestedResolutionMessgeKey;
     }
+    
+    public String getDetail(){
+        return this.detail;
+    }
 
 }

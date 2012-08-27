@@ -24,7 +24,7 @@ public class SyncProcessStateTransitionValidator {
                 return true;
             }
         } else if (from == SyncProcessState.STARTING) {
-            if (to == SyncProcessState.RUNNING || to == SyncProcessState.ERROR) {
+            if (to == SyncProcessState.RUNNING || to == SyncProcessState.STOPPING || to == SyncProcessState.ERROR) {
                 return true;
             }
         } else if (from == SyncProcessState.RUNNING) {

@@ -9,6 +9,7 @@ import java.util.List;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
+import org.duraspace.dfr.sync.service.SyncProcessError;
 import org.duraspace.dfr.sync.service.SyncProcessException;
 import org.duraspace.dfr.sync.service.SyncProcessManager;
 import org.slf4j.Logger;
@@ -105,6 +106,11 @@ public class StatusController {
     @ModelAttribute
     public SyncProcessState syncProcessState() {
         return this.syncProcessManager.getProcessState();
+    }
+
+    @ModelAttribute("currentError")
+    public SyncProcessError currentError() {
+        return this.syncProcessManager.getError();
     }
 
     @ModelAttribute("monitoredFiles")
