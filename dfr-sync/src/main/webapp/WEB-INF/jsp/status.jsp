@@ -127,12 +127,24 @@
                 <tbody>
                   <tr>
                     <td><spring:message code="startDate" /></td>
-                    <td>${syncProcessStats.startDate}</td>
+                    <td>
+                      <c:choose>
+                        <c:when test="${not empty syncProcessStats.startDate}">
+                            ${syncProcessStats.startDate}</td>
+                        
+                        </c:when>
+                        <c:otherwise>
+                          --
+                        </c:otherwise>
+                      </c:choose>
                   </tr>
+                  <!-- estimated completion date has not yet been implemented. 
                   <tr>
                     <td><spring:message code="estimatedCompletionDate" /></td>
                     <td>${syncProcessStats.estimatedCompletionDate}</td>
                   </tr>
+                   -->
+                  
                   <tr>
                     <td><spring:message code="queueSize" /></td>
                     <td>${queueSize}</td>
