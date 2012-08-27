@@ -6,8 +6,13 @@
 <tiles:insertDefinition
   name="app-base"
   flush="true">
+
+  <tiles:putAttribute name="primaryTab" value="log" cascade="true"/>
+  
   <tiles:putAttribute
     name="content"
-    cascade="true">Log Content Goes Here</tiles:putAttribute>
+    cascade="true">
+    <div id="log">Log Content Goes Here</div>
+  </tiles:putAttribute>
 </tiles:insertDefinition>
 

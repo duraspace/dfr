@@ -31,6 +31,7 @@
   <definition name="login" template="/WEB-INF/jsp/login.jsp" />
   <definition name="exception" template="/WEB-INF/jsp/exception.jsp" />
   <definition name="status"  template="/WEB-INF/jsp/status.jsp" />
+  <definition name="log"  template="/WEB-INF/jsp/log.jsp" />
   <definition name="errors"  template="/WEB-INF/jsp/errors.jsp" />
   <definition name="configuration"  template="/WEB-INF/jsp/configuration.jsp" />
   <definition name="log"  template="/WEB-INF/jsp/log.jsp" />

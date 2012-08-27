@@ -18,12 +18,15 @@
     </a>
   </li>
 
-  <li>
+
+  <li class='<c:if test="${primaryTab == 'log'}">selected</c:if>'>
     <a
-     href="#${pageContext.request.contextPath}/log">
+     href="${pageContext.request.contextPath}/log">
       <spring:message
        code="log" />
     </a>
   </li>
+
+
 </ul>
 
