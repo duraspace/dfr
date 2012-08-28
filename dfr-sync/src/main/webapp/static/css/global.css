@@ -195,6 +195,12 @@ ul.button-bar li {
 	float:right;
 }
 
+#log {
+  min-height: 300px;
+  color: #DDD;
+  padding: 10px;
+}
+
 ul.tabs li {
 	display: inline;
 	vertical-align: bottom;
