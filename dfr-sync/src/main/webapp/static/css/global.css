@@ -33,7 +33,7 @@ button {
   border-radius: 5px;  
   border-collapse: collapse;
   background-color: #DDD;
-  box-shadow: 2px 2px 3px #555;
+  box-shadow: 3px 3px 4px #555;
 }
 
 button:active {
