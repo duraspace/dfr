@@ -28,6 +28,32 @@ th {
 	text-align: left;
 }
 
+button {
+  border: 1px solid #555;
+  border-radius: 5px;  
+  border-collapse: collapse;
+  background-color: #DDD;
+  box-shadow: 2px 2px 3px #555;
+}
+
+button:active {
+  box-shadow: 1px 1px 2px #555;
+  
+}
+
+button:hover {
+  border: 1px solid #0E0;
+}
+
+button[disabled] {
+  background-color: #999; 
+  box-shadow: 0px 0px 0px #555;
+  color: #EEE;
+}
+button[disabled]:hover {
+  border: 1px solid #555;
+}
+
 table {
 	width:100%;
 	border-collapse: collapse;
@@ -119,6 +145,14 @@ ul.global-errors, input.error  {
 	padding-right:5px;
 }
 
+.tabs li[class='']:hover {
+  border-top: 1px solid #0E0;
+  background-color: #555;
+} 
+
+.tabs li[class='']:hover a {
+  color: #FFF; 
+}
 
 #footer ul li:after{
 	content: "|";
@@ -370,6 +404,3 @@ div.green-check {
 }
 
 
-.running {
-  background-image: url("../image/running.png") ;
-}
