@@ -320,23 +320,56 @@ div.green-check {
 
 }
 
-.stopping, .pausing {
-  background-image: url("../image/stopping.gif");
+#status-indicator {
+  color: #555;
+}
+#status-indicator.stopping,
+#status-indicator.pausing,
+#status-indicator.paused {
+  background-color: #e68500;
+  color: #efc600;
 }
 
-.starting,.resuming {
+#status-indicator.error {
+  background-color: #dc0c11;
+  border: 1px solid #f3c1c3
+  color: #f3c1c3;
+}
+
+
+#status-indicator.stopping .state,
+#status-indicator.pausing .state {
+  background-image: url("../image/stopping.gif");
+ 
+}
+
+#status-indicator.paused .state {
+  background-image: url("../image/paused.png");
+ 
+}
+
+#status-indicator.starting, 
+#status-indicator.resuming,
+#status-indicator.running {
+  background-color: #0d9c00;
+  color: #cffbd4;
+
+}
+
+#status-indicator.starting div.state,
+#status-indicator.resuming div.state {
   background-image: url("../image/starting.gif");
 }
 
-.stopped {
-  background-image: url("../image/stopped.png") ;
+#status-indicator.running div.state {
+  background-image: url("../image/running.png");
 }
 
-.paused {
-  background-image: url("../image/paused.png") ;
+#status-indicator.stopped .state {
+  background-image: url("../image/stopped.png");
 }
+
 
 .running {
   background-image: url("../image/running.png") ;
 }
-

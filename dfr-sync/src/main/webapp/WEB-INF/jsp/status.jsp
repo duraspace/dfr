@@ -104,19 +104,19 @@
                 value="${syncProcessStats.queueSize}" />
               <div
                 id="status-indicator"
-                class="yui3-g  <c:if test="${ currentError != null }">error</c:if>">
+                class="yui3-g  ${fn:toLowerCase(syncProcessState)} <c:if test="${ currentError != null }">error</c:if>">
 
-                <div class="yui3-u-1-2  state ${fn:toLowerCase(syncProcessState)}"></div>
+                <div class="yui3-u-1-2  state"></div>
                 <div class="yui3-u-1-2">
                   <c:choose>
                     <c:when test="${currentError != null }">
                       ${currentError.detail}                    
                     </c:when>
                     <c:when test="${syncProcessState == 'RUNNING' && queueSize == 0 && empty monitoredFiles }">
-                      WAITING                                            
+                      <spring:message code="waiting" />
                     </c:when>
                     <c:otherwise>
-                      ${syncProcessState}
+                      <spring:message code="${fn:toLowerCase(syncProcessState)}"/>
                     </c:otherwise>
                   </c:choose>
                   
