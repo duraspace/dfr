@@ -198,21 +198,29 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
             syncManager.beginSync();
 
             dirWalker = DirWalker.start(dirs);
-            dirMonitor = new DirectoryUpdateMonitor(dirs, CHANGE_LIST_MONITOR_FREQUENCY, false);
+            dirMonitor =
+                new DirectoryUpdateMonitor(dirs,
+                                           CHANGE_LIST_MONITOR_FREQUENCY,
+                                           false);
             dirMonitor.startMonitor();
         } catch (ContentStoreException e) {
             String message = "unable to get primary content store.";
-            log.error(message, e);
-            setError(new SyncProcessError(e.getMessage()));
-            shutdownSyncProcess();
-            changeState(stoppingState);
-            changeState(stoppedState);
-            throw new SyncProcessException(message, e);
+            handleStartupException(message, e);
+        } catch (Exception e){
+            String message = "Unexpected error: " + e.getMessage();
+            handleStartupException(message, e);
         }
-        // perfrom start logic here
-                
     }
 
+    private void handleStartupException(String message, Exception e)
+        throws SyncProcessException {
+        log.error(message, e);
+        setError(new SyncProcessError(e.getMessage()));
+        shutdownSyncProcess();
+        changeState(stoppingState);
+        changeState(stoppedState);
+        throw new SyncProcessException(message, e);
+    }
 
     private void setError(SyncProcessError error) {
         this.error = error;
