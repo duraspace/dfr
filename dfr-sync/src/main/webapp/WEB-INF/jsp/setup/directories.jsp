@@ -16,7 +16,8 @@
   <tiles:putAttribute
     name="panelMessage"
     cascade="true">
-       
+       To add one or more directories, click the 'Add' button below. When you are finished, click 'Next' 
+       to continue with the setup. 
     </tiles:putAttribute>
 
   <tiles:putAttribute
@@ -26,12 +27,20 @@
     <form method="POST">
       <table>
         <thead>
-          <button
-            id="add"
-            type="submit"
-            name="_eventId_add">
-            <spring:message code="add" />
-          </button>
+          <tr>
+            <th>
+              <ul class="button-bar">
+                <li>
+                    <button
+                      id="add"
+                      type="submit"
+                      name="_eventId_add">
+                      Add Directory or Files
+                    </button>
+                </li>
+              </ul>
+            </th>
+          <tr>
         </thead>
         <tbody>
           <c:choose>

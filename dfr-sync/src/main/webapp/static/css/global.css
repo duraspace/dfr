@@ -11,7 +11,8 @@
 body {
 	margin:0;	
 	background: url("../image/bg_clouds.jpg") no-repeat;
-	
+    font-family: arial, sans-serif;
+    
 }
 
 ul, li {
@@ -28,29 +29,37 @@ th {
 	text-align: left;
 }
 
-button {
+a.button, button {
   border: 1px solid #555;
   border-radius: 5px;  
   border-collapse: collapse;
   background-color: #DDD;
   box-shadow: 3px 3px 4px #555;
+  color: #555;
+  font-size: 12px;
 }
 
-button:active {
+a.button {
+  padding: 2px 6px 3px;
+  text-decoration: none;
+}
+
+a.button:active, button:active {
   box-shadow: 1px 1px 2px #555;
   
 }
 
-button:hover {
+a.button:hover, button:hover {
   border: 1px solid #0E0;
 }
 
-button[disabled] {
+a.button[disabled], button[disabled] {
   background-color: #999; 
   box-shadow: 0px 0px 0px #555;
   color: #EEE;
 }
-button[disabled]:hover {
+
+a.button[disabled]:hover, button[disabled]:hover {
   border: 1px solid #555;
 }
 
@@ -77,6 +86,10 @@ tr:nth-child(odd) {
 
 thead > tr:nth-child(odd) {
 	background-color: transparent;
+}
+
+thead  ul{
+  padding-bottom:10px !important;  
 }
 
 
@@ -179,6 +192,11 @@ div.section > div.header {
 	overflow: hidden;
 }
 
+div.header > .button-bar {
+  display:inline;
+  float:right;
+  
+}
 div.section {
 	border-radius: 5px;
 }
@@ -186,6 +204,8 @@ div.section {
 div.section, div.section > div.body {
 	background-color: #DDD;
 	color: #000;
+    border-radius: 5px;
+
 }
 
 div.section > div.body, div.section > div.header {
@@ -403,4 +423,9 @@ div.green-check {
   background-image: url("../image/stopped.png");
 }
 
+.dialog {
+   box-shadow: 3px 3px 4px #555;
+   border: 1px solid #EEE;
+   border-radius: 5px;
+}
 

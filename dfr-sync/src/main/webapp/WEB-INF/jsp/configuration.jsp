@@ -20,14 +20,11 @@
             <div class="header">
               <span> <spring:message code="watchedDirectories" />
               </span>
-              <!-- 
               <ul class="button-bar">
-                <li><a
-                  href="#"
-                  id="add"> <spring:message code="add" />
-                </a></li>
+                <li>
+                  <a id="add" class="button" href="${pageContext.request.contextPath}/setup">Add</a>
+                </li>
               </ul>
-               -->
               
             </div>
             <div class="body">
@@ -61,14 +58,76 @@
           <div class="section top">
             <div class="header">
               <span> <spring:message code="duracloudConfiguration" /></span>
-              <!-- 
               <ul class="button-bar">
-                <li><a
-                  href="#"
-                  id="edit"> <spring:message code="edit" />
-                </a></li>
+                <li>
+                  <a id="edit" class="button">
+                    <spring:message code="edit"/>
+                  </a>
+                </li>
               </ul>
-               -->              
+              <div id="add-dialog" class="dialog" style="display:none"></div>
+              <script>
+              	$(function(){
+              	    $("#add-dialog").dialog({
+              	       modal: true,
+              	       open: function(){
+              	           var dialog = this;
+              	           
+              	           $("#cancel", this).live("click",function(e){
+              	               $(dialog).dialog("close");
+              	               return false;
+              	           });
+
+              	           $("#add", this).live("click",function(e){
+              	               var jqxhr = $.post("configuration/add")
+              	                .done(function(){
+									if(jqxhr.responseText.indexOf("success") < 0){
+									    $(dialog)
+	              	                	.empty()
+	              	                	.append($(jqxhr.responseText));
+									    
+									}else{
+									    alert("not yet implemented!");
+									    window.location.reload();
+									}
+									
+									return false;
+              	                    
+              	                });
+              	               
+              	               e.preventDefault();
+              	               return false;
+              	           });
+
+              	           var jqxhr = $.get("configuration/add")
+              	            .done(function(){
+              	                $("#add-dialog")
+              	                	.empty()
+              	                	.append($(jqxhr.responseText));
+              	            });
+              	       },
+              	       position:"top",
+              	       autoOpen: false,
+              	       closeText: "",
+              	       width: "500px"
+              	    	
+              	    });
+              	    
+              	    $("#add").click(function(e){
+              	        e.preventDefault();
+              	        $("#add-dialog").dialog("open");
+              	        return false;
+              	    });
+              	    
+              	    $("#edit").click(function(e){
+              	        alert("coming soon");
+              	        return false;
+              	    });
+    
+              	});
+              	
+              
+              </script>
               
             </div>
             <div class="body">

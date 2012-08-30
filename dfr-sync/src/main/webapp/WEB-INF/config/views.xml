@@ -11,6 +11,12 @@
     <put-attribute name="body"></put-attribute>  
   </definition>
  
+   <definition name="basic-panel" template="/WEB-INF/jsp/template/basic-panel.jsp">
+    <put-attribute name="panelTitle"  />
+    <put-attribute name="panelContent" />
+  </definition>
+
+ 
   <definition name="app-base" extends="page-base">
 
     <put-attribute name="body">
@@ -36,5 +42,7 @@
   <definition name="configuration"  template="/WEB-INF/jsp/configuration.jsp" />
   <definition name="log"  template="/WEB-INF/jsp/log.jsp" />
   <definition name="jqueryFileTree"  template="/WEB-INF/jsp/jqueryFileTree.jsp" />
-
+  <definition name="directory"  template="/WEB-INF/jsp/directory.jsp" />
+  <definition name="success"  template="/WEB-INF/jsp/success.jsp" />
+  
 </tiles-definitions>
