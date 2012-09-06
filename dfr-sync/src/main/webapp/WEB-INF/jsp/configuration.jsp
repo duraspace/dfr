@@ -22,13 +22,13 @@
               </span>
               <ul class="button-bar">
                 <li>
-                  <a id="add" class="button" href="${pageContext.request.contextPath}/setup">Add</a>
+                  <a id="add" class="button">Add</a>
                 </li>
               </ul>
               
             </div>
             <div class="body">
-              <table id="directories">
+              <table id="directories" >
                 <tbody>
                   <c:choose>
                     <c:when test="${not empty directoryConfigs}">
@@ -37,6 +37,14 @@
                         var="dc">
                         <tr>
                           <td>${dc.directoryPath}</td>
+                          <td>
+                            <c:if test="${directoryConfigs.size() > 1}">
+                              <form action="configuration/remove" method="post">
+                                <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
+                                <button class="trash" type="submit" title="remove">Remove</button>
+                              </form>
+                            </c:if>
+                          </td>
                         </tr>
                       </c:forEach>
                     </c:when>
@@ -79,7 +87,7 @@
               	           });
 
               	           $("#add", this).live("click",function(e){
-              	               var jqxhr = $.post("configuration/add")
+              	               var jqxhr = $.post("configuration/add", $("#directoryConfigForm").serialize())
               	                .done(function(){
 									if(jqxhr.responseText.indexOf("success") < 0){
 									    $(dialog)
@@ -87,14 +95,10 @@
 	              	                	.append($(jqxhr.responseText));
 									    
 									}else{
-									    alert("not yet implemented!");
 									    window.location.reload();
 									}
-									
 									return false;
-              	                    
               	                });
-              	               
               	               e.preventDefault();
               	               return false;
               	           });

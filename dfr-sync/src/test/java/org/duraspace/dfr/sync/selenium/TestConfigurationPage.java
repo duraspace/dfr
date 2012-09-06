@@ -21,4 +21,17 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Assert.assertTrue(isTextPresent(props.getProperty("username")));
 
     }
+    
+    @Test
+    public void testAdd() throws Exception{
+        sc.open(getAppRoot()+"/configuration");
+        Assert.assertTrue(isElementPresent("css=#add"));
+        sc.click("css=#add");
+        Thread.sleep(1000);
+        Assert.assertTrue(sc.isVisible("css=#directoryConfigForm"));
+        sc.click("css=#cancel");
+        Assert.assertFalse(sc.isVisible("css=#directoryConfigForm"));
+
+    }
+
 }

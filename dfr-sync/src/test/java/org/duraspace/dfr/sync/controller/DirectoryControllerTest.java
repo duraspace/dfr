@@ -2,6 +2,7 @@
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */package org.duraspace.dfr.sync.controller;
 
+import org.duraspace.dfr.sync.domain.DirectoryConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.duraspace.dfr.sync.setup.DirectoryConfigForm;
@@ -16,9 +17,9 @@ import org.junit.Test;
  * @author Daniel Bernstein
  * 
  */
-public class ConfigurationControllerTest extends AbstractTest {
+public class DirectoryControllerTest extends AbstractTest {
 
-    private ConfigurationController configurationController; 
+    private DirectoryController directoryController; 
     private SyncConfigurationManager syncConfigurationManager;
 
     @Before
@@ -27,25 +28,25 @@ public class ConfigurationControllerTest extends AbstractTest {
         super.setup();
 
         this.syncConfigurationManager = createMock(SyncConfigurationManager.class);
-        this.configurationController = new ConfigurationController(syncConfigurationManager);
+        this.directoryController = new DirectoryController(syncConfigurationManager);
     }
     
     @Test
     public void testGet() {
         replay();
-        Assert.assertNotNull(configurationController.get());
+        Assert.assertNotNull(directoryController.get());
     }
     
     @Test
-    public void testRemove() {
+    public void testAdd() {
         String testPath = "testPath";
         DirectoryConfigs configs = createMock(DirectoryConfigs.class);
         EasyMock.expect(this.syncConfigurationManager.retrieveDirectoryConfigs()).andReturn(configs);
-        EasyMock.expect(configs.removePath(testPath)).andReturn(null);
+        EasyMock.expect(configs.add(EasyMock.isA(DirectoryConfig.class))).andReturn(true);
         DirectoryConfigForm f = new DirectoryConfigForm();
         f.setDirectoryPath(testPath);
         this.syncConfigurationManager.persistDirectoryConfigs(configs);
         replay();
-        Assert.assertNotNull(configurationController.removeDirectory(f));
+        Assert.assertNotNull(directoryController.add(f));
     }
 }

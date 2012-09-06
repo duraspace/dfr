@@ -5,6 +5,9 @@ package org.duraspace.dfr.sync.controller;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
+import org.duraspace.dfr.sync.domain.DirectoryConfig;
+import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.duraspace.dfr.sync.setup.DirectoryConfigForm;
 import org.slf4j.Logger;
@@ -14,10 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.FlashMap;
-import org.springframework.web.servlet.FlashMapManager;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
  * A spring controller for directory creation.
@@ -50,8 +49,19 @@ public class DirectoryController {
     }
 
     @RequestMapping(value = { "/add" }, method=RequestMethod.POST)
-    public String post(@Valid DirectoryConfigForm directoryConfigForm) {
+    public String add(@Valid DirectoryConfigForm directoryConfigForm) {
         log.debug("adding new directory");
+        DirectoryConfigs directoryConfigs =
+            this.syncConfigurationManager.retrieveDirectoryConfigs();
+
+        String path = directoryConfigForm.getDirectoryPath();
+        directoryConfigs.add(new DirectoryConfig(path));
+        
+        this.syncConfigurationManager.persistDirectoryConfigs(directoryConfigs);
+
         return "success";
     }
+
+
+
 }

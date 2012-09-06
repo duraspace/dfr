@@ -429,3 +429,16 @@ div.green-check {
    border-radius: 5px;
 }
 
+.trash {
+  background-repeat: no-repeat;
+  background-image: url("../image/icon_sm_trash.png");
+  background-position: left;
+ 
+  min-height: 10px;
+  min-width: 10px;
+  padding-left: 20px;
+}
+
+#directories td:last-child{
+  text-align: right;
+}

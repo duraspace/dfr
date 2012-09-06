@@ -32,6 +32,17 @@ public class DirectoryConfigs extends LinkedHashSet<DirectoryConfig>{
         }
         return list;
     }
+
+    public DirectoryConfig removePath(String path) {
+        for(DirectoryConfig d : this){
+            if(d.getDirectoryPath().equals(path)){
+                this.remove(d);
+                return d;
+            }
+        }
+        
+        return null;
+    }
     
 
 }
