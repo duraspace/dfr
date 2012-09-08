@@ -1,9 +1,8 @@
 /*
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */
-package org.duraspace.dfr.sync.setup;
+package org.duraspace.dfr.sync.duracloudconfig;
 
-import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudCredentialsForm;
 import org.duraspace.dfr.sync.domain.SpaceForm;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
@@ -19,28 +18,26 @@ import org.springframework.stereotype.Component;
  * 
  */
 @Component
-public class SaveSetupAction {
+public class SaveDuracloudConfiguration {
 
-    private static Logger log = LoggerFactory.getLogger(SaveSetupAction.class);
+    private static Logger log = LoggerFactory.getLogger(SaveDuracloudConfiguration.class);
     private SyncConfigurationManager syncConfigurationManager;
 
     @Autowired
-    public SaveSetupAction(
+    public SaveDuracloudConfiguration(
         @Qualifier("syncConfigurationManager") SyncConfigurationManager syncConfigurationManager) {
         this.syncConfigurationManager = syncConfigurationManager;
     }
 
     public String execute(DuracloudCredentialsForm credentials,
-                          SpaceForm spaceForm,
-                          DirectoryConfigs configs) {
+                          SpaceForm spaceForm) {
         syncConfigurationManager.persistDuracloudConfiguration(credentials.getUsername(),
                                                                credentials.getPassword(),
                                                                credentials.getHost(),
                                                                credentials.getPort(),
                                                                spaceForm.getSpaceId());
-        syncConfigurationManager.persistDirectoryConfigs(configs);
 
-        log.info("successfully saved setup.");
+        log.info("successfully saved duracloud configuration.");
         return "success";
     }
 }

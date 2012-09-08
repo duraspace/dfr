@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */
-package org.duraspace.dfr.sync.setup;
+package org.duraspace.dfr.sync.service;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.client.ContentStoreManagerImpl;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
+import org.duraspace.dfr.sync.domain.DuracloudCredentialsForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -74,40 +74,66 @@
                 </li>
               </ul>
               <div id="add-dialog" class="dialog" style="display:none"></div>
+              <div id="edit-dialog" class="dialog" style="display:none"></div>
+
               <script>
               	$(function(){
+						
+          	       var addCancelButtonHandler = function(dialog){
+        	           $("#cancel",dialog).click(function(e){
+          	               $(dialog).dialog("close");
+          	               e.preventDefault();
+          	               return false;
+          	           });
+          	       }
+
+              	    //add handler to open add directory dialog
+             	    $("#add").click(function(e){
+              	        e.preventDefault();
+              	        $("#add-dialog").dialog("open");
+              	        return false;
+              	    });
+ 
+              	    //initialize add dialog
               	    $("#add-dialog").dialog({
               	       modal: true,
               	       open: function(){
               	           var dialog = this;
-              	           
-              	           $("#cancel", this).live("click",function(e){
-              	               $(dialog).dialog("close");
-              	               return false;
-              	           });
+						   var addDirectoryUrl = "configuration/add";
 
-              	           $("#add", this).live("click",function(e){
-              	               var jqxhr = $.post("configuration/add", $("#directoryConfigForm").serialize())
-              	                .done(function(){
-									if(jqxhr.responseText.indexOf("success") < 0){
-									    $(dialog)
-	              	                	.empty()
-	              	                	.append($(jqxhr.responseText));
-									    
-									}else{
-									    window.location.reload();
-									}
-									return false;
-              	                });
-              	               e.preventDefault();
-              	               return false;
-              	           });
+						   //subroutine to handle replacing the dialog contents
+						   var loadContent = function(jqxhr, dialog){
+    						    
+						       //replace the content
+						       $(dialog)
+                	                	.empty()
+                	                	.append($(jqxhr.responseText));
 
-              	           var jqxhr = $.get("configuration/add")
+						      //attach cancel button listener
+    						  addCancelButtonHandler(dialog);
+
+						      //attach add button listener
+    						  $("#add", dialog).click(function(e){
+                     	           alert("about to add!");
+               	               var jqxhr = $.post(addDirectoryUrl, $("#directoryConfigForm").serialize())
+               	                .done(function(){
+   									if(jqxhr.responseText.indexOf("success") < 0){
+   									    //recursively call load content on result if unsuccessful.
+   									    loadContent(jqxhr, dialog);
+   									}else{
+   									    window.location.reload();
+   									}
+   									return false;
+               	               });
+
+               	               e.preventDefault();
+               	               return false;
+             	               });
+						   };
+
+              	           var jqxhr = $.get(addDirectoryUrl)
               	            .done(function(){
-              	                $("#add-dialog")
-              	                	.empty()
-              	                	.append($(jqxhr.responseText));
+              	              loadContent(jqxhr, dialog);
               	            });
               	       },
               	       position:"top",
@@ -117,41 +143,80 @@
               	    	
               	    });
               	    
-              	    $("#add").click(function(e){
-              	        e.preventDefault();
-              	        $("#add-dialog").dialog("open");
-              	        return false;
-              	    });
-              	    
+
               	    $("#edit").click(function(e){
-              	        alert("coming soon");
+              	        e.preventDefault();
+              	        $("#edit-dialog").dialog("open");
               	        return false;
+
               	    });
-    
+
+               	    $("#edit-dialog").dialog({
+               	       modal: true,
+               	       open: function(){
+               	           var dialog = this;
+              	           
+               	           var loadContent = function(jqxhr, dialog){
+            	                $(dialog).empty().append($(jqxhr.responseText).find(".section"));
+            	                addCancelButtonHandler(dialog);
+            	                
+            	                //add next button handler
+            	                $("#next",dialog).click(function(e){
+            	                   var action = $("form",dialog).attr("action");
+								   var data = $("form",dialog).serialize();
+								   data+="&_eventId_" + $(e.target).attr("id");
+          	    	               var jqxhr =  $.post(
+ 	    	                       			action, 
+ 	    	                       			data)
+         	     	                .done(function(){
+        	     	                    loadContent(jqxhr, dialog);
+         	     	                });
+            	                   
+          	      	               e.preventDefault();
+          	    	               //return false;
+          	    	           });
+               	           };
+               	           
+              	           var jqxhr = $.get("duracloud-config")
+             	            .done(function(){
+             	                loadContent(jqxhr, dialog);  
+             	            });
+
+               	           
+               	       },
+               	       position:"top",
+               	       autoOpen: false,
+               	       closeText: "",
+               	       width: "500px"
+               	    	
+               	    });
+
               	});
               	
               
+              	
+              	
               </script>
               
             </div>
             <div class="body">
               <table>
                 <tr>
-                  <td>Username</td>
+                  <td><spring:message code="username"/></td>
                   <td>${duracloudConfiguration.username}</td>
                 </tr>
                 <tr>
-                  <td>Host</td>
+                  <td><spring:message code="host"/></td>
                   <td>${duracloudConfiguration.host}</td>
                 </tr>
                 <c:if test="${!empty port}">
                   <tr>
-                    <td>Port</td>
+                    <td><spring:message code="port"/></td>
                     <td>${duracloudConfiguration.port}</td>
                   </tr>
                 </c:if>
                 <tr>
-                  <td>SpaceId</td>
+                  <td><spring:message code="spaceId"/></td>
                   <td>${duracloudConfiguration.spaceId}</td>
                 </tr>
               </table>
@@ -159,7 +224,6 @@
           </div>
         </div>
       </div>
-      
     </div>
 
   </tiles:putAttribute>

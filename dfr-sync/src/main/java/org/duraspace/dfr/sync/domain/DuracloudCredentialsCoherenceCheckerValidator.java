@@ -1,13 +1,14 @@
 /*
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */
-package org.duraspace.dfr.sync.setup;
+package org.duraspace.dfr.sync.domain;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
+import org.duraspace.dfr.sync.service.ContentStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

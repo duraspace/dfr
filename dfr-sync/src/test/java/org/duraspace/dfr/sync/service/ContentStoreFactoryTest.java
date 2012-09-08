@@ -1,12 +1,14 @@
 /*
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */
-package org.duraspace.dfr.sync.setup;
+package org.duraspace.dfr.sync.service;
 
 import org.duracloud.client.ContentStore;
 import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
+import org.duraspace.dfr.sync.domain.DuracloudCredentialsForm;
+import org.duraspace.dfr.sync.service.ContentStoreFactory;
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;

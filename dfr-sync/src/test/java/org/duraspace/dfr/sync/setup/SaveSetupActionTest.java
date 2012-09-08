@@ -4,6 +4,8 @@
 
 import org.duraspace.dfr.sync.domain.DirectoryConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
+import org.duraspace.dfr.sync.domain.DuracloudCredentialsForm;
+import org.duraspace.dfr.sync.domain.SpaceForm;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
 import org.duraspace.dfr.test.AbstractTest;
 import org.easymock.EasyMock;

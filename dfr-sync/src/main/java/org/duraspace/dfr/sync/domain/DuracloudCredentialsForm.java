@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */
-package org.duraspace.dfr.sync.setup;
+package org.duraspace.dfr.sync.domain;
 
 import java.io.Serializable;
 
@@ -33,6 +33,15 @@ public class DuracloudCredentialsForm implements Serializable {
     @NotNull
     private String host;
     private String port;
+
+    public DuracloudCredentialsForm() {}
+
+    public DuracloudCredentialsForm(DuracloudConfiguration config) {
+        this.username = config.getUsername();
+        this.password = config.getPassword();
+        this.host = config.getHost();
+        this.port = config.getPort() == 443 ? null : config.getPort()+"";
+    }
 
     public String getUsername() {
         return username;

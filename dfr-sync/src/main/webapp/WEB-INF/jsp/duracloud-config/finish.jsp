@@ -11,38 +11,34 @@ file="../include/libraries.jsp"%>
 
   <tiles:putAttribute
    name="panelTitle"
-   cascade="true">Welcome!</tiles:putAttribute>
+   cascade="true">DuraCloud Sync Setup</tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelMessage"
    cascade="true">
+   <div class="welcome">
+    <div class="green-check">
+    
+    </div>
+    <h1>
+      Your settings have been successfully saved.
+    </h1>
+   </div>
+   
    </tiles:putAttribute>
 
   <tiles:putAttribute
    name="panelContent"
    cascade="true">
-    <div class="welcome">
-      <h1> 
-        Welcome to the <br/>
-        Duracloud for Research<br/>
-        Sync Tool
-      </h1>
-      <p>
-      Once set up, this application will automatically backup your vital 
-      digital files to multiple cloud storage providers, thus ensuring
-      your data is always accessible and secure.
-      </p>      
-    </div>
     <form
-     method="POST" action="${flowExecutionUrl}">
+     method="POST">
       <fieldset
        class="button-bar">
         <button
-         id="next"
+         id="end"
          type="submit"
-         name="_eventId_next">
-          <spring:message
-           code="continue" />
+         name="_eventId_end">
+          Done
         </button>
       </fieldset>
     </form>

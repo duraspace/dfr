@@ -2,9 +2,9 @@
  * Copyright (c) 2009-2012 DuraSpace. All rights reserved.
  */package org.duraspace.dfr.sync.controller;
 
+import org.duraspace.dfr.sync.domain.DirectoryConfigForm;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
-import org.duraspace.dfr.sync.setup.DirectoryConfigForm;
 import org.duraspace.dfr.test.AbstractTest;
 import org.easymock.EasyMock;
 import org.junit.Assert;

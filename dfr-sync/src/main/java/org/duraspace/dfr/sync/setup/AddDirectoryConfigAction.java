@@ -5,6 +5,7 @@ package org.duraspace.dfr.sync.setup;
 
 import org.apache.commons.lang.StringUtils;
 import org.duraspace.dfr.sync.domain.DirectoryConfig;
+import org.duraspace.dfr.sync.domain.DirectoryConfigForm;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

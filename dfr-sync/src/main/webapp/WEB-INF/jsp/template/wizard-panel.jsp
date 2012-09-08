@@ -1,6 +1,6 @@
 <%@include file="../include/libraries.jsp"%>
-<div style="text-align: center">
-  <div class="wizard-panel section">
+<div class="wizard-panel" >
+  <div class="section">
     <div class="header">
       <span> <tiles:insertAttribute name="panelTitle" />
       </span>

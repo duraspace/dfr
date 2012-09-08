@@ -3,6 +3,7 @@
  */
 package org.duraspace.dfr.sync.setup;
 
+import org.duraspace.dfr.sync.domain.DirectoryConfigForm;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.test.AbstractTest;
 import org.junit.Assert;

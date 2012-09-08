@@ -7,9 +7,9 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.duraspace.dfr.sync.domain.DirectoryConfig;
+import org.duraspace.dfr.sync.domain.DirectoryConfigForm;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
-import org.duraspace.dfr.sync.setup.DirectoryConfigForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -40,8 +40,16 @@
      />
 
   <!-- Configures Web Flow to use Tiles to create views for rendering; Tiles allows for applying consistent layouts to your views -->
-  <bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator"> 
-    <property name="viewResolvers" ref="viewResolver"/>
+    <bean id="mvcViewFactoryCreator" class="org.springframework.webflow.mvc.builder.MvcViewFactoryCreator">
+    <property name="viewResolvers">
+      <list>
+        <!-- 
+        <ref bean="ajaxViewResolver" />
+         -->
+        
+        <ref bean="viewResolver" />
+      </list>
+    </property>
     <property name="useSpringBeanBinding" value="true" />
   </bean>
   

@@ -306,8 +306,11 @@ ul.tabs {
 	color: #555;
 }
 
+.wizard-panel {
+  text-align: center;
+}
 
-.wizard-panel{
+.wizard-panel .section{
 	width: 600px;
 	max-height: 400px ;
 	margin: 50px;
@@ -318,6 +321,7 @@ ul.tabs {
 .wizard-panel .body {
     border-radius: 5px;
 }
+
 
 div.welcome {
   background: url("../image/welcome_graphic.png") no-repeat right;

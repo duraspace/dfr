@@ -5,10 +5,11 @@ package org.duraspace.dfr.sync.controller;
 
 import javax.validation.Valid;
 
+import org.duraspace.dfr.sync.domain.DirectoryConfigForm;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
+import org.duraspace.dfr.sync.domain.DuracloudCredentialsForm;
 import org.duraspace.dfr.sync.service.SyncConfigurationManager;
-import org.duraspace.dfr.sync.setup.DirectoryConfigForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,14 @@ public class ConfigurationController {
     public DuracloudConfiguration duracloudConfiguration(){
         return this.syncConfigurationManager.retrieveDuracloudConfiguration();
     }
-    
+
+    @ModelAttribute("duracloudCredentialsForm")
+    public DuracloudCredentialsForm duracloudCredentials(){
+        DuracloudConfiguration c =  this.syncConfigurationManager.retrieveDuracloudConfiguration();
+        DuracloudCredentialsForm form = new DuracloudCredentialsForm(c);
+        return form;
+    }
+
     @RequestMapping(value = { "" })
     public String get() {
         log.debug("accessing configuration page");
