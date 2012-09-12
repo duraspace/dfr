@@ -41,7 +41,7 @@
                             <c:if test="${directoryConfigs.size() > 1}">
                               <form action="configuration/remove" method="post">
                                 <input type="hidden" name="directoryPath" value = "${dc.directoryPath}"/>
-                                <button class="trash" type="submit" title="remove">Remove</button>
+                                <button id="${dc.file.name}-remove" class="trash" type="submit" title="remove">Remove</button>
                               </form>
                             </c:if>
                           </td>

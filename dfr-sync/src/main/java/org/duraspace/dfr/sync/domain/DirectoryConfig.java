@@ -3,6 +3,7 @@
  */
 package org.duraspace.dfr.sync.domain;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -26,6 +27,10 @@ public class DirectoryConfig implements Serializable {
 
     public String getDirectoryPath() {
         return directoryPath;
+    }
+    
+    public File getFile(){
+        return  new File(this.directoryPath);
     }
 
     public void setDirectoryPath(String directoryPath) {
