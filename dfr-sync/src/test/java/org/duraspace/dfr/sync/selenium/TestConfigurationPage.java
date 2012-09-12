@@ -4,6 +4,7 @@
 package org.duraspace.dfr.sync.selenium;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +16,7 @@ import org.junit.Test;
 public class TestConfigurationPage extends BasePostSetupPage {
     @Test
     public void testGet(){
-        sc.open(getAppRoot()+"/configuration");
+        openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#watched-directories"));
         Assert.assertTrue(isTextPresent(uploadDir.getAbsolutePath()));
 
@@ -26,7 +27,7 @@ public class TestConfigurationPage extends BasePostSetupPage {
     
     @Test
     public void testAddCancel() throws Exception{
-        sc.open(getAppRoot()+"/configuration");
+        openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#add"));
         sc.click("css=#add");
         Thread.sleep(2000);
@@ -46,7 +47,7 @@ public class TestConfigurationPage extends BasePostSetupPage {
         testDir.mkdirs();
         testDir.deleteOnExit();
         
-        sc.open(getAppRoot()+"/configuration");
+        openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#add"));
         sc.click("css=#add");
         Thread.sleep(2000);
@@ -79,7 +80,7 @@ public class TestConfigurationPage extends BasePostSetupPage {
 
     @Test
     public void testEditEnterInvalidDataCancelDuracloudConfig() throws Exception{
-        sc.open(getAppRoot()+"/configuration");
+        openConfigurationPage();
         Assert.assertTrue(isElementPresent("css=#edit"));
         sc.click("css=#edit");
         Thread.sleep(2000);
@@ -94,5 +95,44 @@ public class TestConfigurationPage extends BasePostSetupPage {
         Thread.sleep(500);
         Assert.assertFalse(sc.isVisible("css=#duracloudCredentialsForm"));
 
+    }
+    
+    
+    @Test
+    public void testEditSaveDuracloudConfig() throws Exception{
+        Properties properties = getProperties();
+        String username = properties.getProperty("username");
+        String password = properties.getProperty("password");
+        String host = properties.getProperty("host");
+        String port = properties.getProperty("port");
+        String spaceId = properties.getProperty("spaceId");
+
+        openConfigurationPage();
+        Assert.assertTrue(isElementPresent("css=#edit"));
+        sc.click("css=#edit");
+        Thread.sleep(3000);
+        Assert.assertTrue(sc.isVisible("css=#duracloudCredentialsForm"));
+
+        sc.type("css=#username", username);
+        sc.type("css=#password", password);
+        sc.type("css=#host", host);
+        sc.type("css=#port", port);
+        sc.click("css=#next");
+        
+        Thread.sleep(5000);
+        Assert.assertTrue(sc.isElementPresent("css=#spaceForm"));
+        sc.select("css=#spaceId", "value=" + spaceId);
+        sc.click("css=#next");
+        Thread.sleep(5000);
+        String endButton = "css=#end";
+        Assert.assertTrue(sc.isVisible(endButton));
+       
+        clickAndWait("css=#end");
+        Assert.assertFalse(sc.isVisible("css=#edit-dialog"));
+
+    }
+
+    protected void openConfigurationPage() {
+        sc.open(getAppRoot()+"/configuration");
     }
 }
