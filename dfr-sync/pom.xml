@@ -59,7 +59,7 @@
           </execution>
         </executions>
       </plugin>
-          
+         
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -360,6 +360,11 @@
       <artifactId>commons-io</artifactId>
     </dependency>      
       
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+    </dependency>      
+
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
