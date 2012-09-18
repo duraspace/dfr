@@ -17,7 +17,7 @@
     <on-entry>
   <evaluate expression="contentStoreFactory.create(flowScope.duracloudCredentialsForm)"
     result="requestScope.contentStore" />
-      <evaluate expression="contentStore.getSpaces()" result="flowScope.spaces" />
+      <evaluate expression="spacesFilter.filter(contentStore.getSpaces())" result="flowScope.spaces" />
     </on-entry>
     <if test="flowScope.spaces.size() > 0" then="selectSpace" else="noSpaceAvailableError" />
   </decision-state>

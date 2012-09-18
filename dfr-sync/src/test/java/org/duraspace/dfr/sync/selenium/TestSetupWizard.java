@@ -53,6 +53,9 @@ public class TestSetupWizard extends BaseSeleniumTest {
         log.debug("attempting to set duracloud space id to " + duracloudSpaceId);
         
         Assert.assertEquals(sc.getValue("id=spaceId"), duracloudSpaceId);
+
+        //ensure that system spaces are not showing up.
+        Assert.assertFalse(sc.isElementPresent("css=#spaceId option[value='x-duracloud-admin']"));
         
         log.debug("spaceId is selected.");
         

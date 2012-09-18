@@ -67,7 +67,7 @@ public class TestConfigurationPage extends BasePostSetupPage {
              Thread.sleep(2000);
         }
         sc.click("css=#directoryConfigForm #add");
-        Thread.sleep(500);
+        Thread.sleep(1000);
         Assert.assertFalse(sc.isElementPresent("css=#directoryConfigForm"));
         Assert.assertTrue(sc.isTextPresent(testDir.getAbsolutePath()));
         String removeButton = "css=#" + testDir.getName() + "-remove";
@@ -118,9 +118,22 @@ public class TestConfigurationPage extends BasePostSetupPage {
         sc.type("css=#host", host);
         sc.type("css=#port", port);
         sc.click("css=#next");
-        
-        Thread.sleep(5000);
+
+        int second = 0;
+        while(true){
+            if(sc.isElementPresent("css=#spaceForm") || second > 20){
+                break;
+            }
+
+            Thread.sleep(1000);
+            second++;
+
+        }
+
         Assert.assertTrue(sc.isElementPresent("css=#spaceForm"));
+        //ensure that system spaces are not showing up.
+        Assert.assertFalse(sc.isElementPresent("css=#spaceId option[value='x-duracloud-admin']"));
+
         sc.select("css=#spaceId", "value=" + spaceId);
         sc.click("css=#next");
         Thread.sleep(5000);
