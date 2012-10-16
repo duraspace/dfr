@@ -1,4 +1,4 @@
 /**
- * Simple <code>StorageObjectEventProcessor</code> implementation.
+ * Simple <code>Processor</code> implementation.
  */
 package org.duraspace.dfr.ocs.simpleproc;

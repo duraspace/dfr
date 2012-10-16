@@ -2,10 +2,10 @@ package org.duraspace.dfr.app.services;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.builder.NotifyBuilder;
 import org.junit.*;
-//import org.junit.Assert.*;
 import org.junit.runner.RunWith;
-import org.junit.Test;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.jms.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Integration test of the storage listener service messaging using an
@@ -26,50 +27,28 @@ import javax.jms.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:/storageListenerServiceIT-context.xml")
-public class StorageListenerServiceIT {
+public class StorageServiceIT {
 
     private static final Logger logger =
-        LoggerFactory.getLogger(StorageListenerServiceIT.class);
+        LoggerFactory.getLogger(StorageServiceIT.class);
 
-    //@Autowired
-    //@Qualifier("storageListenerService")
-    //private StorageListenerService service;
-
-    // DWD: Note, even though this an integration test, we may change this
-    // to a Mockito mocked object.
     @Autowired
-    @Qualifier("messageListener")
-    private MockBasicMessageListener messageListener;
+    @Qualifier("camelContext")
+    private CamelContext context;
 
     @Autowired
     @Qualifier("connectionFactory")
     private ActiveMQConnectionFactory connectionFactory;
 
-    //@Autowired
-    //@Qualifier("listenerContainer")
-    //private DefaultMessageListenerContainer listenerContainer;
-
     @Autowired
     @Qualifier("destination")
     private Destination destination;
 
-    @BeforeClass
-    public static void runBeforeClass() {
-        System.out.println("Run Before Class");
-    }
-
-    @AfterClass
-    public static void runAfterClass() {
-        System.out.println("Run After Class");
-    }
-
-    @Before
-    public void runBeforeEveryTest() {
-        System.out.println("Run Before Every Test");
-    }
-
     @Test
     public void testListener() {
+
+        // Notify when one message is done
+        NotifyBuilder notify = new NotifyBuilder(context).whenDone(1).create();
 
         Session session;
         MessageProducer producer;
@@ -83,16 +62,13 @@ public class StorageListenerServiceIT {
 
             try {
                 // If these sends go through a local vm broker URI, they may
-                // happen too fast.  Give them a little time.
-                Thread.sleep(30);
+                // happen too fast.  Give them a little time.  Use the notifier
+                // to wait for Camel to process the message.  Wait at most 5
+                // seconds to avoid blocking forever if something goes wrong
                 sendMessage(session, producer);
-                Thread.sleep(30);
-                sendMessage(session, producer);
-                Thread.sleep(30);
-                sendMessage(session, producer);
-                Thread.sleep(30);
-
-                connection.close();
+                boolean matches = notify.matches(5, TimeUnit.SECONDS);
+                // true means the notifier condition matched (= 1 message is done)
+                Assert.assertTrue(matches);
 
             } catch (Exception e) {
                 logger.info("Failed to send the test message - " + e);
@@ -102,12 +78,9 @@ public class StorageListenerServiceIT {
             logger.info("Failed to create send test connection.");
         }
 
-        // Check the number of messages sent.
-        Assert.assertEquals(messageListener.getMessageCounter(), 3);
-
     }
 
-    public void sendMessage(Session session, MessageProducer producer) {
+    private void sendMessage(Session session, MessageProducer producer) {
 
         try {
 

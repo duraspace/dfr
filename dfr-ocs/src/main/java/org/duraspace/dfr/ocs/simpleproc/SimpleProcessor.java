@@ -3,11 +3,9 @@ package org.duraspace.dfr.ocs.simpleproc;
 import com.github.cwilper.fcrepo.dto.core.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.duracloud.client.ContentStore;
-import org.duraspace.dfr.ocs.core.FedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
-import org.duraspace.dfr.ocs.core.StorageObjectEventProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +20,10 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * A {@link org.duraspace.dfr.ocs.core.StorageObjectEventProcessor} that
- * produces a simple wrapper Fedora object for each storage object. New
- * objects will be ingested into the given {@link FedoraObjectStore} and deleted
- * objects will be purged from it.
+ * Creates a basic, rather hard coded Fedora object based on an incoming
+ * <code>StorageObjectEvent</code>. It creates a simple wrapper Fedora object
+ * for each storage bytestream. The new <code>FedoraObject</code> is returned
+ * for subsequent handling.
  * <p>
  * An external Fedora datastream with id <code>CONTENT</code> will be created
  * in the Fedora object. This will reference the content inside DuraCloud
@@ -50,7 +48,7 @@ import java.util.TimeZone;
  * <p>
  * If any additional metadata is provided, it will be ignored.
  */
-public class SimpleProcessor implements StorageObjectEventProcessor {
+public class SimpleProcessor {
 
     private static final Logger logger =
         LoggerFactory.getLogger(SimpleProcessor.class);
@@ -61,8 +59,6 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
 
     private String pidPrefix;
     private String duraStoreURL;
-    
-    private FedoraObjectStore fedoraObjectStore;
 
     /**
      * Creates an instance.
@@ -103,15 +99,10 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         logger.debug("Constructing a simple processor");
     }
 
-    @Override
-    public void setFedoraObjectStore(FedoraObjectStore fedoraObjectStore) {
-        logger.debug("Setting the object store.");
-        this.fedoraObjectStore = fedoraObjectStore;
-    }
-
-    @Override
-    public void process(StorageObjectEvent event) throws OCSException {
+    public FedoraObject process(StorageObjectEvent event) throws OCSException {
         logger.debug("Processing a storage event");
+
+        FedoraObject fedoraObject = null;
 
         StorageObject storageObject = event.getStorageObject();
         String contentId = storageObject.getId();
@@ -123,20 +114,22 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         requireValues(metadata, STORE_ID, SPACE_ID);
         String logMessageSuffix = "requested by DFR Object Creation Service." +
                 " Event ID: " + event.getId();
+
+        // This will always be creating objects, deletion is elsewhere.
         if (event.getType() == StorageObjectEvent.Type.CREATED) {
             requireValues(metadata,
                     ContentStore.CONTENT_CHECKSUM,
                     ContentStore.CONTENT_MIMETYPE,
                     ContentStore.CONTENT_MODIFIED,
                     ContentStore.CONTENT_SIZE);
-            if (!fedoraObjectStore.ingest(getFedoraObject(pid, contentURL,
-                    metadata), "Ingest " + logMessageSuffix)) {
-                throw new OCSException("Ingest failed; Fedora object already "
-                        + "exists: " + pid);
-            }
-        } else {
-            fedoraObjectStore.purge(pid, "Purge " + logMessageSuffix);
+            fedoraObject =
+                getFedoraObject(pid, contentURL, metadata);
+            //if (!fedoraObjectStore) We should log it, maybe exception.
+            // Note: This code cannot return a nice log message for the audit
+            //       which we should do something about.
         }
+
+        return fedoraObject;
     }
 
     private FedoraObject getFedoraObject(String pid, String contentURL,

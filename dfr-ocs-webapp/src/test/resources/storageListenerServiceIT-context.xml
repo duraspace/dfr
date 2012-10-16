@@ -7,6 +7,8 @@
                            http://www.springframework.org/schema/jms/spring-jms-3.0.xsd
                            http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                           http://camel.apache.org/schema/spring
+                           http://camel.apache.org/schema/spring/camel-spring.xsd
                            http://activemq.apache.org/schema/core
                            http://activemq.apache.org/schema/core/activemq-core.xsd">
 
@@ -57,40 +59,52 @@
   </bean>
   -->
 
-  <!-- this is the Message Driven POJO (MDP) -->
-  <bean id="messageListener" class="org.duraspace.dfr.app.services.MockBasicMessageListener"/>
-
   <!--  ActiveMQ destinations to use  -->
   <bean id="destination" class="org.apache.activemq.command.ActiveMQTopic">
     <constructor-arg type="java.lang.String" value="org.duracloud.topic.change.content.ingest"/>
   </bean>
+
+  <!--  ActiveMQ destinations to use  -->
+  <!--
+  <bean id="testDestination" class="org.apache.activemq.command.ActiveMQTopic">
+    <constructor-arg type="java.lang.String" value="org.duracloud.topic.test"/>
+  </bean>
+  -->
 
   <!-- JMS ConnectionFactory to use, configuring the embedded broker using XML -->
   <bean id="connectionFactory" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
     <property name="brokerURL" value="vm://localhost?broker.persistent=false"/>
   </bean>
 
-  <!-- and this is the message listener container -->
-  <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-    <property name="connectionFactory" ref="connectionFactory"/>
-    <property name="destination" ref="destination"/>
-    <property name="messageListener" ref="messageListener" />
+  <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
+    <property name="maxConnections" value="8" />
+    <property name="connectionFactory" ref="connectionFactory" />
   </bean>
 
-  <!-- and this is the storage message listener service -->
-  <bean id="storageListenerService" class="org.duraspace.dfr.app.services.StorageListenerService">
-    <constructor-arg ref="listenerContainer"/>
+  <bean id="jmsTopicConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <property name="connectionFactory" ref="pooledConnectionFactory"/>
+    <property name="concurrentConsumers" value="1"/>
   </bean>
+
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="configuration" ref="jmsTopicConfig"/>
+  </bean>
+
+  <bean id="basicMessageValidator" class="org.duraspace.dfr.app.components.BasicMessageValidator"/>
+
+  <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring">
+    <route>
+      <!-- <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false"/> -->
+      <from uri="activemq:topic:org.duracloud.topic.change.content.ingest"/>
+      <log message="Incoming Storage Message" loggingLevel="INFO"/>
+      <bean ref="basicMessageValidator" method="isMessageValid"/>
+      <!-- <to uri="direct:mockBasicMessageListener"/> -->
+    </route>
+  </camelContext>
 
   <!--
-  <bean id="jmsQueueTemplate" class="org.springframework.jms.core.JmsTemplate">
-    <constructor-arg ref="connectionFactory" />
-    <property name="pubSubDomain" value="false"/>
-  </bean>
-
-  <bean id="jmsTopicTemplate" class="org.springframework.jms.core.JmsTemplate">
-    <constructor-arg ref="connectionFactory" />
-    <property name="pubSubDomain" value="true"/>
+  <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+    <property name="connectionFactory" ref="connectionFactory"/>
   </bean>
   -->
 
