@@ -43,7 +43,7 @@ public class DfrSyncDriver {
             dialog.setLocationRelativeTo(null);
 
             JPanel panel = new JPanel();
-            final JLabel label = new JLabel("Starting...");
+            final JLabel label = new JLabel("Loading...");
             final JProgressBar progress = new JProgressBar();
             progress.setStringPainted(true);
 
