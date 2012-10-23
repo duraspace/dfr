@@ -65,8 +65,6 @@
 	  <exclude>WEB-INF/lib/hamcrest-core*</exclude>
 	  <exclude>WEB-INF/lib/guava*</exclude>
 	  <exclude>WEB-INF/lib/jsr305*</exclude>
-	  <exclude>WEB-INF/lib/spring-js*</exclude>
-
         </excludes>
       </unpackOptions>
       <useTransitiveFiltering>true</useTransitiveFiltering>
