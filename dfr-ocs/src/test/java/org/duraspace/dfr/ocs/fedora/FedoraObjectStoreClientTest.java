@@ -1,27 +1,16 @@
 package org.duraspace.dfr.ocs.fedora;
 
-import com.github.cwilper.fcrepo.dto.core.FedoraObject;
-import com.yourmediashelf.fedora.client.FedoraClient;
-import com.yourmediashelf.fedora.client.FedoraClientException;
-import com.yourmediashelf.fedora.client.request.Export;
-import com.yourmediashelf.fedora.client.request.Ingest;
-import com.yourmediashelf.fedora.client.request.PurgeObject;
-import com.yourmediashelf.fedora.client.response.FedoraResponse;
-import org.duraspace.dfr.ocs.core.OCSException;
 //import org.easymock.EasyMock;
-import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-
 /**
- * Unit tests for {@link FedoraRepository}.
+ * Unit tests for {@link FedoraObjectStoreClient}.
  */
-public class FedoraRepositoryTest {
+public class FedoraObjectStoreClientTest {
 
     @Test (expected=NullPointerException.class)
     public void initWithNullClient() {
-        new FedoraRepository(null);
+        new FedoraObjectStoreClient(null);
     }
 
 /*
@@ -36,7 +25,7 @@ public class FedoraRepositoryTest {
         EasyMock.expect(fedoraClient.execute(
                 EasyMock.anyObject(PurgeObject.class))).andReturn(null);
         EasyMock.replay(fedoraClient);
-        new FedoraRepository(fedoraClient).purge("test:1", "logMessage");
+        new FedoraObjectStoreClient(fedoraClient).purge("test:1", "logMessage");
         EasyMock.verify(fedoraClient);
     }
     
@@ -60,7 +49,7 @@ public class FedoraRepositoryTest {
                     new FedoraClientException(404, "message"));
         }
         EasyMock.replay(fedoraClient, response);
-        FedoraRepository repo = new FedoraRepository(fedoraClient);
+        FedoraObjectStoreClient repo = new FedoraObjectStoreClient(fedoraClient);
         FedoraObject result = repo.export("test:1");
         EasyMock.verify(fedoraClient, response);
         return result;
@@ -95,7 +84,7 @@ public class FedoraRepositoryTest {
                     new FedoraClientException(code, message));
         }
         EasyMock.replay(fedoraClient, response);
-        FedoraRepository repo =  new FedoraRepository(fedoraClient);
+        FedoraObjectStoreClient repo =  new FedoraObjectStoreClient(fedoraClient);
         boolean result = repo.ingest(o, "logMessage");
         EasyMock.verify(fedoraClient, response);
         return result;

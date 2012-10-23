@@ -1,6 +1,7 @@
-package org.duraspace.dfr.ocs.core;
+package org.duraspace.dfr.ocs.fedora;
 
 import com.github.cwilper.fcrepo.dto.core.FedoraObject;
+import org.duraspace.dfr.ocs.core.OCSException;
 
 /**
  * A place where Fedora objects can be stored.
@@ -14,7 +15,7 @@ public interface FedoraObjectStore {
      * @return <code>true</code> if the object was successfully ingested,
      *         <code>false</code> if the object was not ingested because
      *         one with the same pid already exists.
-     * @throws OCSException if an IO or remote error occurs.
+     * @throws org.duraspace.dfr.ocs.core.OCSException if an IO or remote error occurs.
      */
     boolean ingest(FedoraObject object, String logMessage) throws OCSException;
 

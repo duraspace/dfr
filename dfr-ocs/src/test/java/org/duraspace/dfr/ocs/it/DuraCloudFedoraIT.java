@@ -7,7 +7,7 @@ package org.duraspace.dfr.ocs.it;
 //import org.duraspace.dfr.ocs.duracloud.DuraCloudMessagingClient;
 //import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListener;
 //import org.duraspace.dfr.ocs.duracloud.DuraCloudTempSpace;
-//import org.duraspace.dfr.ocs.fedora.FedoraRepository;
+//import org.duraspace.dfr.ocs.fedora.FedoraObjectStoreClient;
 //import org.duraspace.dfr.ocs.simpleproc.SimpleProcessor;
 //import org.junit.AfterClass;
 //import org.junit.Assert;
@@ -29,7 +29,7 @@ public class DuraCloudFedoraIT {
 //    private static DuraCloudTempSpace tempSpace;
 //    private static DuraCloudStorageListener listener;
 //    private static DuraCloudMessagingClient messagingClient;
-//    private static FedoraRepository fedoraRepository;
+//    private static FedoraObjectStoreClient fedoraRepository;
 //
 //    @BeforeClass
 //    public static void setUp() throws Exception {
@@ -38,7 +38,7 @@ public class DuraCloudFedoraIT {
 //                ITConstants.FEDORA_USERNAME,
 //                ITConstants.FEDORA_PASSWORD);
 //        FedoraClient client = new FedoraClient(credentials);
-//        fedoraRepository = new FedoraRepository(client);
+//        fedoraRepository = new FedoraObjectStoreClient(client);
 //        tempSpace = new DuraCloudTempSpace();
 //        SimpleProcessor processor = new SimpleProcessor(
 //                ITConstants.DURACLOUD_HOSTNAME + ":",

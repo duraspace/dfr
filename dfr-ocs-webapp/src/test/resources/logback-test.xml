@@ -35,7 +35,7 @@
   </logger>
   -->
 
-  <logger name="org.duraspace.dfr.ocs.duracloud.DuraCloudCreateProcessor" additivity="false" level="DEBUG">
+  <logger name="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageTranslator" additivity="false" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </logger>

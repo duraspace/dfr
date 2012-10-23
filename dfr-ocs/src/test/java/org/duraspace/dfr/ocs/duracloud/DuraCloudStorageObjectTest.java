@@ -24,15 +24,15 @@ public class DuraCloudStorageObjectTest {
             "contentId");
     }
 
-    @Test
-    public void getContentThenMetadata() throws Exception {
-        getBoth(false);
-    }
+//    @Test
+//    public void getContentThenMetadata() throws Exception {
+//        getBoth(false);
+//    }
 
-    @Test
-    public void getMetadataThenContent() throws Exception {
-        getBoth(true);
-    }
+//    @Test
+//    public void getMetadataThenContent() throws Exception {
+//        getBoth(true);
+//    }
 
     private void getBoth(boolean metadataFirst) throws Exception {
         ContentStore contentStore = Mockito.mock(ContentStore.class);
@@ -54,15 +54,15 @@ public class DuraCloudStorageObjectTest {
         Mockito.verify(contentStore).getContent("spaceId", "contentId");
     }
 
-    @Test
-    public void getContentThenMetadataDeleted() throws Exception {
-        getBothDeleted(false);
-    }
+//    @Test
+//    public void getContentThenMetadataDeleted() throws Exception {
+//        getBothDeleted(false);
+//    }
 
-    @Test
-    public void getMetadataThenContentDeleted() throws Exception {
-        getBothDeleted(true);
-    }
+//    @Test
+//    public void getMetadataThenContentDeleted() throws Exception {
+//        getBothDeleted(true);
+//    }
 
     private void getBothDeleted(boolean metadataFirst) throws Exception {
         ContentStore contentStore = Mockito.mock(ContentStore.class);

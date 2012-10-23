@@ -8,20 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides access to DuraCloud as a content store using Bytestream (Blob)
- * semantics.
+ * Provides access to DuraCloud as an object store.
  *
- * Note: Think about make a Camel component out of this.
+ * Note: Think about making a Camel component out of this.
  */
-public class DuraCloudContentStoreClient {
+public class DuraCloudObjectStoreClient {
 
     private static final Logger logger =
-        LoggerFactory.getLogger(DuraCloudContentStoreClient.class);
+        LoggerFactory.getLogger(DuraCloudObjectStoreClient.class);
 
-    // The DuraStore instance where things are stored.
+    /** The DuraStore instance where things are stored. */
     private ContentStore contentStore;
 
-    // The DuraCloud storage client manager servicing this connection
+    /** The DuraCloud storage client manager servicing this connection. */
     private ContentStoreManager contentStoreManager;
 
     /**
@@ -32,10 +31,10 @@ public class DuraCloudContentStoreClient {
      *                     <code>null</code>.
      * @param credential the credential to use for storage provider connections.
      */
-    public DuraCloudContentStoreClient(ContentStoreManager manager,
-                                       Credential credential) {
+    public DuraCloudObjectStoreClient(ContentStoreManager manager,
+                                      Credential credential) {
 
-        logger.debug("Constructing a DuraCloudContentStoreClient");
+        logger.debug("Constructing a DuraCloudObjectStoreClient");
 
         if (manager == null || credential == null) {
             throw new NullPointerException();
@@ -53,7 +52,7 @@ public class DuraCloudContentStoreClient {
     }
 
     /**
-     * Accessor for the DuraCloud content store
+     * Get the DuraCloud object store
      *
      * @return the DuraCloud content store
      */
@@ -62,7 +61,7 @@ public class DuraCloudContentStoreClient {
     }
 
     /**
-     * Accessor for the DuraCloud content store manager for this connection
+     * Get the DuraCloud content store manager for this connection
      *
      * @return the DuraCloud content store manager
      */

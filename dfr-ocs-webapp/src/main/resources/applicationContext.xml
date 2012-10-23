@@ -37,7 +37,7 @@
   </bean>
 
   <!-- The repository itself -->
-  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository" depends-on="repositoryClient" init-method="initialize">
+  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraObjectStoreClient" depends-on="repositoryClient" init-method="initialize">
     <constructor-arg ref="repositoryClient"/>
   </bean>
 
@@ -70,13 +70,13 @@
     <constructor-arg type="java.lang.String" value="${dfr.contentstore.context}"/>
   </bean>
 
-  <bean id="contentStorageClient" class="org.duraspace.dfr.ocs.duracloud.DuraCloudContentStoreClient" depends-on="contentStoreManager">
+  <bean id="contentStorageClient" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectStoreClient" depends-on="contentStoreManager">
     <constructor-arg ref="contentStoreManager"/>
     <constructor-arg ref="storageClientCredential"/>
   </bean>
 
   <!-- this is the Message Driven POJO (MDP) -->
-  <bean id="createMessageProcessor" class="org.duraspace.dfr.ocs.duracloud.DuraCloudCreateProcessor" depends-on="contentStorageClient">
+  <bean id="createMessageProcessor" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageTranslator" depends-on="contentStorageClient">
     <constructor-arg ref="contentStorageClient"/>
   </bean>
 
@@ -124,17 +124,20 @@
   </bean>
   -->
 
+  <bean id="createSplitter" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageSplitter"/>
+
   <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true">
     <route>
-      <!-- <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false"/> -->
-      <!-- <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?selector=spaceID%20NOT%20IN%20('x-duracloud-admin',%20'x-service-out',%20'x-service-work',%20'fedora-objects')"/> -->
       <!-- <to uri="log:dfr.camel?showAll=true"/> -->
       <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false%26selector=spaceId%20NOT%20IN%20('x-duracloud-admin',%20'x-service-out',%20'x-service-work',%20'fedora-objects')"/>
       <!-- <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false"/> -->
       <log message="Incoming Storage Message" loggingLevel="INFO"/>
       <bean ref="createMessageProcessor" method="onMessage"/>
-      <bean ref="contentProcessor" method="process"/>
-      <bean ref="objectRepository" method="ingest"/>
+      <split>
+        <method bean="createSplitter" method="splitBody"/>
+        <bean ref="contentProcessor" method="process"/>
+        <bean ref="objectRepository" method="ingest"/>
+      </split>
       <!-- <to uri="direct:mockBasicMessageListener"/> -->
     </route>
   </camelContext>

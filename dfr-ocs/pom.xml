@@ -13,7 +13,17 @@
   <packaging>jar</packaging>
   <name>Object Creation Service</name>
 
+  <!--
+  <properties>
+
+    <fedora.baseurl>changeme</fedora.baseurl>
+    <fedora.password>changeme</fedora.password>
+
+  </properties>
+  -->
+
   <dependencies>
+
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -82,5 +92,7 @@
       <groupId>org.springframework</groupId>
       <artifactId>spring-jms</artifactId>
     </dependency>
+
   </dependencies>
+
 </project>

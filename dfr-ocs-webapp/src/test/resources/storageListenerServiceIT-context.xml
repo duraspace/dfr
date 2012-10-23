@@ -25,7 +25,7 @@
   </bean>
 
   <!-- The repository itself -->
-  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository">
+  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraObjectStoreClient">
     <constructor-arg ref="repositoryClient"/>
   </bean>
 

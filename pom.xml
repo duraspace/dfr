@@ -72,6 +72,7 @@
   </scm>
 
   <properties>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipITs>true</skipITs>
@@ -89,6 +90,7 @@
     <org.springframework.security.version>3.1.0.RELEASE</org.springframework.security.version>
     <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
+
   </properties>
 
   <dependencyManagement>
@@ -224,11 +226,13 @@
         <version>${slf4j.version}</version>
       </dependency>
 
+      <!--
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
+      -->
 
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -493,12 +497,12 @@
         <version>2.2</version>
       </dependency>
 
-
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>${jetty.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
@@ -743,10 +747,12 @@
  
     </plugins>
   </reporting>
+
   <distributionManagement>
     <site>
       <id>local.site</id>
       <url>file:///tmp/dfr-site</url>
     </site>
   </distributionManagement>
+
 </project>
