@@ -33,7 +33,7 @@
   <bean id="contentProcessor" class="org.duraspace.dfr.ocs.simpleproc.SimpleProcessor">
     <constructor-arg type="java.lang.String" value="changeme:"/>
     <constructor-arg type="java.lang.String" value="http://www.duracloud.org/changeme"/>
-    <property name="fedoraObjectStore" ref="objectRepository"/>
+    <!-- <property name="fedoraObjectStore" ref="objectRepository"/> -->
   </bean>
 
 
