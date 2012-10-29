@@ -16,7 +16,7 @@ import java.util.Map;
 public class DuraCloudStorageIT {
 
     // This test will be revised to use the Camel test framework since the
-    // JMS message is receive via its AMQ integration.
+    // JMS message is receive via its AMQ integration. DWD
 
 //    private static DuraCloudTempSpace tempSpace;
 //    private static DuraCloudStorageListener listener;

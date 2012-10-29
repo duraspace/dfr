@@ -51,7 +51,10 @@ public class DuraCloudObjectCreatedMessageTranslatorTest {
     // * Test situations where JMSExceptions are thrown.
     // *
     // * Note: I have not be able to demonstrate a situation that throws a JMS
-    // *       exception since the introduction oF Camel
+    // *       exception since the introduction oF Camel, It captures a number
+    // *       of exceptions to be handled by its more capable error handling
+    // *       feature set (though I am not sure this is happening in this case
+    // *       yet). DWD
     // */
     //    @Test (expected=JMSException.class)
     //    public void simulateJmsExceptionGettingID() {
