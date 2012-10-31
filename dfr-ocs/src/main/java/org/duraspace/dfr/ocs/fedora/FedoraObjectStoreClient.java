@@ -117,8 +117,7 @@ public class FedoraObjectStoreClient implements FedoraObjectStore {
 
     private boolean checkExistence(String pid) {
         logger.debug("Getting the objects\' profile");
-        FedoraResponse response =
-            execute(new GetObjectProfile(pid));
+        FedoraResponse response = execute(new GetObjectProfile(pid));
         logger.debug("Response is: " + response);
         return (response != null);
     }

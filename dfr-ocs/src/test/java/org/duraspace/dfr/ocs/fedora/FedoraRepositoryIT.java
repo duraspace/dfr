@@ -6,7 +6,6 @@ import com.yourmediashelf.fedora.client.FedoraCredentials;
 import org.duraspace.dfr.ocs.it.ITConstants;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -29,10 +28,10 @@ public class FedoraRepositoryIT {
     }
 
     /**
-     * Checks if an expection is thrown if an attempt is made to purge an
-     * object that does not exist.
+     * Checks whether the purge of a non-existent object is handled silently
+     * by the client
      *
-     * @throws Exception when requesting the purge of a non-existing object
+     * @throws Exception if the purge of a non-existing object is not handled
      */
     @Test
     public void purgeNonExisting() throws Exception {
@@ -40,10 +39,10 @@ public class FedoraRepositoryIT {
     }
 
     /**
-     * Checks if an exception is thrown if an attempt is made to export an
-     * object that does not exist.
+     * Checks whether the export of a non-existent object is handled silently
+     * by the client
      *
-     * @throws Exception when requesting the export of a non-existing object
+     * @throws Exception if the export of a non-existing object is not handled
      */
     @Test
     public void exportNonExisting() throws Exception {
@@ -59,7 +58,6 @@ public class FedoraRepositoryIT {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void ingestExisting() throws Exception {
         String pid = "test:" + System.currentTimeMillis();
         FedoraObject inObject = new FedoraObject().pid(pid).label("label");
@@ -82,10 +80,10 @@ public class FedoraRepositoryIT {
         String pid = "test:" + System.currentTimeMillis();
         FedoraObject inObject = new FedoraObject().pid(pid).label("label");
         fedoraObjectStoreClient.ingest(inObject, "logMessage");
-        // Todo: Export is not working, no object is returned.
-        //FedoraObject outObject = fedoraObjectStoreClient.export(pid);
-        //Assert.assertEquals(inObject.pid(), outObject.pid());
-        //Assert.assertEquals(inObject.label(), outObject.label());
+        // Note: This is a very weak test. DWD
+        FedoraObject outObject = fedoraObjectStoreClient.export(pid);
+        Assert.assertEquals(inObject.pid(), outObject.pid());
+        Assert.assertEquals(inObject.label(), outObject.label());
         fedoraObjectStoreClient.purge(pid, "logMessage");
         Assert.assertNull(fedoraObjectStoreClient.export(pid));
     }
