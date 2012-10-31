@@ -167,6 +167,10 @@
                   <name>jetty.port</name>
                   <value>${jetty.port}</value>
                 </systemProperty>
+                <systemProperty>
+                  <name>jsse.enableSNIExtension</name>
+                  <value>false</value>
+                </systemProperty>
               </systemProperties>
             </configuration>
           </execution>
@@ -400,11 +404,6 @@
       <artifactId>selenium-java</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-java</artifactId>
-    </dependency>
-    
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>

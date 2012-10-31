@@ -71,6 +71,12 @@ public abstract class BaseSeleniumTest {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
+
+        // This is a temporary solution to making this code work with the
+        // current DuraStore under Java 7.  The base issue is discussed in
+        // https://jira.duraspace.org/browse/DURACLOUD-717   DWD
+        System.setProperty("jsse.enableSNIExtension", "false");
+
        Properties properties = getProperties();
        String username = properties.getProperty("username");
        String password = properties.getProperty("password");
