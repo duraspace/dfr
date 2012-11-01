@@ -98,7 +98,7 @@ file="../include/libraries.jsp"%>
             </form:label>
 
             <div class="fieldgroup">
-              <form:input
+              <form:password
                cssErrorClass="error"
                path="password" />
   
