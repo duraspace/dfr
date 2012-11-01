@@ -72,6 +72,7 @@
   </scm>
 
   <properties>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <skipITs>true</skipITs>
@@ -81,12 +82,15 @@
     <currentVersion>${project.version}</currentVersion>
     <duracloud.version>2.2.0-SNAPSHOT</duracloud.version>
     <fcrepo-misc.version>1.0.0</fcrepo-misc.version>
+    <camel.version>2.10.1</camel.version>
+    <activemq.version>5.7.0</activemq.version>
     <slf4j.version>1.6.4</slf4j.version>
     <org.springframework.version>3.1.2.RELEASE</org.springframework.version>
     <org.springframework.webflow.version>2.3.0.RELEASE</org.springframework.webflow.version>
     <org.springframework.security.version>3.1.0.RELEASE</org.springframework.security.version>
     <tiles.version>2.2.2</tiles.version>
     <jetty.version>8.1.4.v20120524</jetty.version>
+
   </properties>
 
   <dependencyManagement>
@@ -95,7 +99,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.7</version>
       </dependency>
 
       <dependency>
@@ -125,13 +129,43 @@
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-core</artifactId>
-        <version>5.5.1</version>
+        <version>${activemq.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-camel</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.activemq</groupId>
+        <artifactId>activemq-pool</artifactId>
+        <version>${activemq.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-jms</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-test</artifactId>
+        <version>${camel.version}</version>
       </dependency>
 
       <dependency>
@@ -192,11 +226,13 @@
         <version>${slf4j.version}</version>
       </dependency>
 
+      <!--
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>jul-to-slf4j</artifactId>
         <version>${slf4j.version}</version>
       </dependency>
+      -->
 
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -461,12 +497,12 @@
         <version>2.2</version>
       </dependency>
 
-
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
       <version>${jetty.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-webapp</artifactId>
@@ -711,10 +747,12 @@
  
     </plugins>
   </reporting>
+
   <distributionManagement>
     <site>
       <id>local.site</id>
       <url>file:///tmp/dfr-site</url>
     </site>
   </distributionManagement>
+
 </project>

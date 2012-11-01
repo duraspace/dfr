@@ -5,7 +5,6 @@ import com.yourmediashelf.fedora.client.FedoraClient;
 import com.yourmediashelf.fedora.client.FedoraClientException;
 import com.yourmediashelf.fedora.client.request.*;
 import com.yourmediashelf.fedora.client.response.FedoraResponse;
-import org.duraspace.dfr.ocs.core.FedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,16 +16,20 @@ import java.io.*;
 /**
  * Implementation of {@link FedoraObjectStore} that works with an actual
  * Fedora repository.
+ *
+ * Note: We need to move the strings to constants or properties. Also, since
+ *       Fedora is an endpoint this could be a Camel component (or hook into
+ *       one)..
  */
-public class FedoraRepository implements FedoraObjectStore {
+public class FedoraObjectStoreClient implements FedoraObjectStore {
 
     private static final Logger logger =
-        LoggerFactory.getLogger(FedoraRepository.class);
+        LoggerFactory.getLogger(FedoraObjectStoreClient.class);
 
     private static final String FOXML11_FORMAT =
             "info:fedora/fedora-system:FOXML-1.1";
 
-    // A client used to make it easy to interoperate with Fedora
+    /** A DFR client used to make it easy to interoperate with Fedora */
     private final FedoraClient fedoraClient;
 
     /**
@@ -34,7 +37,7 @@ public class FedoraRepository implements FedoraObjectStore {
      *
      * @param fedoraClient the Fedora client to use, never <code>null</code>.
      */
-    public FedoraRepository(FedoraClient fedoraClient) {
+    public FedoraObjectStoreClient(FedoraClient fedoraClient) {
         if (fedoraClient == null) throw new NullPointerException();
         this.fedoraClient = fedoraClient;
         logger.debug("Constructing a Fedora Repository");
@@ -42,11 +45,22 @@ public class FedoraRepository implements FedoraObjectStore {
 
     @Override
     public boolean ingest(FedoraObject object, String logMessage) throws OCSException {
-        logger.debug("Ingesting an object into the repository");
-        FedoraResponse response = execute(new Ingest().format(FOXML11_FORMAT)
+
+        boolean success = false;
+
+        // This is ugly, ugly, ugly and I take full responsibility. Since we
+        // generate the PID, and FDO's are immutable (for now) as far as DfR is
+        // concerned.  If the object exists, nothing needs to be done.  Later,
+        // we will want to do something better.  DWD.
+        if (!checkExistence(object.pid())) {
+            logger.debug("Ingesting an object into the repository");
+            FedoraResponse response = execute(new Ingest().format(FOXML11_FORMAT)
                 .logMessage(logMessage).content(Util.toFOXML(object)));
-        logger.debug("Ingest response - " + response);
-        return response != null;
+            logger.debug("Ingest response - " + response);
+            success = response != null;
+        }
+
+        return success;
     }
 
     @Override
@@ -103,9 +117,8 @@ public class FedoraRepository implements FedoraObjectStore {
 
     private boolean checkExistence(String pid) {
         logger.debug("Getting the objects\' profile");
-        FedoraResponse response =
-            execute(new GetObjectProfile(pid));
-        System.out.println("Response is: " + response);
+        FedoraResponse response = execute(new GetObjectProfile(pid));
+        logger.debug("Response is: " + response);
         return (response != null);
     }
 

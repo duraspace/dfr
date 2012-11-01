@@ -5,11 +5,19 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An event pertaining to a {@link StorageObject}.
+ *
+ * Note: It remains to be determined if this duplicates the capabilities found
+ *       in every execution environment or needs to be a POJO to avoid depending
+ *       on them.  Also, the data model includes the notion of events for use
+ *       in provenance, and, while this is useful, it may just be part of a
+ *       larger auditing mechanism.  DWD.
  */
 public class StorageObjectEvent {
-    /**
-     * Types of events.
-     */
+
+    private static final Logger logger = LoggerFactory.getLogger(
+        StorageObjectEvent.class);
+
+    /** Types of events. */
     public enum Type {
         /** The storage object has been created. */
         CREATED,
@@ -18,10 +26,12 @@ public class StorageObjectEvent {
         DELETED
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            StorageObjectEvent.class);
-
+    /** Identifies the event to some level of uniqueness. */
     private final String id;
+
+    /** Identifies the type of the event. */
+    // Note: The needs to be extended into a more flexible message metadata
+    //       mechanism.
     private final Type type;
     private final StorageObject storageObject;
 

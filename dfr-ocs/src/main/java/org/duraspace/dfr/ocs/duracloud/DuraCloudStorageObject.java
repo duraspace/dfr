@@ -11,15 +11,32 @@ import java.util.Map;
 
 /**
  * A {@link StorageObject} whose content and metadata is provided by DuraCloud.
+ *
+ * Note: This class has aspects of a DTO and a DAO that causes some crufty code
+ *       but is convenient.  There is also duplication in the data members and
+ *       the message metadata to clean up.
  */
-class DuraCloudStorageObject implements StorageObject {
+public class DuraCloudStorageObject implements StorageObject {
+
+    /** DuraCloud store where the content can be located. */
     private final ContentStore contentStore;
+
+    /** DuraCloud space in which the contain is found. */
     private final String spaceId;
+
+    /** Identifies the content as a slash delimited string. */
     private final String contentId;
+
+     /** Metadata from the message only (see interface for content metadata) */
     private final Map<String, String> messageMetadata;
+
+    /** Indicates deleted content making it and its metadata inaccessible. */
     private final boolean deleted;
-    
+
+    /** Stream that provides access to the content (bytestream). */
     private InputStream stream;
+
+    /** Metadata associated with the content in DuraCloud. */
     private Map<String, String> metadata;
 
     /**
@@ -31,9 +48,7 @@ class DuraCloudStorageObject implements StorageObject {
      * @param messageMetadata metadata gathered from the JMS message.
      * @param deleted <code>true</code> if the content has been deleted and
      *                therefore the stream and metadata cannot be obtained
-     *                from DuraCloud. If this case, only the messageMetadata
-     *                will be provided in response to a request for storage
-     *                object metadata.
+     *                from DuraCloud.
      */
     DuraCloudStorageObject(ContentStore contentStore, String spaceId,
             String contentId, Map<String, String> messageMetadata,
@@ -50,6 +65,49 @@ class DuraCloudStorageObject implements StorageObject {
         return contentId;
     }
 
+    /**
+     * Get the content's storage service
+     *
+     * @return ContentStore the storage service
+     */
+    public ContentStore getContentStore() {
+        return contentStore;
+    }
+
+    /**
+     * Get the contents space identifier in DuraCloud
+     *
+     * @return  String the identifier for the space
+     */
+    public String getSpaceId() {
+        return spaceId;
+    }
+
+    /**
+     * Get the storage object's type, false if deleted
+     *
+     * @return a
+     */
+    public boolean getType() {
+        return deleted;
+    }
+
+    /**
+     * Get the metadata about the work-in-process on the storage object (note:
+     * This is separate from any metadata associated with the content, if any,
+     * from the content store.
+     *
+     * Todo: the ocs exception is not longer valid but the messageMetadata map
+     * is not initialized during construction and so may be null.  It would
+     * be nice to have a copy constructor.
+     *
+     * @return  map containing the message metadata
+     * @throws OCSException
+     */
+    public Map<String, String> getMessageMetadata() throws OCSException {
+        return messageMetadata;
+    }
+
     @Override
     public Map<String, String> getMetadata() throws OCSException {
         if (deleted) {
@@ -57,7 +115,6 @@ class DuraCloudStorageObject implements StorageObject {
         } else if (metadata == null) {
             Content content = getDuraCloudContent();
             metadata = content.getProperties();
-            metadata.putAll(messageMetadata);
             stream = content.getStream();
         }
         return metadata;
@@ -74,7 +131,6 @@ class DuraCloudStorageObject implements StorageObject {
                 } else {
                     Content content = getDuraCloudContent();
                     metadata = content.getProperties();
-                    metadata.putAll(messageMetadata);
                     return content.getStream();
                 }
             } finally {
@@ -83,6 +139,12 @@ class DuraCloudStorageObject implements StorageObject {
         }
     }
 
+    /**
+     * Ret the bytestream content from the store
+     *
+     * @return the Content
+     * @throws OCSException
+     */
     private Content getDuraCloudContent() throws OCSException {
         try {
             return contentStore.getContent(spaceId, contentId);

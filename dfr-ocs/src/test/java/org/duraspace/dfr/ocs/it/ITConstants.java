@@ -41,9 +41,9 @@ public final class ITConstants {
         }
         DURASTORE_BASE_URL = duraStoreBaseURL + "/" + DURASTORE_CONTEXT;
         FEDORA_BASE_URL = get("fedora.baseurl",
-                "http://dfrtest.duracloud.org:18081/fedora");
+                "http://dfr.duracloud.org:8080/fedora");
         FEDORA_USERNAME = get("fedora.username", "fedoraAdmin");
-        FEDORA_PASSWORD = get("fedora.password", DURACLOUD_PASSWORD);
+        FEDORA_PASSWORD = get("fedora.password", null);
     }
 
     private ITConstants() { }

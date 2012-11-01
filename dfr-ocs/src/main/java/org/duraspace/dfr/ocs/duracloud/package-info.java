@@ -1,4 +1,4 @@
 /**
- * DuraCloud JMS-based <code>StorageObjectEventListener</code> implementation.
+ * DuraCloud Message-based <code>StorageObjectEvent implementation.
  */
 package org.duraspace.dfr.ocs.duracloud;

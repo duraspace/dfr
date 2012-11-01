@@ -3,11 +3,10 @@ package org.duraspace.dfr.ocs.simpleproc;
 import com.github.cwilper.fcrepo.dto.core.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.duracloud.client.ContentStore;
-import org.duraspace.dfr.ocs.core.FedoraObjectStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
-import org.duraspace.dfr.ocs.core.StorageObjectEventProcessor;
+import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,15 +21,20 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * A {@link org.duraspace.dfr.ocs.core.StorageObjectEventProcessor} that
- * produces a simple wrapper Fedora object for each storage object. New
- * objects will be ingested into the given {@link FedoraObjectStore} and deleted
- * objects will be purged from it.
+ * Creates a basic, rather hard coded, Fedora object based on an incoming
+ * <code>StorageObjectEvent</code>. It creates a simple wrapper Fedora object
+ * for each storage bytestream. The new <code>FedoraObject</code> is returned
+ * for subsequent handling.
  * <p>
  * An external Fedora datastream with id <code>CONTENT</code> will be created
  * in the Fedora object. This will reference the content inside DuraCloud
- * via URL.
+ * via URL. This is for the content object only.
  * <p>
+ * <p>
+ * A RELS-EXT datastream is also created. For all objects it points to its
+ * collection object up to a pre-defined default. A relationship to a content
+ * model is asserted depending on the type of object.
+ * </p>
  * This implementation requires that all {@link StorageObject}s sent to it
  * have the following DuraCloud-specific metadata defined:
  * <ul>
@@ -50,7 +54,7 @@ import java.util.TimeZone;
  * <p>
  * If any additional metadata is provided, it will be ignored.
  */
-public class SimpleProcessor implements StorageObjectEventProcessor {
+public class SimpleProcessor {
 
     private static final Logger logger =
         LoggerFactory.getLogger(SimpleProcessor.class);
@@ -59,10 +63,11 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
     private static final String STORE_ID = "store-id";
     private static final String SPACE_ID = "space-id";
 
+    /** The Fedora PID namespace to use. */
     private String pidPrefix;
+
+    /** The URL of the DuraStore service containing the content. */
     private String duraStoreURL;
-    
-    private FedoraObjectStore fedoraObjectStore;
 
     /**
      * Creates an instance.
@@ -103,56 +108,75 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         logger.debug("Constructing a simple processor");
     }
 
-    @Override
-    public void setFedoraObjectStore(FedoraObjectStore fedoraObjectStore) {
-        logger.debug("Setting the object store.");
-        this.fedoraObjectStore = fedoraObjectStore;
-    }
-
-    @Override
-    public void process(StorageObjectEvent event) throws OCSException {
+    public FedoraObject process(StorageObjectEvent event) throws OCSException {
         logger.debug("Processing a storage event");
 
-        StorageObject storageObject = event.getStorageObject();
-        String contentId = storageObject.getId();
-        Map<String, String> metadata = storageObject.getMetadata();
-        String contentURL = duraStoreURL + "/" +
-                metadata.get(SPACE_ID) + "/" + contentId + "?storeID=" +
-                metadata.get(STORE_ID);
-        String pid = pidPrefix + DigestUtils.md5Hex(contentURL);
-        requireValues(metadata, STORE_ID, SPACE_ID);
-        String logMessageSuffix = "requested by DFR Object Creation Service." +
-                " Event ID: " + event.getId();
-        if (event.getType() == StorageObjectEvent.Type.CREATED) {
-            requireValues(metadata,
-                    ContentStore.CONTENT_CHECKSUM,
-                    ContentStore.CONTENT_MIMETYPE,
-                    ContentStore.CONTENT_MODIFIED,
-                    ContentStore.CONTENT_SIZE);
-            if (!fedoraObjectStore.ingest(getFedoraObject(pid, contentURL,
-                    metadata), "Ingest " + logMessageSuffix)) {
-                throw new OCSException("Ingest failed; Fedora object already "
-                        + "exists: " + pid);
-            }
-        } else {
-            fedoraObjectStore.purge(pid, "Purge " + logMessageSuffix);
+        FedoraObject fedoraObject = null;
+
+        DuraCloudStorageObject storageObject =
+            (DuraCloudStorageObject) event.getStorageObject();
+        String collectionPID = "si:importedObjects";
+        Map<String, String> messageMetadata = storageObject.getMessageMetadata();
+
+        requireValues(messageMetadata, "objectId", "objectType", "collectionId");
+        String objectId = messageMetadata.get("objectId");
+        //String objectType = messageMetadata.get("objectType");
+        String collectionId = messageMetadata.get("collectionId");
+
+        if (!collectionId.equals("si:importedObjects")) {
+            String collectionURL = duraStoreURL + "/" +
+                messageMetadata.get(SPACE_ID) + "/" + collectionId + "?storeID=" +
+                messageMetadata.get(STORE_ID);
+            logger.info("Collection URL: " + collectionURL);
+            collectionPID = pidPrefix + DigestUtils.md5Hex(collectionURL);
         }
+
+        requireValues(messageMetadata, STORE_ID, SPACE_ID);
+        String contentURL = duraStoreURL + "/" +
+                messageMetadata.get(SPACE_ID) + "/" + objectId + "?storeID=" +
+                messageMetadata.get(STORE_ID);
+        String objectPID = pidPrefix + DigestUtils.md5Hex(contentURL);
+
+        // Using Camel with POJOs causes problems with adding log messages
+        // on the Fedora Client. We can fix that when we refactor the simple
+        // client. DWD
+        //String logMessageSuffix = "requested by DFR Object Creation Service." +
+        //        " Event ID: " + event.getId();
+        Map<String, String> metadata = storageObject.getMetadata();
+        fedoraObject =
+            getFedoraObject(objectPID, collectionPID, contentURL, metadata, messageMetadata);
+        //if (!fedoraObjectStore) We should log it, maybe exception.
+        // Note: This code cannot return a nice log message for the audit
+        //       which we should do something about.
+
+        return fedoraObject;
     }
 
-    private FedoraObject getFedoraObject(String pid, String contentURL,
-            Map<String, String> metadata) {
+    private FedoraObject getFedoraObject(String pid, String collectionPID,
+                                         String contentURL,
+                                         Map<String, String> metadata,
+                                         Map<String, String> messageMetadata) {
         String label = prettyLabel(contentURL);
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
-        //fedoraObject.label(contentURL);
+        String objectType = messageMetadata.get("objectType");
         fedoraObject.label(label);
-        fedoraObject.putDatastream(getContentDatastream(contentURL, metadata));
-        fedoraObject.putDatastream(getRelsDatastream(pid, metadata));
+        if (objectType.equals("content")) {
+            fedoraObject.putDatastream(getContentDatastream(contentURL, metadata, messageMetadata));
+        }
+        fedoraObject.putDatastream(getRelsDatastream(pid, collectionPID, metadata, messageMetadata));
         return fedoraObject;
     }
-    
+
     private Datastream getContentDatastream(String contentURL,
-            Map<String, String> metadata) {
+            Map<String, String> metadata, Map<String, String> messageMetadata) {
+
+        requireValues(metadata,
+            ContentStore.CONTENT_CHECKSUM,
+            ContentStore.CONTENT_MIMETYPE,
+            ContentStore.CONTENT_MODIFIED,
+            ContentStore.CONTENT_SIZE);
+
         Datastream datastream = new Datastream("CONTENT");
         datastream.controlGroup(ControlGroup.REDIRECT);
         Date date = parseRFC822Date(metadata.get(
@@ -179,7 +203,13 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
     }
 
     private Datastream getRelsDatastream(String pid,
-                                         Map<String, String> metadata) {
+                                         String collectionPID,
+                                         Map<String, String> metadata,
+                                         Map<String, String> messageMetadata) {
+
+        requireValues(metadata,
+            ContentStore.CONTENT_MODIFIED);
+
         Datastream datastream = new Datastream("RELS-EXT");
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
@@ -204,8 +234,8 @@ public class SimpleProcessor implements StorageObjectEventProcessor {
         inlineXML = inlineXML +
             "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/si:importedObjects\"></fedora:isMemberOfCollection> " +
-            "<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
+            "<fedora:isMemberOfCollection rdf:resource=\"" + collectionPID + "\"></fedora:isMemberOfCollection> " +
+            //"<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
             "</rdf:Description> " +
             "</rdf:RDF>";
 

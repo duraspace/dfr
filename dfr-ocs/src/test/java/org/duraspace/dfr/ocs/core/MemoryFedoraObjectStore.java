@@ -1,12 +1,13 @@
 package org.duraspace.dfr.ocs.core;
 
 import com.github.cwilper.fcrepo.dto.core.FedoraObject;
+import org.duraspace.dfr.ocs.fedora.FedoraObjectStore;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A memory-based {@link FedoraObjectStore} to support testing.
+ * A memory-based {@link org.duraspace.dfr.ocs.fedora.FedoraObjectStore} to support testing.
  */
 public class MemoryFedoraObjectStore implements FedoraObjectStore {
 

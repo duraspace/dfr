@@ -1,5 +1,9 @@
 DuraCloud for Research
 ----------------------
+
+Please consult https://wiki.duraspace.org/x/KSb7AQ to find out how to build and
+install DfR software from source for a more complete document.
+
 To build and install locally, skipping all tests:
 
   mvn clean install -DskipTests=true
@@ -21,29 +25,44 @@ coverage, findbugs, cpd, and javadocs reports:
 
 ----------------------------------------------------------------------
 *NOTE: To run integration tests successfully, you'll need to have the
-       duracloud.password system property defined. This allows the
-       tests to successfully connect to the dfrtest host. There are
+       duracloud.password and the fedora.password system property defined.
+       This allows the tests to successfully connect to the hosts. You may
+       also need to set the URL of the DuraCloud and Fedora hosts. There are
        several ways you can do this, including passing the property
        via -D on the maven command line or putting something like the
        following in your maven settings.xml file:
 --------------------------------------------------------------------
 
-  ..
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <localRepository/>
+  <interactiveMode/>
+  <usePluginRegistry/>
+  <offline/>
+  <pluginGroups/>
+  <servers/>
+  <mirrors/>
+  <proxies/>
   <profiles>
     <profile>
-      <id>dfr-test</id>
+      <id>ocs-integration-test</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <activeByDefault>false</activeByDefault>
       </activation>
       <properties>
-        <duracloud.password>ACTUAL-PASSWORD</duracloud.password>
+        <fedora.baseurl>http://dfr.duracloud.org:8080/fedora</fedora.baseurl>
+        <fedora.password>dgirocks</fedora.password>
+        <duracloud.password>research!</duracloud.password>
       </properties>
     </profile>
   </profiles>
+  <activeProfiles/>
 </settings>
 
 --------------------------------------------------------------------
-To get the actual password for dfrtest, contact a DfR developer.
+To get the actual passwords, contact a DfR developer.
 --------------------------------------------------------------------
 
 Latest maven site (master branch, built automatically after a push to github):

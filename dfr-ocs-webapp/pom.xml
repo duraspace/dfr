@@ -17,9 +17,9 @@
   <properties>
 
     <!-- These properties can be overridden on the command line. e.g. mvn verify -Docs.webapp.port=8081 -->
-    <dfr.ocs.port>8080</dfr.ocs.port>
+    <dfr.ocs.port>8090</dfr.ocs.port>
     <dfr.ocs.contextPath>/</dfr.ocs.contextPath>
-    <jetty.stop.port>8005</jetty.stop.port>
+    <jetty.stop.port>8095</jetty.stop.port>
     <skipITs>true</skipITs>
     <jetty.skip>${skipITs}</jetty.skip>
 
@@ -95,6 +95,12 @@
               <name>dfr.connector.port</name>
               <value>${dfr.ocs.port}</value>
             </systemProperty>
+
+            <systemProperty>
+              <name>logback.configurationFile</name>
+              <value>${project.basedir}/src/test/resources/logback-test.xml</value>
+            </systemProperty>
+
           </systemProperties>
 
         </configuration>
@@ -124,11 +130,19 @@
         </executions>
 
         <dependencies>
+
           <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
           </dependency>
+
+          <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.6.4</version>
+          </dependency>
+
         </dependencies>
 
       </plugin>
@@ -173,6 +187,22 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-jms</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>org.duracloud</groupId>
       <artifactId>storeclient</artifactId>
     </dependency>
@@ -185,7 +215,17 @@
 
     <dependency>
       <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
     </dependency>
 
     <dependency>
@@ -197,13 +237,13 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <scope>provided</scope>
+      <!-- <scope>provided</scope> -->
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
+      <!-- <scope>provided</scope> -->
     </dependency>
 
     <dependency>

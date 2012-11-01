@@ -7,6 +7,8 @@
                            http://www.springframework.org/schema/context/spring-context-3.1.xsd
                            http://www.springframework.org/schema/jms
                            http://www.springframework.org/schema/jms/spring-jms-3.0.xsd
+                           http://camel.apache.org/schema/spring
+                           http://camel.apache.org/schema/spring/camel-spring.xsd
                            http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
@@ -35,7 +37,7 @@
   </bean>
 
   <!-- The repository itself -->
-  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraRepository" depends-on="repositoryClient" init-method="initialize">
+  <bean id="objectRepository" class="org.duraspace.dfr.ocs.fedora.FedoraObjectStoreClient" depends-on="repositoryClient" init-method="initialize">
     <constructor-arg ref="repositoryClient"/>
   </bean>
 
@@ -43,7 +45,7 @@
   <bean id="contentProcessor" class="org.duraspace.dfr.ocs.simpleproc.SimpleProcessor" depends-on="objectRepository">
     <constructor-arg type="java.lang.String" value="${dfr.object.prefix}"/>
     <constructor-arg type="java.lang.String" value="${dfr.contentsource.url}"/>
-    <property name="fedoraObjectStore" ref="objectRepository"/>
+    <!-- <property name="fedoraObjectStore" ref="objectRepository"/> -->
   </bean>
 
   <!-- The supported cloud storage provider back-end -->
@@ -56,12 +58,10 @@
   <!-- A utility for connecting to the cloud storage provider -->
   <bean id="httpHelper" class="org.duracloud.common.web.RestHttpHelper"/>
 
-  <!--
-  <bean id="storageCredential" class="org.duracloud.common.model.Credential">
-    <constructor-arg type="java.lang.String" value="dfrtest"/>
-    <constructor-arg type="java.lang.String" value="research!"/>
+  <bean id="storageClientCredential" class="org.duracloud.common.model.Credential">
+    <constructor-arg type="java.lang.String" value="${dfr.contentstore.username}"/>
+    <constructor-arg type="java.lang.String" value="${dfr.contentstore.password}"/>
   </bean>
-  -->
 
   <!-- The manager of the client to interact with the cloud storage provider  -->
   <bean id="contentStoreManager" class="org.duracloud.client.ContentStoreManagerImpl">
@@ -70,22 +70,14 @@
     <constructor-arg type="java.lang.String" value="${dfr.contentstore.context}"/>
   </bean>
 
-  <!-- The client to interact with the cloud storage provider  -->
-  <!--
-  <bean id="contentStore" class="org.duracloud.client.ContentStoreImpl">
-    <constructor-arg type="java.lang.String" value="dfrtest.duracloud.org"/>
-    <constructor-arg ref="storageType"/>
-    <constructor-arg type="java.lang.String" value="storeID"/>
-    <constructor-arg ref="httpHelper"/>
+  <bean id="contentStorageClient" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectStoreClient" depends-on="contentStoreManager">
+    <constructor-arg ref="contentStoreManager"/>
+    <constructor-arg ref="storageClientCredential"/>
   </bean>
-  -->
 
   <!-- this is the Message Driven POJO (MDP) -->
-  <bean id="messageListener" class="org.duraspace.dfr.ocs.duracloud.DuraCloudStorageListener">
-    <constructor-arg ref="contentStoreManager"/>
-    <constructor-arg ref="contentProcessor"/>
-    <constructor-arg type="java.lang.String" value="${dfr.contentstore.username}"/>
-    <constructor-arg type="java.lang.String" value="${dfr.contentstore.password}"/>
+  <bean id="createMessageProcessor" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageTranslator" depends-on="contentStorageClient">
+    <constructor-arg ref="contentStorageClient"/>
   </bean>
 
   <!--  ActiveMQ destinations to use  -->
@@ -98,17 +90,75 @@
     <property name="brokerURL" value="${dfr.broker.url}"/>
   </bean>
 
+  <!-- Use a pooled connections for scalability -->
+  <bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" init-method="start" destroy-method="stop">
+    <property name="maxConnections" value="8" />
+    <property name="connectionFactory" ref="connectionFactory" />
+  </bean>
+
+  <!-- Use pooled connections for JMS -->
+  <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <property name="connectionFactory" ref="pooledConnectionFactory"/>
+    <property name="concurrentConsumers" value="1"/>
+    <!-- Until we choose our means of consuming this avoids duplication -->
+    <!-- <property name="concurrentConsumers" value="10"/> -->
+  </bean>
+
+  <!-- Use the Camel JMS Components for performance and route flexibility -->
+  <bean id="jms" class="org.apache.camel.component.jms.JmsComponent">
+    <property name="connectionFactory" ref="connectionFactory"/>
+  </bean>
+
+  <!-- Use the Camel AMQ component for performance -->
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="configuration" ref="jmsConfig"/>
+  </bean>
+
   <!-- and this is the message listener container -->
+  <!--
   <bean id="listenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
     <property name="connectionFactory" ref="connectionFactory"/>
     <property name="destination" ref="destination"/>
     <property name="messageListener" ref="messageListener" />
     <property name="messageSelector" value="spaceId NOT IN ('x-duracloud-admin', 'x-service-out', 'x-service-work', 'fedora-objects')" />
   </bean>
+  -->
+
+  <bean id="createSplitter" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageSplitter"/>
+
+  <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true">
+    <route>
+      <!-- <to uri="log:dfr.camel?showAll=true"/> -->
+      <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false%26selector=spaceId%20NOT%20IN%20('x-duracloud-admin',%20'x-service-out',%20'x-service-work',%20'fedora-objects')"/>
+      <!-- <from uri="activemq:topic:org.duracloud.topic.change.content.ingest?mapJmsMessage=false"/> -->
+      <log message="Incoming Storage Message" loggingLevel="INFO"/>
+      <bean ref="createMessageProcessor" method="onMessage"/>
+      <split>
+        <method bean="createSplitter" method="splitBody"/>
+        <bean ref="contentProcessor" method="process"/>
+        <bean ref="objectRepository" method="ingest"/>
+      </split>
+      <!-- <to uri="direct:mockBasicMessageListener"/> -->
+    </route>
+  </camelContext>
+
+  <!--
+  <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+    <property name="brokerURL" value="${dfr.broker.url}"/>
+  </bean>
+  -->
 
   <!-- and this is the storage message listener service -->
+  <!--
   <bean id="storageListenerService" class="org.duraspace.dfr.app.services.StorageListenerService">
     <constructor-arg ref="listenerContainer"/>
   </bean>
+  -->
+
+  <!--
+  <bean id="storageListenerService" class="org.duraspace.dfr.app.services.StorageListenerService">
+    <constructor-arg ref="connectionFactory"/>
+  </bean>
+  -->
 
 </beans>

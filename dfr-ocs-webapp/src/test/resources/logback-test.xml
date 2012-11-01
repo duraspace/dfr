@@ -35,11 +35,6 @@
   </logger>
   -->
 
-  <logger name="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectStoreClient" additivity="false" level="DEBUG">
-    <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="FILE"/>
-  </logger>
-
   <logger name="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageTranslator" additivity="false" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
@@ -47,6 +42,12 @@
 
 
   <logger name="org.duraspace.dfr.ocs.simpleproc.SimpleProcessor" additivity="false" level="DEBUG">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>
+  </logger>
+
+
+  <logger name="org.duraspace.dfr.app.components.BasicMessageValidator" additivity="false" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </logger>
