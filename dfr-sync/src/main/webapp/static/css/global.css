@@ -161,13 +161,29 @@ ul.global-errors, input.error  {
   color: #FFF; 
 }
 
+#footer ul li:first-child{
+  padding-left:10px;
+}
 #footer ul li:after{
 	content: "|";
 	padding-left: 10px;
+	font-size: 12px;
+	font-weight: bold;
+	color: #2375B2;
 }
 
 #footer ul li:last-child:after{
 	content: "";
+}
+
+#footer a, #footer {
+  color: #4C4C4C;
+  font-size: 13px;
+}
+
+#footer a:hover {
+  color: #5C5C5C;
+  
 }
 
 #content {

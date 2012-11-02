@@ -12,12 +12,11 @@
 
   <div id="footer">
     <ul>
-      <li><a href="http://www.duraspace.org/dfr">DfR</a></li>
+      <li><a href="http://www.duraspace.org/dfr">Duracloud for Research</a>: v${project.version} ${buildNumber}</li>
 
       <li><a href="http://www.duracloud.org">DuraCloud</a></li>
 
       <li><a href="http://www.duraspace.org">DuraSpace</a></li>
-
 
     </ul>
   </div>
