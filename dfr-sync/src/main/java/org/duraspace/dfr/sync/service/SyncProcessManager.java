@@ -7,6 +7,7 @@ import java.io.File;
 import java.util.List;
 
 import org.duracloud.sync.endpoint.MonitoredFile;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
 
@@ -53,5 +54,9 @@ public interface SyncProcessManager extends SyncProcess{
      * 
      */
     void clearError();
+
+    List<SyncSummary> getFailures();
+
+    List<SyncSummary> getRecentlyCompleted();
 
 }

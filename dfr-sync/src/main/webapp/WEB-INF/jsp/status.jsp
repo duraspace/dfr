@@ -13,18 +13,27 @@
     name="head-extension"  >
     <script>
     	$(function(){
-
+			var skipRefresh = false;
     	    var refresh = function(){
     			var x = $.get(window.location) 
 				 .done(function(){
-				     var body = $(x.responseText, "body");
-				     $(document.body).empty().append(body.children());
+				     if(!skipRefresh){
+					     var body = $(x.responseText, "body");
+					     $(document.body).empty().append(body.children());
+				     }
 				 });			
     	    };
     	    
     	    setInterval(refresh, 5000);
+			
     	    
+    	    $("#recent-activity, #errors").live("mouseover",function(){
+    	       skipRefresh = true; 
+    	    }).live("mouseout", function(){
+     	       skipRefresh = false; 
+    	    });
     	    
+			    	    
     	})
     </script>
   </tiles:putAttribute>
@@ -198,7 +207,39 @@
                 </c:otherwise>
               </c:choose>
               <h4>Recent Activity</h4>
-              <div id="recent-activity-graph"></div>
+              <div id="recent-activity">
+                  <c:choose>
+                      <c:when test="${not empty recentlyCompleted}">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>File (hover over name for full path)</th>
+                              <th>Size</th>
+                              <th>Duration</th>
+                              <th>Completed</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <c:forEach
+                              items="${recentlyCompleted}"
+                              var="summary">
+                              <tr>
+                                <td title="${summary.file.absolutePath}">${summary.file.name}</td>
+                                <td>${fileSizeFormatter.format(summary.file.length())}</td>
+                                <td>${summary.durationAsString}</td>
+                                <td><fmt:formatDate
+                                    value="${summary.stop}"
+                                    pattern="MM/dd/yyyy HH:mm a z" /></td>
+                              </tr>
+                            </c:forEach>
+                          </tbody>
+                        </table>
+                      </c:when>
+                      <c:otherwise>
+                        <p></p>
+                      </c:otherwise>
+                    </c:choose>              
+              </div>
             </div>
           </div>
         </div>
@@ -244,7 +285,7 @@
                                 value="${file.lastModified()}" />
                               <tr>
                                 <td>${file.absolutePath}</td>
-                                <td><fmt:formatNumber value="${file.length()}" /></td>
+                                <td>${fileSizeFormatter.format(file.length())}</td>
                                 <td><fmt:formatDate
                                     value="${lastModifiedDate}"
                                     pattern="MM/dd/yyyy HH:mm a z" /></td>
@@ -266,30 +307,28 @@
                   <%-- start errors --%>
                   <div id="errors">
                   <c:choose>
-                    <c:when test="${not empty errors}">
+                    <c:when test="${not empty failures}">
                         <table>
                           <thead>
                             <tr>
-                              <th><input type="checkbox"/></th>
                               <th>File Path</th>
-                              <th>Cause</th>
+                              <th>Message</th>
                             </tr>
                           </thead>
                           <tbody>
                             <c:forEach
-                              items="${queuedFiles}"
-                              var="file">
+                              items="${failures}"
+                              var="summary">
                               <tr>
-                                <td><input type="checkbox"/>
-                                <td>${file.absolutePath}</td>
-                                <td>cause here</td>
+                                <td>${summary.file.absolutePath}</td>
+                                <td>${summary.message}</td>
                               </tr>
                             </c:forEach>
                           </tbody>
                         </table>
                     </c:when>
                     <c:otherwise>
-                        <p>This feature has not yet been implemented.</p>
+                        <p>There are no failures at this time.</p>
                        </c:otherwise>
                     </c:choose>
                     </div>                  

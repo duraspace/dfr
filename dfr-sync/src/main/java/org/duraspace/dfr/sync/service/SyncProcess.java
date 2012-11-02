@@ -3,6 +3,9 @@
  */
 package org.duraspace.dfr.sync.service;
 
+import java.util.List;
+
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
 /**
@@ -51,5 +54,6 @@ public interface SyncProcess {
      * @return
      */
     public SyncProcessStats getProcessStats();
+
 
 }

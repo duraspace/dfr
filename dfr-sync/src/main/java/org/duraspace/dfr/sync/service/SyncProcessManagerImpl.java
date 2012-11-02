@@ -18,7 +18,9 @@ import org.duracloud.sync.endpoint.DuraStoreChunkSyncEndpoint;
 import org.duracloud.sync.endpoint.MonitoredFile;
 import org.duracloud.sync.endpoint.SyncEndpoint;
 import org.duracloud.sync.mgmt.ChangedList;
+import org.duracloud.sync.mgmt.StatusManager;
 import org.duracloud.sync.mgmt.SyncManager;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duracloud.sync.monitor.DirectoryUpdateMonitor;
 import org.duracloud.sync.walker.DirWalker;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
@@ -446,6 +448,22 @@ public class SyncProcessManagerImpl implements SyncProcessManager {
         return new LinkedList<MonitoredFile>();
     }
 
+
+    @Override
+    public List<SyncSummary> getFailures() {
+        if (this.syncManager != null) {
+            return StatusManager.getInstance().getFailed();
+        }
+        return new LinkedList<SyncSummary>();
+    }
+
+    @Override
+    public List<SyncSummary> getRecentlyCompleted() {
+        if (this.syncManager != null) {
+            return StatusManager.getInstance().getRecentlyCompleted();
+        }
+        return new LinkedList<SyncSummary>();
+    }
 
 
     @Override

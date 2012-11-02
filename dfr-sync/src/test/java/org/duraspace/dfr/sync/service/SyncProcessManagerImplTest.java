@@ -15,6 +15,7 @@ import org.duracloud.client.ContentStoreManager;
 import org.duracloud.common.model.Credential;
 import org.duracloud.error.ContentStoreException;
 import org.duracloud.sync.endpoint.MonitoredFile;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duraspace.dfr.sync.domain.DirectoryConfig;
 import org.duraspace.dfr.sync.domain.DirectoryConfigs;
 import org.duraspace.dfr.sync.domain.DuracloudConfiguration;
@@ -235,6 +236,20 @@ public class SyncProcessManagerImplTest extends AbstractTest {
         replay();
         List<File> files = syncProcessManagerImpl.getQueuedFiles();
         Assert.assertNotNull(files);
+    }
+
+    @Test
+    public void testGetFailures() {
+        replay();
+        List<SyncSummary> failures = syncProcessManagerImpl.getFailures();
+        Assert.assertNotNull(failures);
+    }
+
+    @Test
+    public void testGetRecentlyCompleted() {
+        replay();
+        List<SyncSummary> completed = syncProcessManagerImpl.getRecentlyCompleted();
+        Assert.assertNotNull(completed);
     }
 
 }

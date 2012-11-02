@@ -7,11 +7,13 @@ import java.io.File;
 import java.util.List;
 
 import org.duracloud.sync.endpoint.MonitoredFile;
+import org.duracloud.sync.mgmt.SyncSummary;
 import org.duraspace.dfr.sync.domain.SyncProcessState;
 import org.duraspace.dfr.sync.domain.SyncProcessStats;
 import org.duraspace.dfr.sync.service.SyncProcessError;
 import org.duraspace.dfr.sync.service.SyncProcessException;
 import org.duraspace.dfr.sync.service.SyncProcessManager;
+import org.duraspace.dfr.sync.util.FileSizeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.support.RequestContext;
 import org.springframework.web.servlet.view.RedirectView;
 
 /**
@@ -118,9 +118,26 @@ public class StatusController {
         return this.syncProcessManager.getMonitoredFiles();
     }
 
+    @ModelAttribute("failures")
+    public List<SyncSummary> failures() {
+        return this.syncProcessManager.getFailures();
+    }
+
+    @ModelAttribute("recentlyCompleted")
+    public List<SyncSummary> recentlyCompleted() {
+        return this.syncProcessManager.getRecentlyCompleted();
+    }
+
+    
     @ModelAttribute("queuedFiles")
     public List<File> queuedFiles() {
         return this.syncProcessManager.getQueuedFiles();
+    }
+    
+    private static FileSizeFormatter fileSizeFormatter = new FileSizeFormatter();
+    @ModelAttribute("fileSizeFormatter")
+    public FileSizeFormatter fileSizeFormatter(){
+        return fileSizeFormatter;
     }
 
 }
