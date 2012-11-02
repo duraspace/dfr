@@ -34,7 +34,6 @@ a.button, button {
   border-radius: 5px;  
   border-collapse: collapse;
   background-color: #DDD;
-  box-shadow: 3px 3px 4px #555;
   color: #555;
   font-size: 12px;
 }
@@ -44,18 +43,13 @@ a.button {
   text-decoration: none;
 }
 
-a.button:active, button:active {
-  box-shadow: 1px 1px 2px #555;
-  
-}
 
 a.button:hover, button:hover {
   border: 1px solid #0E0;
 }
 
 a.button[disabled], button[disabled] {
-  background-color: #999; 
-  box-shadow: 0px 0px 0px #555;
+  background-color: #777; 
   color: #EEE;
 }
 
