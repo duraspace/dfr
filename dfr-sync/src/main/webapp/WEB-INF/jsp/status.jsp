@@ -289,8 +289,7 @@
                         </table>
                     </c:when>
                     <c:otherwise>
-                        <p>There are no files currently queued for
-                          synchronization.</p>
+                        <p>This feature has not yet been implemented.</p>
                        </c:otherwise>
                     </c:choose>
                     </div>                  

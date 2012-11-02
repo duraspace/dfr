@@ -12,7 +12,9 @@
   <tiles:putAttribute
     name="content"
     cascade="true">
-    <div id="log">Log Content Goes Here</div>
+    <div id="log">
+      <p>This feature has not yet been implemented.</p>
+    </div>
   </tiles:putAttribute>
 </tiles:insertDefinition>
 
