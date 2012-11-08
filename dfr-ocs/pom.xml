@@ -93,6 +93,16 @@
       <artifactId>spring-jms</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>uk.gov.nationalarchives</groupId>
+      <artifactId>droid-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>uk.gov.nationalarchives</groupId>
+      <artifactId>droid-core-interfaces</artifactId>
+    </dependency>
+
   </dependencies>
 
 </project>

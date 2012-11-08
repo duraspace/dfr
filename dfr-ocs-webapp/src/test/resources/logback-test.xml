@@ -46,11 +46,12 @@
     <appender-ref ref="FILE"/>
   </logger>
 
-
+  <!--
   <logger name="org.duraspace.dfr.app.components.BasicMessageValidator" additivity="false" level="DEBUG">
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </logger>
+  -->
 
   <!--
   <logger name="dfr.camel" level="ALL">

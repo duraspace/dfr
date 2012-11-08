@@ -4,6 +4,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.NotifyBuilder;
+
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -18,15 +20,11 @@ import javax.jms.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Integration test of the storage listener service messaging using an
- * container internal broker and a mocked test receiver.
- *
- * DWD: Note this is incomplete. It really does not automatically check
- * the results yet but it serves to provide a driver for messaging tests.
- * It will be completed as the MDP framework is fleshed out.
+ * Integration test of the storage service messaging using an JMS message
+ * source (non-Camel) and a simple test receiver.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:/storageListenerServiceIT-context.xml")
+@ContextConfiguration("classpath:/StorageServiceIT-context.xml")
 public class StorageServiceIT {
 
     private static final Logger logger =
@@ -45,6 +43,7 @@ public class StorageServiceIT {
     private Destination destination;
 
     @Test
+    @DirtiesContext
     public void testListener() {
 
         // Notify when one message is done
@@ -61,12 +60,13 @@ public class StorageServiceIT {
             producer = session.createProducer(null);
 
             try {
+
                 // If these sends go through a local vm broker URI, they may
                 // happen too fast.  Give them a little time.  Use the notifier
-                // to wait for Camel to process the message.  Wait at most 5
+                // to wait for Camel to process the message.  Wait at most 10
                 // seconds to avoid blocking forever if something goes wrong
                 sendMessage(session, producer);
-                boolean matches = notify.matches(5, TimeUnit.SECONDS);
+                boolean matches = notify.matches(10, TimeUnit.SECONDS);
                 // true means the notifier condition matched (= 1 message is done)
                 Assert.assertTrue(matches);
 

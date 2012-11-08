@@ -111,7 +111,7 @@ public class SimpleProcessor {
     public FedoraObject process(StorageObjectEvent event) throws OCSException {
         logger.debug("Processing a storage event");
 
-        FedoraObject fedoraObject = null;
+        FedoraObject fedoraObject;
 
         DuraCloudStorageObject storageObject =
             (DuraCloudStorageObject) event.getStorageObject();
@@ -135,6 +135,7 @@ public class SimpleProcessor {
         String contentURL = duraStoreURL + "/" +
                 messageMetadata.get(SPACE_ID) + "/" + objectId + "?storeID=" +
                 messageMetadata.get(STORE_ID);
+        logger.info("Content URL: " + contentURL);
         String objectPID = pidPrefix + DigestUtils.md5Hex(contentURL);
 
         // Using Camel with POJOs causes problems with adding log messages
@@ -164,7 +165,8 @@ public class SimpleProcessor {
         if (objectType.equals("content")) {
             fedoraObject.putDatastream(getContentDatastream(contentURL, metadata, messageMetadata));
         }
-        fedoraObject.putDatastream(getRelsDatastream(pid, collectionPID, metadata, messageMetadata));
+        fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID, metadata, messageMetadata));
+        //fedoraObject.putDatastream(getNcdDataStream(metadata));
         return fedoraObject;
     }
 
@@ -202,7 +204,7 @@ public class SimpleProcessor {
         return datastream;
     }
 
-    private Datastream getRelsDatastream(String pid,
+    private Datastream getRelsDataStream(String pid,
                                          String collectionPID,
                                          Map<String, String> metadata,
                                          Map<String, String> messageMetadata) {
@@ -232,11 +234,11 @@ public class SimpleProcessor {
             "xmlns:oai_dc=\"http://www.openarchives.org/OAI/2.0/oai_dc/\" " +
             "xmlns:fedora-model=\"info:fedora/fedora-system:def/model#\">\n";
         inlineXML = inlineXML +
-            "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">";
+            "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">\n";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"" + collectionPID + "\"></fedora:isMemberOfCollection> " +
-            //"<fedora-model:hasModel rdf:resource=\"info:fedora/si:ncdCollectionCModel\"></fedora-model:hasModel> " +
-            "</rdf:Description> " +
+            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/" + collectionPID + "\"></fedora:isMemberOfCollection>\n" +
+            "<fedora-model:hasModel rdf:resource=\"info:fedora/si:projectCModel\"></fedora-model:hasModel>\n" +
+            "</rdf:Description>\n" +
             "</rdf:RDF>";
 
         logger.debug(inlineXML);
@@ -247,12 +249,86 @@ public class SimpleProcessor {
             version.size((long) inlineXML.length());
             version.mimeType("application/rdf+xml");
             datastream.versions().add(version);
-
         } catch (IOException e) {
             logger.info("Could not create XML for RELS-EXT");
         }
 
         return datastream;
+    }
+
+    private Datastream getNcdDataStream(Map<String, String> metadata) {
+
+        Datastream datastream = new Datastream("NCD");
+        datastream.controlGroup(ControlGroup.INLINE_XML);
+        Date date = parseRFC822Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
+        DatastreamVersion version = new DatastreamVersion("NCD.0", date);
+
+        String inlineXML =
+            "<RecordSet xmlns=\"http://rs.tdwg.org/ncd/0.70\" " +
+            "xmlns:ns0=\"http://rs.tdwg.org/ncd/0.70\" " +
+            "xmlns:ncd=\"http://rs.tdwg.org/ncd/0.70\" " +
+            "xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n";
+        inlineXML = inlineXML +
+            "<Collections>\n" +
+            "  <Collection>\n" +
+            "    <CollectionId/>\n" +
+            "    <AboutThisRecord>\n" +
+            "      <dc_source/>\n" +
+            "      <dc_identifier/>\n" +
+            "      <dct_created/>\n" +
+            "      <dct_modified/>\n" +
+            "      <dct_harvested/>\n" +
+            "    </AboutThisRecord>\n" +
+            "    <AlternativeIds>\n" +
+            "      <Identifier id=\"\" source=\"Smithsonian\"/>\n" +
+            "    </AlternativeIds>\n" +
+            "    <DescriptiveGroup>\n" +
+            "      <dc_title>Still more stuff 1</dc_title>\n" +
+            "      <dc_alternative_title/>\n" +
+            "      <dc_description/>\n" +
+            "      <dc_extent/>\n" +
+            "      <Notes/>\n" +
+            "    </DescriptiveGroup>\n" +
+            "    <AdministrativeGroup>\n" +
+            "      <FormationPeriod/>\n" +
+            "      <dc_format/>\n" +
+            "      <dc_medium/>\n" +
+            "      <UsageRestriction/>\n" +
+            "      <Contact/>\n" +
+            "      <Owner/>\n" +
+            "      <PhysicalLocation xlink:href=\"\"/>\n" +
+            "    </AdministrativeGroup>\n" +
+            "    <KeywordsGroup>\n" +
+            "      <KingdomCoverage/>\n" +
+            "      <TaxonCoverage/>\n" +
+            "      <CommonNameCoverage/>\n" +
+            "      <GeospatialCoverage/>\n" +
+            "      <ExpeditionName/>\n" +
+            "      <Collector/>\n" +
+            "      <AssociatedAgent/>\n" +
+            "      <dc_title/>\n" +
+            "    </KeywordsGroup>\n" +
+            "    <RelatedMaterialsGroup>\n" +
+            "      <dc_relation/>\n" +
+            "      <RelatedCollection/>\n" +
+            "    </RelatedMaterialsGroup>\n" +
+            "  </Collection>\n" +
+            "</Collections>\n" +
+            "</RecordSet>";
+
+        try {
+            version.inlineXML(new InlineXML(inlineXML));
+            version.label("NCD Record");
+            version.size((long) inlineXML.length());
+            version.mimeType("application/rdf+xml");
+            datastream.versions().add(version);
+        } catch (IOException e) {
+            logger.info("Could not create XML for RELS-EXT");
+        }
+
+        return datastream;
+
     }
 
 
