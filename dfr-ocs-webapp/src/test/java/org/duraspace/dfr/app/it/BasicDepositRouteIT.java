@@ -4,9 +4,8 @@ import com.github.cwilper.fcrepo.dto.core.FedoraObject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.duracloud.client.ContentStore;
 import org.duracloud.error.ContentStoreException;
-import org.duracloud.error.NotFoundException;
+import org.duraspace.dfr.app.org.duraspace.dfr.app.util.TempSpace;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudObjectStoreClient;
 import org.junit.*;
 
@@ -72,7 +71,6 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
     private String pidPrefix;
 
     private static String spaceId = "temp" + System.currentTimeMillis();
-    private TempSpace tempSpace;
 
     @Test
     public void addThenDelete() throws Exception {
@@ -214,69 +212,71 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
     public void beforeTestClass(TestContext testContext) {
         sourceStoreClient = (DuraCloudObjectStoreClient)
             testContext.getApplicationContext().getBean("sourceStoreClient");
-        tempSpace = new TempSpace();
+        testContext.
+            setAttribute("tempSpace", new TempSpace(sourceStoreClient, spaceId));
     }
 
     @Override
     public void afterTestClass(TestContext testContext) {
+        TempSpace tempSpace = (TempSpace) testContext.getAttribute("tempSpace");
         tempSpace.close();
     }
 
-    /**
-     * Utility class for adding and removing a temp space for testing.
-     */
-    private class TempSpace {
-
-        private boolean closed = false;
-        private ContentStore store;
-
-        private TempSpace() {
-
-            logger.debug("Constructing a TempSpace");
-
-            boolean exists = false;
-            int count = 0;
-            store = sourceStoreClient.getContentStore();
-            while (!exists && count < 10) {
-                try {
-                    logger.info("Adding a temp space {}", spaceId);
-                    if (count == 0) {
-                        store.createSpace(spaceId, null);
-                    }
-                    store.getSpaceACLs(spaceId);
-                    exists = true;
-                } catch (NotFoundException e) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ie) {
-                        // NOOP
-                    }
-                    count++;
-                } catch (ContentStoreException e) {
-                    close();
-                    throw new RuntimeException(e);
-                }
-                if (count == 10) throw new RuntimeException("Temporary space " +
-                    spaceId + " never got created? Checked 10 times.");
-            }
-
-        }
-
-        private void close() {
-
-            if (!closed) {
-                try {
-                    logger.info("Deleting temp space {}", spaceId);
-                    store.deleteSpace(spaceId);
-                    sourceStoreClient.getContentStoreManager().logout();
-                    closed = true;
-                } catch (ContentStoreException e) {
-                    logger.error("Error closing", e);
-                }
-            }
-
-        }
-
-    }
+//    /**
+//     * Utility class for adding and removing a temp space for testing.
+//     */
+//    private class TempSpace {
+//
+//        private boolean closed = false;
+//        private ContentStore store;
+//
+//        private TempSpace() {
+//
+//            logger.debug("Constructing a TempSpace");
+//
+//            boolean exists = false;
+//            int count = 0;
+//            store = sourceStoreClient.getContentStore();
+//            while (!exists && count < 10) {
+//                try {
+//                    logger.info("Adding a temp space {}", spaceId);
+//                    if (count == 0) {
+//                        store.createSpace(spaceId, null);
+//                    }
+//                    store.getSpaceACLs(spaceId);
+//                    exists = true;
+//                } catch (NotFoundException e) {
+//                    try {
+//                        Thread.sleep(1000);
+//                    } catch (InterruptedException ie) {
+//                        // NOOP
+//                    }
+//                    count++;
+//                } catch (ContentStoreException e) {
+//                    close();
+//                    throw new RuntimeException(e);
+//                }
+//                if (count == 10) throw new RuntimeException("Temporary space " +
+//                    spaceId + " never got created? Checked 10 times.");
+//            }
+//
+//        }
+//
+//        private void close() {
+//
+//            if (!closed) {
+//                try {
+//                    logger.info("Deleting temp space {}", spaceId);
+//                    store.deleteSpace(spaceId);
+//                    sourceStoreClient.getContentStoreManager().logout();
+//                    closed = true;
+//                } catch (ContentStoreException e) {
+//                    logger.error("Error closing", e);
+//                }
+//            }
+//
+//        }
+//
+//    }
 
 }
