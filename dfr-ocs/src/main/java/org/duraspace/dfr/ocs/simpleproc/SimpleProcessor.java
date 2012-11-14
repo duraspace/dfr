@@ -7,6 +7,7 @@ import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageObject;
+import org.duraspace.dfr.ocs.fedora.FedoraObjectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,7 +109,7 @@ public class SimpleProcessor {
         logger.debug("Constructing a simple processor");
     }
 
-    public FedoraObject process(StorageObjectEvent event) throws OCSException {
+    public FedoraObjectEvent process(StorageObjectEvent event) throws OCSException {
         logger.debug("Processing a storage event");
 
         FedoraObject fedoraObject;
@@ -116,10 +117,11 @@ public class SimpleProcessor {
         DuraCloudStorageObject storageObject =
             (DuraCloudStorageObject) event.getStorageObject();
         String collectionPID = "si:importedObjects";
-        Map<String, String> messageMetadata = storageObject.getMessageMetadata();
+        Map<String, String> messageMetadata = event.getMetadata();
 
         requireValues(messageMetadata, "objectId", "objectType", "collectionId");
         String objectId = messageMetadata.get("objectId");
+        // Note: objectType is no longer used in processor code. DWD
         //String objectType = messageMetadata.get("objectType");
         String collectionId = messageMetadata.get("collectionId");
 
@@ -138,19 +140,21 @@ public class SimpleProcessor {
         logger.info("Content URL: " + contentURL);
         String objectPID = pidPrefix + DigestUtils.md5Hex(contentURL);
 
-        // Using Camel with POJOs causes problems with adding log messages
-        // on the Fedora Client. We can fix that when we refactor the simple
-        // client. DWD
-        //String logMessageSuffix = "requested by DFR Object Creation Service." +
-        //        " Event ID: " + event.getId();
+        // Create the Fedora object.
         Map<String, String> metadata = storageObject.getMetadata();
         fedoraObject =
             getFedoraObject(objectPID, collectionPID, contentURL, metadata, messageMetadata);
-        //if (!fedoraObjectStore) We should log it, maybe exception.
-        // Note: This code cannot return a nice log message for the audit
-        //       which we should do something about.
 
-        return fedoraObject;
+        // Note: Using the PID as an eventID is not ideal but until we have
+        //       an ID generator but it will suffice for the moment. DWD
+        FedoraObjectEvent fdoEvent =
+            new FedoraObjectEvent(objectPID, fedoraObject);
+        String logMessage = "Requested by DFR Object Creation Service." +
+                " Event ID: " + event.getEventID();
+        fdoEvent.getMetadata().put("log-message", logMessage);
+        event.getRelatedEvents().add(fdoEvent);
+
+        return fdoEvent;
     }
 
     private FedoraObject getFedoraObject(String pid, String collectionPID,

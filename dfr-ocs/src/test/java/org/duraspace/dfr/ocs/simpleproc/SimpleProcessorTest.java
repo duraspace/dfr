@@ -6,6 +6,7 @@ import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageObject;
+import org.duraspace.dfr.ocs.fedora.FedoraObjectEvent;
 import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,6 +86,7 @@ public class SimpleProcessorTest {
 //    }
 
     private void processCreated(String modifiedDate, boolean preExisting) {
+
         // process a CREATED event, which should add it to our memory store
         SimpleProcessor processor = new SimpleProcessor(PID_PREFIX,
                 DURASTORE_URL);
@@ -96,12 +98,12 @@ public class SimpleProcessorTest {
         }
         //processor.setFedoraObjectStore(fedoraObjectStore);
 
-        Map<String, String> messageMetadata = new HashMap<String, String>();
-        messageMetadata.put("objectId", "content");
-        messageMetadata.put("objectType", "objectType");
-        messageMetadata.put("collectionId", "si:importedObjects");
-        messageMetadata.put("store-id", "storeId");
-        messageMetadata.put("space-id", "spaceId");
+        Map<String, String> eventMetadata = new HashMap<String, String>();
+        eventMetadata.put("objectId", "content");
+        eventMetadata.put("objectType", "objectType");
+        eventMetadata.put("collectionId", "si:importedObjects");
+        eventMetadata.put("store-id", "storeId");
+        eventMetadata.put("space-id", "spaceId");
 
         Map<String, String> metadata = new HashMap<String, String>();
         metadata.put("content-checksum", "37b51d194a7513e45b5mockit6f6524f2d51f2");
@@ -115,20 +117,21 @@ public class SimpleProcessorTest {
             Mockito.mock(DuraCloudStorageObject.class);
         Mockito.when(storageObject.getId()).thenReturn(CONTENT_ID);
         Mockito.when(storageObject.getMetadata()).thenReturn(metadata);
-        Mockito.when(storageObject.getMessageMetadata()).thenReturn(messageMetadata);
 
         StorageObjectEvent event = Mockito.mock(StorageObjectEvent.class);
+        Mockito.when(event.getMetadata()).thenReturn(eventMetadata);
         Mockito.when(event.getStorageObject()).thenReturn(storageObject);
-        Mockito.when(event.getType()).thenReturn(
-                StorageObjectEvent.Type.CREATED);
-        Mockito.when(event.getId()).thenReturn("eventId");
+        Mockito.when(event.getEventType()).thenReturn(
+                StorageObjectEvent.EventType.CREATED);
+        Mockito.when(event.getEventID()).thenReturn("eventId");
 
-        FedoraObject fedoraObject = processor.process(event);
+        FedoraObjectEvent fdoEvent = processor.process(event);
+        FedoraObject fedoraObject = fdoEvent.getFedoraObject();
 
         Assert.assertNotNull(fedoraObject);
         // Mockito.verify(event).getId();  Not logging for now
         Mockito.verify(storageObject).getMetadata();
-        Mockito.verify(storageObject).getMessageMetadata();
+        Mockito.verify(event).getMetadata();
 
         // Make sure the object made it in and looks as expected.
         //Iterator<String> keys = fedoraObjectStore.getFedoraObjectMap().

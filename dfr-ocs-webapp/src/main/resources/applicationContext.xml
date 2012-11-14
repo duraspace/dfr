@@ -48,11 +48,13 @@
   </bean>
 
   <!-- The supported cloud storage provider back-end -->
+  <!--
   <bean id="storageType" class="org.duracloud.storage.domain.StorageProviderType" factory-method="valueOf">
     <constructor-arg>
       <value>AMAZON_S3</value>
     </constructor-arg>
   </bean>
+  -->
 
   <!-- A utility for connecting to the cloud storage provider -->
   <bean id="httpHelper" class="org.duracloud.common.web.RestHttpHelper"/>
@@ -116,6 +118,9 @@
   <!-- Splits a single incoming storage message into additional messages -->
   <bean id="createSplitter" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageSplitter"/>
 
+  <!-- Splits a single incoming storage message into additional messages -->
+  <bean id="fedoraEventHandler" class="org.duraspace.dfr.ocs.fedora.FedoraEventHandler"/>
+
   <!-- Provides the Camel routing setup -->
   <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
     <route>
@@ -125,6 +130,7 @@
       <split>
         <method bean="createSplitter" method="splitBody"/>
         <bean ref="contentProcessor" method="process"/>
+        <bean ref="fedoraEventHandler" method="ingest"/>
         <bean ref="destinationStoreClient" method="ingest"/>
       </split>
     </route>

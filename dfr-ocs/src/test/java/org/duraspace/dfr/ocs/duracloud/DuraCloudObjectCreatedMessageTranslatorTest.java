@@ -79,11 +79,11 @@ public class DuraCloudObjectCreatedMessageTranslatorTest {
         Mockito.when(contentStore.getContent("spaceId", "contentId")).thenReturn(content);
         StorageObjectEvent event = startGoodMessageTest(
                 Constants.INGEST_TOPIC, contentId, contentStore);
-        Assert.assertEquals(StorageObjectEvent.Type.CREATED, event.getType());
+        Assert.assertEquals(StorageObjectEvent.EventType.CREATED, event.getEventType());
         StorageObject storageObject = event.getStorageObject();
 
         Assert.assertEquals(contentId, storageObject.getId());
-        Assert.assertEquals(4, ((DuraCloudStorageObject) storageObject).getMessageMetadata().size());
+        Assert.assertEquals(4, ((StorageObjectEvent) event).getMetadata().size());
     }
 
     private StorageObjectEvent startGoodMessageTest(String recognizedTopic,
@@ -101,7 +101,7 @@ public class DuraCloudObjectCreatedMessageTranslatorTest {
 
         StorageObjectEvent event = processor.onMessage(message);
         Assert.assertNotNull(event);
-        Assert.assertEquals("messageId", event.getId());
+        Assert.assertEquals("messageId", event.getEventID());
 
         return event;
     }

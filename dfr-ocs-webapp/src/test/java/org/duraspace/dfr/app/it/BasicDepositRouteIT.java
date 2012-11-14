@@ -3,6 +3,7 @@ package org.duraspace.dfr.app.it;
 import com.github.cwilper.fcrepo.dto.core.FedoraObject;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.NotifyBuilder;
+import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.app.org.duraspace.dfr.app.util.TempSpace;
@@ -55,7 +56,7 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
 
     @Autowired
     @Qualifier("camelContext")
-    private CamelContext camelContext;
+    private SpringCamelContext camelContext;
 
     @Autowired
     @Qualifier("destinationStoreClient")

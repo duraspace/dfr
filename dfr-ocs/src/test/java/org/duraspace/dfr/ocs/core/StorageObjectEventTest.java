@@ -12,7 +12,7 @@ public class StorageObjectEventTest {
 
     @Test (expected=NullPointerException.class)
     public void initWithNullId() {
-        new StorageObjectEvent(null, StorageObjectEvent.Type.CREATED,
+        new StorageObjectEvent(null, StorageObjectEvent.EventType.CREATED,
                 mockStorageObject);
     }
 
@@ -23,27 +23,27 @@ public class StorageObjectEventTest {
 
     @Test (expected=NullPointerException.class)
     public void initWithNullStorageObject() {
-        new StorageObjectEvent("foo", StorageObjectEvent.Type.CREATED, null);
+        new StorageObjectEvent("foo", StorageObjectEvent.EventType.CREATED, null);
     }
 
     @Test
     public void getId() {
         StorageObjectEvent event = new StorageObjectEvent("foo",
-                StorageObjectEvent.Type.CREATED, mockStorageObject);
-        Assert.assertEquals("foo", event.getId());
+                StorageObjectEvent.EventType.CREATED, mockStorageObject);
+        Assert.assertEquals("foo", event.getEventID());
     }
 
     @Test
     public void getType() {
         StorageObjectEvent event = new StorageObjectEvent("foo",
-                StorageObjectEvent.Type.CREATED, mockStorageObject);
-        Assert.assertEquals(StorageObjectEvent.Type.CREATED, event.getType());
+                StorageObjectEvent.EventType.CREATED, mockStorageObject);
+        Assert.assertEquals(StorageObjectEvent.EventType.CREATED, event.getEventType());
     }
 
     @Test
     public void getStorageObject() {
         StorageObjectEvent event = new StorageObjectEvent("foo",
-                StorageObjectEvent.Type.CREATED, mockStorageObject);
+                StorageObjectEvent.EventType.CREATED, mockStorageObject);
         Assert.assertEquals(mockStorageObject, event.getStorageObject());
     }
 }

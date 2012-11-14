@@ -15,11 +15,24 @@ public class TempSpace {
     private static final Logger logger =
         LoggerFactory.getLogger(TempSpace.class);
 
+    /** If false the client connection is closed */
     private boolean closed = false;
+
+    /** The client that provides access to the DuraStore endpoint */
     private DuraCloudObjectStoreClient sourceStoreClient;
+
+    /** The primary store in which the temporary space is added */
     private ContentStore store;
+
+    /** The unique name for the temporary space */
     private String spaceId;
 
+    /**
+     * Creates an instance and also attempts to create the temporary space.
+     *
+     * @param sourceStoreClient a client to access the storage endpoint
+     * @param spaceId a name to use for the temporary space
+     */
     public TempSpace(DuraCloudObjectStoreClient sourceStoreClient, String spaceId) {
 
         logger.debug("Constructing a TempSpace");
@@ -32,10 +45,10 @@ public class TempSpace {
         int count = 0;
         while (!exists && count < 10) {
             try {
-                logger.info("Adding a temp space {}", spaceId);
+                logger.debug("Adding a temp space {}", spaceId);
                 if (count == 0) {
                     store.createSpace(spaceId, null);
-                    logger.info("Created a temp space {}", spaceId);
+                    logger.debug("Created a temp space {}", spaceId);
                 }
                 store.getSpaceACLs(spaceId);
                 exists = true;
@@ -56,12 +69,20 @@ public class TempSpace {
 
     }
 
+    /**
+     * Removes the temporary space and closes the connection to the storage
+     * endpoint.
+     */
     public void close() {
 
         if (!closed) {
             try {
-                logger.info("Deleting temp space {}", spaceId);
+                logger.debug("Deleting temp space {}", spaceId);
                 store.deleteSpace(spaceId);
+                // Note: Deleting the temporary space should always be good
+                //       but the logout may not be best since Spring
+                //       instantiates the beans and they may be used by other
+                //       tests. DWD
                 sourceStoreClient.getContentStoreManager().logout();
                 closed = true;
             } catch (ContentStoreException e) {

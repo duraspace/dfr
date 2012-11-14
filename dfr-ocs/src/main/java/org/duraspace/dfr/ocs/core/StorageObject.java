@@ -25,12 +25,13 @@ public interface StorageObject {
     String getId();
 
     /**
-     * Gets the metadata.
+     * Gets the metadata about the storage object.
      *
      * Note: This could also be a stream. It was written for DuraCloud and
      *       almost always one would choose to use simple string name-value
-     *       pairs it may too restrictive. Akubra settled on Map as the
-     *       least common denominator an has its advantages. DWD
+     *       pairs. But in a graph-based, resource-representation architecture,
+     *       using another node for metadata has interesting possibilities.
+     *       DWD.
      *
      * @return the metadata, never <code>null</code>.
      * @throws OCSException if an IO or remote error occurs.

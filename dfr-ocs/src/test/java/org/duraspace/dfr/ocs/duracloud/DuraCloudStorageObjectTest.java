@@ -107,8 +107,7 @@ public class DuraCloudStorageObjectTest {
 
     private static DuraCloudStorageObject getInstance(
             ContentStore contentStore, boolean deleted) {
-        return new DuraCloudStorageObject(contentStore, "spaceId", "contentId",
-                new HashMap<String, String>(), deleted);
+        return new DuraCloudStorageObject(contentStore, "spaceId", "contentId", deleted);
     }
 
 }

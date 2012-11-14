@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
 import javax.jms.Message;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Called when a JMS message is received indicating new content is available in
@@ -23,6 +21,7 @@ public class DuraCloudObjectCreatedMessageTranslator {
     private static final Logger logger = LoggerFactory.getLogger(
             DuraCloudObjectCreatedMessageTranslator.class);
 
+    /** Access endpoint for DuraCloud */
     private ContentStore contentStore;
 
     /**
@@ -36,13 +35,14 @@ public class DuraCloudObjectCreatedMessageTranslator {
 
         logger.debug("Constructing a DuraCloudObjectCreatedMessageTranslator");
 
+        // Check required arguments are set.
         if (client == null) {
             throw new NullPointerException();
         }
 
         this.contentStore = client.getContentStore();
-        if (contentStore != null) {
-            this.contentStore = client.getContentStore();
+        if (contentStore == null) {
+            logger.info("Unable to access content store");
         }
 
     }
@@ -69,8 +69,8 @@ public class DuraCloudObjectCreatedMessageTranslator {
                 //       DWD
                 String messageId = message.getJMSMessageID();
                 logger.debug("Received Message: " + messageId);
-                // "Type" remains for compatibility with older code.
-                StorageObjectEvent.Type type = StorageObjectEvent.Type.CREATED;
+                // "EventType" remains for compatibility with older code.
+                StorageObjectEvent.EventType type = StorageObjectEvent.EventType.CREATED;
 
                 MapMessage mapMessage = (MapMessage) message;
                 logger.debug("Map: " + mapMessage);
@@ -82,17 +82,16 @@ public class DuraCloudObjectCreatedMessageTranslator {
                 // no actual collection nodes.
                 String contentId = mapMessage.getString("contentId");
 
-                Map<String, String> messageMetadata =
-                    new HashMap<String, String>();
-                messageMetadata.put("space-id", spaceId);
-                messageMetadata.put("store-id", storeId);
-                messageMetadata.put("objectId", contentId);
-                messageMetadata.put("objectType", "content");
+                // Create the storage object and the encapsulating event.
                 StorageObject storageObject = new DuraCloudStorageObject(
-                        contentStore, spaceId, contentId, messageMetadata,
-                        type == StorageObjectEvent.Type.DELETED);
+                        contentStore, spaceId, contentId,
+                        type == StorageObjectEvent.EventType.DELETED);
                 event = new StorageObjectEvent(
                         messageId, type, storageObject);
+                event.getMetadata().put("space-id", spaceId);
+                event.getMetadata().put("store-id", storeId);
+                event.getMetadata().put("objectId", contentId);
+                event.getMetadata().put("objectType", "content");
 
             } catch (JMSException e) {
                 logger.warn("Error getting topic for JMS message", e);

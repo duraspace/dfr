@@ -1,6 +1,5 @@
 package org.duraspace.dfr.ocs.duracloud;
 
-import org.duracloud.client.ContentStore;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,64 +26,60 @@ public class DuraCloudObjectCreatedMessageSplitter {
      * for every collection object name in parsed from the path section
      * of the DuraCloud object name.
      *
-     * @param body the storage object event event from the incoming message
+     * @param event the storage object event event from the incoming message
      * @return a list containing each part split
      */
-    public List<StorageObjectEvent> splitBody(StorageObjectEvent body) {
+    public List<StorageObjectEvent> splitBody(StorageObjectEvent event) {
 
-        logger.debug("Splitting the event: " + body);
+        logger.debug("Splitting the event: " + event);
 
         // A list of events for objects to create
         List<StorageObjectEvent> answer = new ArrayList<StorageObjectEvent>();
 
         // The original storage object from the event
-        DuraCloudStorageObject dcso =
-            (DuraCloudStorageObject) body.getStorageObject();
-        String contentId = dcso.getId();
+        DuraCloudStorageObject storageObject =
+            (DuraCloudStorageObject) event.getStorageObject();
 
-        // The original body is always returned as the the first split.
-        answer.add(body);
+        // The original event is always returned as the the first split.
+        answer.add(event);
 
         // In DuraCloud the splits are delimited by slashes.
-        String[] splits = contentId.split("/");
+        String[] splits = storageObject.getId().split("/");
         int size = splits.length;
 
         // If there are at least two level (n level collection and one original)?
         if (size >= 2) {
 
-            // Tell the original object about its collection
-            dcso.getMessageMetadata().put("collectionId", splits[size - 2]);
+            // Tell the original event about its collection
+            event.getMetadata().put("collectionId", splits[size - 2]);
 
             // For each collection level
             for (int i = 0; i < (size - 1); i++) {
 
+                // Each split (in this loop) represents a collection
                 String collectionId = splits[i];
                 logger.info("collectionId: " + collectionId);
 
-                // Copy the original event and make the needed modifications.
-                ContentStore contentStore = dcso.getContentStore();
-                String spaceId = dcso.getSpaceId();
-                Map<String, String> messageMetadata = dcso.getMessageMetadata();
-                Map<String, String> messageMetadataCopy =
-                    new HashMap<String, String>();
-                messageMetadataCopy.putAll(messageMetadata);
+                // Defensively copy the original event and make the needed
+                // modifications.
+                StorageObjectEvent splitEvent =
+                    new StorageObjectEvent(event.getEventID(),
+                        event.getEventType(), storageObject);
+                Map<String, String> eventMetadata = event.getMetadata();
+                Map<String, Object> eventMetadataCopy = new HashMap<String, Object>();
+                splitEvent.getMetadata().putAll(eventMetadata);
+                splitEvent.getMetadata().put("collectionId", "si:importedObjects");
+                splitEvent.getMetadata().put("objectId", collectionId);
+                splitEvent.getMetadata().put("objectType", "collection");
 
-                DuraCloudStorageObject splitObject =
-                    new DuraCloudStorageObject(contentStore, spaceId, contentId,
-                        messageMetadataCopy, dcso.getType());
-                splitObject.getMessageMetadata().put("collectionId", "si:importedObjects");
-                splitObject.getMessageMetadata().put("objectId", collectionId);
-                splitObject.getMessageMetadata().put("objectType", "collection");
-                StorageObjectEvent splitBody =
-                    new StorageObjectEvent(body.getId(), body.getType(), splitObject);
-                answer.add(splitBody);
+                answer.add(splitEvent);
 
             }
 
         } else { // else there is only one level (no collection),
 
-            // add the content object to the default collection
-            dcso.getMessageMetadata().put("collectionId", "si:importedObjects");
+            // Add the storage object to the default collection
+            event.getMetadata().put("collectionId", "si:importedObjects");
 
         }
 

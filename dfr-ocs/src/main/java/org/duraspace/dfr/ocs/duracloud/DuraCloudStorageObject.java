@@ -7,14 +7,15 @@ import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * A {@link StorageObject} whose content and metadata is provided by DuraCloud.
  *
- * Note: This class has aspects of a DTO and a DAO that causes some crufty code
+ * Note: This class has aspects of a DTO and a DAO that causes some difficulties
  *       but is convenient.  There is also duplication in the data members and
- *       the message metadata to clean up.
+ *       the event metadata to clean up maybe. DWD
  */
 public class DuraCloudStorageObject implements StorageObject {
 
@@ -26,9 +27,6 @@ public class DuraCloudStorageObject implements StorageObject {
 
     /** Identifies the content as a slash delimited string. */
     private final String contentId;
-
-     /** Metadata from the message only (see interface for content metadata) */
-    private final Map<String, String> messageMetadata;
 
     /** Indicates deleted content making it and its metadata inaccessible. */
     private final boolean deleted;
@@ -45,18 +43,15 @@ public class DuraCloudStorageObject implements StorageObject {
      * @param contentStore the store to use for getting content/metadata.
      * @param spaceId the space id.
      * @param contentId the content id.
-     * @param messageMetadata metadata gathered from the JMS message.
      * @param deleted <code>true</code> if the content has been deleted and
      *                therefore the stream and metadata cannot be obtained
      *                from DuraCloud.
      */
     DuraCloudStorageObject(ContentStore contentStore, String spaceId,
-            String contentId, Map<String, String> messageMetadata,
-            boolean deleted) {
+            String contentId, boolean deleted) {
         this.contentStore = contentStore;
         this.spaceId = spaceId;
         this.contentId = contentId;
-        this.messageMetadata = messageMetadata;
         this.deleted = deleted;
     }
 
@@ -92,26 +87,10 @@ public class DuraCloudStorageObject implements StorageObject {
         return deleted;
     }
 
-    /**
-     * Get the metadata about the work-in-process on the storage object (note:
-     * This is separate from any metadata associated with the content, if any,
-     * from the content store.
-     *
-     * Todo: the ocs exception is not longer valid but the messageMetadata map
-     * is not initialized during construction and so may be null.  It would
-     * be nice to have a copy constructor.
-     *
-     * @return  map containing the message metadata
-     * @throws OCSException
-     */
-    public Map<String, String> getMessageMetadata() throws OCSException {
-        return messageMetadata;
-    }
-
     @Override
     public Map<String, String> getMetadata() throws OCSException {
         if (deleted) {
-            return messageMetadata;
+            return new HashMap<String, String>();
         } else if (metadata == null) {
             Content content = getDuraCloudContent();
             metadata = content.getProperties();
@@ -161,4 +140,5 @@ public class DuraCloudStorageObject implements StorageObject {
             stream.close();
         }
     }
+
 }
