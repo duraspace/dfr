@@ -73,8 +73,8 @@ public class StorageObjectEvent implements OCSEvent {
         this.eventID = id;
         this.eventType = type;
         this.storageObject = storageObject;
-        this.metadata = new HashMap<String, String>();
-        this.relatedEvents = new ArrayList<OCSEvent>();
+        this.metadata = new HashMap<>();
+        this.relatedEvents = new ArrayList<>();
 
         logger.debug("Created {} event for storage object '{}'",
             type.toString(), storageObject.getId());

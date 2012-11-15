@@ -83,7 +83,7 @@ public class DuraCloudObjectCreatedMessageTranslatorTest {
         StorageObject storageObject = event.getStorageObject();
 
         Assert.assertEquals(contentId, storageObject.getId());
-        Assert.assertEquals(4, ((StorageObjectEvent) event).getMetadata().size());
+        Assert.assertEquals(4, event.getMetadata().size());
     }
 
     private StorageObjectEvent startGoodMessageTest(String recognizedTopic,

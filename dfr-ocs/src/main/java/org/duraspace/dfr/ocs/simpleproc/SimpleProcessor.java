@@ -171,6 +171,7 @@ public class SimpleProcessor {
         }
         fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID, metadata, messageMetadata));
         //fedoraObject.putDatastream(getNcdDataStream(metadata));
+        fedoraObject.putDatastream(getCollectionPolicyDataStream(metadata));
         return fedoraObject;
     }
 
@@ -216,6 +217,11 @@ public class SimpleProcessor {
         requireValues(metadata,
             ContentStore.CONTENT_MODIFIED);
 
+        String contentModel = "info:fedora/si:imageCModel";
+        String objectType = messageMetadata.get("objectType");
+        if (objectType.equals("collection")) {
+            contentModel = "info:fedora/si:collectionCModel";
+        }
         Datastream datastream = new Datastream("RELS-EXT");
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
@@ -241,7 +247,7 @@ public class SimpleProcessor {
             "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">\n";
         inlineXML = inlineXML +
             "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/" + collectionPID + "\"></fedora:isMemberOfCollection>\n" +
-            "<fedora-model:hasModel rdf:resource=\"info:fedora/si:projectCModel\"></fedora-model:hasModel>\n" +
+            "<fedora-model:hasModel rdf:resource=\"" + contentModel + "\"></fedora-model:hasModel>\n" +
             "</rdf:Description>\n" +
             "</rdf:RDF>";
 
@@ -260,12 +266,73 @@ public class SimpleProcessor {
         return datastream;
     }
 
+    private Datastream getCollectionPolicyDataStream(Map<String, String> metadata) {
+
+        Datastream datastream = new Datastream("COLLECTION_POLICY");
+        datastream.controlGroup(ControlGroup.INLINE_XML);
+        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        DatastreamVersion version = new DatastreamVersion("COLLECTION_POLICY.0", date);
+
+        String inlineXML =
+            "<collection_policy xmlns=\"http://www.islandora.ca\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "name=\"\" xsi:schemaLocation=\"http://www.islandora.ca http://syn.lib.umanitoba.ca/collection_policy.xsd\">" +
+                "  <content_models>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant images\" namespace=\"si:\" pid=\"si:imageCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Digitized text, with page images\" namespace=\"si:\" pid=\"si:fieldbookCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Tabular datasets\" namespace=\"si:\" pid=\"si:datasetCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:generalImageCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:simpleImageCModel\"></content_model>" +
+                "  </content_models>" +
+                "  <concept_models>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Project or sub-project\" namespace=\"si:\" pid=\"si:projectCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Natural history collection\" namespace=\"si:\" pid=\"si:ncdCollectionCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Research site, plot or area\" namespace=\"si:\" pid=\"si:ctPlotCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Person\" namespace=\"si:\" pid=\"si:peopleCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Organization or Institution\" namespace=\"si:\" pid=\"si:organizationCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Expedition\" namespace=\"si:\" pid=\"si:expeditionCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Camera trap\" namespace=\"si:\" pid=\"si:cameraTrapCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant species\" namespace=\"si:\" pid=\"si:dwcCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Cultural Heritage Entity or Object\" namespace=\"si:\" pid=\"si:lidoCollectionCModel\"></content_model>" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Generic Collection\" namespace=\"si:\" pid=\"si:collectionCModel\"></content_model>" +
+                "  </concept_models>" +
+                "  <search_terms>" +
+                "    <term field=\"dc.title\">dc.title</term>" +
+                "    <term field=\"dc.creator\">dc.creator</term>" +
+                "    <term default=\"true\" field=\"dc.description\">dc.description</term>" +
+                "    <term field=\"dc.date\">dc.date</term>" +
+                "    <term field=\"dc.identifier\">dc.identifier</term>" +
+                "    <term field=\"dc.language\">dc.language</term>" +
+                "    <term field=\"dc.publisher\">dc.publisher</term>" +
+                "    <term field=\"dc.rights\">dc.rights</term>" +
+                "    <term field=\"dc.subject\">dc.subject</term>" +
+                "    <term field=\"dc.relation\">dc.relation</term>" +
+                "    <term field=\"dcterms.temporal\">dcterms.temporal</term>" +
+                "    <term field=\"dcterms.spatial\">dcterms.spatial</term>" +
+                "    <term field=\"fgs.DS.first.text\">Full Text</term>" +
+                "  </search_terms>" +
+                "  <relationship>isMemberOfCollection</relationship>" +
+                "</collection_policy>";
+
+        try {
+            version.inlineXML(new InlineXML(inlineXML));
+            version.label("Collection Policy");
+            version.size((long) inlineXML.length());
+            version.mimeType("text/xml");
+            datastream.versions().add(version);
+        } catch (IOException e) {
+            logger.info("Could not create XML for Collection Policy");
+        }
+
+        return datastream;
+
+    }
+
     private Datastream getNcdDataStream(Map<String, String> metadata) {
 
         Datastream datastream = new Datastream("NCD");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(
-            ContentStore.CONTENT_MODIFIED));
+        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("NCD.0", date);
 
         String inlineXML =
@@ -325,10 +392,10 @@ public class SimpleProcessor {
             version.inlineXML(new InlineXML(inlineXML));
             version.label("NCD Record");
             version.size((long) inlineXML.length());
-            version.mimeType("application/rdf+xml");
+            version.mimeType("text/xml");
             datastream.versions().add(version);
         } catch (IOException e) {
-            logger.info("Could not create XML for RELS-EXT");
+            logger.info("Could not create XML for NCD Record");
         }
 
         return datastream;

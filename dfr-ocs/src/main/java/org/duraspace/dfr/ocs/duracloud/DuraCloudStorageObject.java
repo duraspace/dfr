@@ -90,7 +90,7 @@ public class DuraCloudStorageObject implements StorageObject {
     @Override
     public Map<String, String> getMetadata() throws OCSException {
         if (deleted) {
-            return new HashMap<String, String>();
+            return new HashMap<>();
         } else if (metadata == null) {
             Content content = getDuraCloudContent();
             metadata = content.getProperties();

@@ -47,8 +47,8 @@ public class FedoraObjectEvent implements OCSEvent {
 
         this.eventID = eventID;
         this.fedoraObject = fdo;
-        this.metadata = new HashMap<String, String>();
-        this.relatedEvents = new ArrayList<OCSEvent>();
+        this.metadata = new HashMap<>();
+        this.relatedEvents = new ArrayList<>();
 
     }
 

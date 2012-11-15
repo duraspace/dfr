@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +33,7 @@ public class DuraCloudObjectCreatedMessageSplitter {
         logger.debug("Splitting the event: " + event);
 
         // A list of events for objects to create
-        List<StorageObjectEvent> answer = new ArrayList<StorageObjectEvent>();
+        List<StorageObjectEvent> answer = new ArrayList<>();
 
         // The original storage object from the event
         DuraCloudStorageObject storageObject =
@@ -66,7 +65,6 @@ public class DuraCloudObjectCreatedMessageSplitter {
                     new StorageObjectEvent(event.getEventID(),
                         event.getEventType(), storageObject);
                 Map<String, String> eventMetadata = event.getMetadata();
-                Map<String, Object> eventMetadataCopy = new HashMap<String, Object>();
                 splitEvent.getMetadata().putAll(eventMetadata);
                 splitEvent.getMetadata().put("collectionId", "si:importedObjects");
                 splitEvent.getMetadata().put("objectId", collectionId);
