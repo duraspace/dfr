@@ -80,7 +80,7 @@
     <groupId>${project.groupId}</groupId>
     <artifactId>${project.artifactId}</artifactId>
     <currentVersion>${project.version}</currentVersion>
-    <duracloud.version>2.2.0-SNAPSHOT</duracloud.version>
+    <duracloud.version>2.3.0-SNAPSHOT</duracloud.version>
     <droid.version>6.1</droid.version>
     <fcrepo-misc.version>1.0.0</fcrepo-misc.version>
     <camel.version>2.10.2</camel.version>
