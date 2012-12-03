@@ -12,9 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -148,7 +150,8 @@ public class SimpleProcessor {
         // Note: Using the PID as an eventID is not ideal but until we have
         //       an ID generator but it will suffice for the moment. DWD
         FedoraObjectEvent fdoEvent =
-            new FedoraObjectEvent(objectPID, fedoraObject);
+            new FedoraObjectEvent(objectPID);
+        fdoEvent.setFedoraObject(fedoraObject);
         String logMessage = "Requested by DFR Object Creation Service." +
                 " Event ID: " + event.getEventID();
         fdoEvent.getMetadata().put("log-message", logMessage);
@@ -171,6 +174,7 @@ public class SimpleProcessor {
         }
         fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID, metadata, messageMetadata));
         //fedoraObject.putDatastream(getNcdDataStream(metadata));
+        fedoraObject.putDatastream(getLidoDataStream(metadata));
         fedoraObject.putDatastream(getCollectionPolicyDataStream(metadata));
         return fedoraObject;
     }
@@ -199,6 +203,16 @@ public class SimpleProcessor {
         //        .type("MD5")
         //        .hexValue(metadata.get(ContentStore.CONTENT_CHECKSUM)));
         version.contentLocation(URI.create(contentURL));
+
+        /*
+        try {
+            version.contentLocation(URI.create(URLEncoder.encode(contentURL, "UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            logger.info("Cannot convert content object name to a URL - " + contentURL);
+            version.contentLocation(URI.create("Unsupported_Content_Name"));
+        }
+        */
+
         int i = contentURL.lastIndexOf("/");
         String label = contentURL.substring(i + 1);
         label = label.substring(0, label.indexOf("?"));
@@ -206,6 +220,7 @@ public class SimpleProcessor {
         version.size(Long.parseLong(metadata.get(ContentStore.CONTENT_SIZE)));
         version.mimeType(metadata.get(ContentStore.CONTENT_MIMETYPE));
         datastream.versions().add(version);
+
         return datastream;
     }
 
@@ -217,11 +232,12 @@ public class SimpleProcessor {
         requireValues(metadata,
             ContentStore.CONTENT_MODIFIED);
 
-        String contentModel = "info:fedora/si:imageCModel";
+        String contentModel = "info:fedora/si:lidoCollectionCModel";
         String objectType = messageMetadata.get("objectType");
-        if (objectType.equals("collection")) {
-            contentModel = "info:fedora/si:collectionCModel";
-        }
+        // Note: Use if we decide to content objects Sidora resources. DWD
+        //if (objectType.equals("collection")) {
+        //    contentModel = "info:fedora/si:lidoCollectionCModel";
+        //}
         Datastream datastream = new Datastream("RELS-EXT");
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
@@ -248,17 +264,20 @@ public class SimpleProcessor {
         inlineXML = inlineXML +
             "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/" + collectionPID + "\"></fedora:isMemberOfCollection>\n" +
             "<fedora-model:hasModel rdf:resource=\"" + contentModel + "\"></fedora-model:hasModel>\n" +
+            "<orginal_metadata xmlns=\"http://islandora.org/ontologies/metadata#\">TRUE</orginal_metadata>\n" +
             "</rdf:Description>\n" +
             "</rdf:RDF>";
 
         logger.debug(inlineXML);
 
         try {
+
             version.inlineXML(new InlineXML(inlineXML));
             version.label("RDF Statements about this Object");
             version.size((long) inlineXML.length());
             version.mimeType("application/rdf+xml");
             datastream.versions().add(version);
+
         } catch (IOException e) {
             logger.info("Could not create XML for RELS-EXT");
         }
@@ -294,7 +313,6 @@ public class SimpleProcessor {
                 "    <content_model dsid=\"ISLANDORACM\" name=\"Camera trap\" namespace=\"si:\" pid=\"si:cameraTrapCModel\"></content_model>" +
                 "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant species\" namespace=\"si:\" pid=\"si:dwcCModel\"></content_model>" +
                 "    <content_model dsid=\"ISLANDORACM\" name=\"Cultural Heritage Entity or Object\" namespace=\"si:\" pid=\"si:lidoCollectionCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Generic Collection\" namespace=\"si:\" pid=\"si:collectionCModel\"></content_model>" +
                 "  </concept_models>" +
                 "  <search_terms>" +
                 "    <term field=\"dc.title\">dc.title</term>" +
@@ -315,11 +333,13 @@ public class SimpleProcessor {
                 "</collection_policy>";
 
         try {
+
             version.inlineXML(new InlineXML(inlineXML));
             version.label("Collection Policy");
             version.size((long) inlineXML.length());
             version.mimeType("text/xml");
             datastream.versions().add(version);
+
         } catch (IOException e) {
             logger.info("Could not create XML for Collection Policy");
         }
@@ -339,61 +359,62 @@ public class SimpleProcessor {
             "<RecordSet xmlns=\"http://rs.tdwg.org/ncd/0.70\" " +
             "xmlns:ns0=\"http://rs.tdwg.org/ncd/0.70\" " +
             "xmlns:ncd=\"http://rs.tdwg.org/ncd/0.70\" " +
-            "xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n";
-        inlineXML = inlineXML +
-            "<Collections>\n" +
-            "  <Collection>\n" +
-            "    <CollectionId/>\n" +
-            "    <AboutThisRecord>\n" +
-            "      <dc_source/>\n" +
-            "      <dc_identifier/>\n" +
-            "      <dct_created/>\n" +
-            "      <dct_modified/>\n" +
-            "      <dct_harvested/>\n" +
-            "    </AboutThisRecord>\n" +
-            "    <AlternativeIds>\n" +
-            "      <Identifier id=\"\" source=\"Smithsonian\"/>\n" +
-            "    </AlternativeIds>\n" +
-            "    <DescriptiveGroup>\n" +
-            "      <dc_title>Still more stuff 1</dc_title>\n" +
-            "      <dc_alternative_title/>\n" +
-            "      <dc_description/>\n" +
-            "      <dc_extent/>\n" +
-            "      <Notes/>\n" +
-            "    </DescriptiveGroup>\n" +
-            "    <AdministrativeGroup>\n" +
-            "      <FormationPeriod/>\n" +
-            "      <dc_format/>\n" +
-            "      <dc_medium/>\n" +
-            "      <UsageRestriction/>\n" +
-            "      <Contact/>\n" +
-            "      <Owner/>\n" +
-            "      <PhysicalLocation xlink:href=\"\"/>\n" +
-            "    </AdministrativeGroup>\n" +
-            "    <KeywordsGroup>\n" +
-            "      <KingdomCoverage/>\n" +
-            "      <TaxonCoverage/>\n" +
-            "      <CommonNameCoverage/>\n" +
-            "      <GeospatialCoverage/>\n" +
-            "      <ExpeditionName/>\n" +
-            "      <Collector/>\n" +
-            "      <AssociatedAgent/>\n" +
-            "      <dc_title/>\n" +
-            "    </KeywordsGroup>\n" +
-            "    <RelatedMaterialsGroup>\n" +
-            "      <dc_relation/>\n" +
-            "      <RelatedCollection/>\n" +
-            "    </RelatedMaterialsGroup>\n" +
-            "  </Collection>\n" +
-            "</Collections>\n" +
+            "xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n" +
+            "  <Collections>\n" +
+            "    <Collection>\n" +
+            "      <CollectionId/>\n" +
+            "      <AboutThisRecord>\n" +
+            "        <dc_source/>\n" +
+            "        <dc_identifier/>\n" +
+            "        <dct_created/>\n" +
+            "        <dct_modified/>\n" +
+            "        <dct_harvested/>\n" +
+            "      </AboutThisRecord>\n" +
+            "      <AlternativeIds>\n" +
+            "        <Identifier id=\"\" source=\"Smithsonian\"/>\n" +
+            "      </AlternativeIds>\n" +
+            "      <DescriptiveGroup>\n" +
+            "        <dc_title>Still more stuff 1</dc_title>\n" +
+            "        <dc_alternative_title/>\n" +
+            "        <dc_description/>\n" +
+            "        <dc_extent/>\n" +
+            "        <Notes/>\n" +
+            "      </DescriptiveGroup>\n" +
+            "      <AdministrativeGroup>\n" +
+            "        <FormationPeriod/>\n" +
+            "        <dc_format/>\n" +
+            "        <dc_medium/>\n" +
+            "        <UsageRestriction/>\n" +
+            "        <Contact/>\n" +
+            "        <Owner/>\n" +
+            "        <PhysicalLocation xlink:href=\"\"/>\n" +
+            "      </AdministrativeGroup>\n" +
+            "      <KeywordsGroup>\n" +
+            "        <KingdomCoverage/>\n" +
+            "        <TaxonCoverage/>\n" +
+            "        <CommonNameCoverage/>\n" +
+            "        <GeospatialCoverage/>\n" +
+            "        <ExpeditionName/>\n" +
+            "        <Collector/>\n" +
+            "        <AssociatedAgent/>\n" +
+            "        <dc_title/>\n" +
+            "      </KeywordsGroup>\n" +
+            "      <RelatedMaterialsGroup>\n" +
+            "        <dc_relation/>\n" +
+            "        <RelatedCollection/>\n" +
+            "      </RelatedMaterialsGroup>\n" +
+            "    </Collection>\n" +
+            "  </Collections>\n" +
             "</RecordSet>";
 
         try {
+
             version.inlineXML(new InlineXML(inlineXML));
             version.label("NCD Record");
             version.size((long) inlineXML.length());
             version.mimeType("text/xml");
             datastream.versions().add(version);
+
         } catch (IOException e) {
             logger.info("Could not create XML for NCD Record");
         }
@@ -402,6 +423,144 @@ public class SimpleProcessor {
 
     }
 
+    private Datastream getLidoDataStream(Map<String, String> metadata) {
+
+        Datastream datastream = new Datastream("LIDO");
+        datastream.controlGroup(ControlGroup.INLINE_XML);
+        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        DatastreamVersion version = new DatastreamVersion("LIDO.0", date);
+
+        String inlineXML =
+            "<lido xmlns=\"http://www.lido-schema.org\" " +
+                  "xmlns:lido=\"http://www.lido-schema.org\" " +
+                  "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n " +
+            "  <lidoRecID type=\"local\">BLANK</lidoRecID>\n" +
+            "  <descriptiveMetadata xml:lang=\"eng\">\n" +
+            "    <objectClassificationWrap>\n" +
+            "      <objectWorkTypeWrap>\n" +
+            "        <objectWorkType>\n" +
+            "          <term>import</term>\n" +
+            "        </objectWorkType>\n" +
+            "      </objectWorkTypeWrap>\n" +
+            "      <classificationWrap>\n" +
+            "        <classification>\n" +
+            "          <term/>\n" +
+            "        </classification>\n" +
+            "      </classificationWrap>\n" +
+            "    </objectClassificationWrap>\n" +
+            "    <objectIdentificationWrap>\n" +
+            "      <titleWrap>\n" +
+            "        <titleSet>\n" +
+            "          <appellationValue>Default Collection LIDO</appellationValue>\n" +
+            "        </titleSet>\n" +
+            "        <titleSet/>\n" +
+            "        <titleSet/>\n" +
+            "      </titleWrap>\n" +
+            "      <inscriptionsWrap>\n" +
+            "        <inscriptions>\n" +
+            "          <inscriptionTranscription/>\n" +
+            "            <inscriptionDescription>\n" +
+            "              <descriptiveNoteValue/>\n" +
+            "            </inscriptionDescription>\n" +
+            "        </inscriptions>\n" +
+            "      </inscriptionsWrap>\n" +
+            "      <repositoryWrap>\n" +
+            "        <repositorySet>\n" +
+            "          <repositoryName>\n" +
+            "            <legalBodyName>\n" +
+            "              <appellationValue/>\n" +
+            "            </legalBodyName>\n" +
+            "          </repositoryName>\n" +
+            "          <workID/>\n" +
+            "          <repositoryLocation>\n" +
+            "            <placeID type=\"local\"/>\n" +
+            "            <namePlaceSet>\n" +
+            "              <appellationValue/>\n" +
+            "            </namePlaceSet>\n" +
+            "          </repositoryLocation>\n" +
+            "        </repositorySet>\n" +
+            "      </repositoryWrap>\n" +
+            "      <objectDescriptionWrap>\n" +
+            "        <objectDescriptionSet type=\"General\">\n" +
+            "          <descriptiveNoteValue/>\n" +
+            "        </objectDescriptionSet>\n" +
+            "        <objectDescriptionSet type=\"context\">\n" +
+            "          <descriptiveNoteValue/>\n" +
+            "        </objectDescriptionSet>\n" +
+            "        <objectDescriptionSet type=\"materials\">\n" +
+            "          <descriptiveNoteValue/>\n" +
+            "         </objectDescriptionSet>\n" +
+            "         <objectDescriptionSet type=\"ornament\">\n" +
+            "           <descriptiveNoteValue/>\n" +
+            "         </objectDescriptionSet>\n" +
+            "         <objectDescriptionSet type=\"symbolism\">\n" +
+            "           <descriptiveNoteValue/>\n" +
+            "        </objectDescriptionSet>\n" +
+            "      </objectDescriptionWrap>\n" +
+            "      <objectMeasurementsWrap>\n" +
+            "        <objectMeasurementsSet>\n" +
+            "          <displayObjectMeasurements/>\n" +
+            "          <objectMeasurements>\n" +
+            "            <measurementsSet>\n" +
+            "              <measurementType>height</measurementType>\n" +
+            "              <measurementUnit>centimeter</measurementUnit>\n" +
+            "              <measurementValue/>\n" +
+            "            </measurementsSet>\n" +
+            "          </objectMeasurements>\n" +
+            "        </objectMeasurementsSet>\n" +
+            "      </objectMeasurementsWrap>\n" +
+            "    </objectIdentificationWrap>\n" +
+            "      <eventWrap>\n" +
+            "        <eventSet>\n" +
+            "          <event>\n" +
+            "          <eventType>\n" +
+            "            <term>Production</term>\n" +
+            "          </eventType>\n" +
+            "          <eventPlace>\n" +
+            "            <place>\n" +
+            "              <placeID type=\"local\"/>\n" +
+            "              <namePlaceSet>\n" +
+            "                <appellationValue/>\n" +
+            "              </namePlaceSet>\n" +
+            "              <placeClassification>\n" +
+            "                <term/>\n" +
+            "              </placeClassification>\n" +
+            "            </place>\n" +
+            "          </eventPlace>\n" +
+            "        </event>\n" +
+            "      </eventSet>\n" +
+            "    </eventWrap>\n" +
+            "  </descriptiveMetadata>\n" +
+            "  <administrativeMetadata xml:lang=\"eng\">\n" +
+            "    <recordWrap>\n" +
+            "      <recordID type=\"local\">BLANK</recordID>\n" +
+            "      <recordType>\n" +
+            "        <term>BLANK</term>\n" +
+            "      </recordType>\n" +
+            "      <recordSource>\n" +
+            "        <legalBodyName>\n" +
+            "          <appellationValue>BLANK</appellationValue>\n" +
+            "        </legalBodyName>\n" +
+            "      </recordSource>\n" +
+            "    </recordWrap>\n" +
+            "  </administrativeMetadata>\n" +
+            "</lido>";
+
+        try {
+
+            version.inlineXML(new InlineXML(inlineXML));
+            version.label("LIDO Record");
+            version.size((long) inlineXML.length());
+            version.mimeType("text/xml");
+            datastream.versions().add(version);
+
+        } catch (IOException e) {
+            logger.info("Could not create XML for LIDO Record");
+        }
+
+        return datastream;
+
+    }
 
     private static void requireValues(Map<String, String> map, String...keys) {
         for (String key : keys) {

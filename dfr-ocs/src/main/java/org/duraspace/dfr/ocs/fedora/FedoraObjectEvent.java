@@ -28,25 +28,23 @@ public class FedoraObjectEvent implements OCSEvent {
     private final Map<String, String> metadata;
 
     /** The Fedora object that is the subject of this event. */
-    private final FedoraObject fedoraObject;
+    private FedoraObject fedoraObject;
 
     /**
      * Creates an instance.
      *
      * @param eventID the ID of this event to some level of uniqueness
-     * @param fdo the <code>FedoraObject</code> that is the event's subject
      */
-    public FedoraObjectEvent(String eventID, FedoraObject fdo) {
+    public FedoraObjectEvent(String eventID) {
 
         // Check required arguments are set.
-        if (eventID == null || fdo == null) {
+        if (eventID == null) {
             throw new NullPointerException();
         }
 
         logger.debug("Creating a FedoraObjectEvent - " + eventID);
 
         this.eventID = eventID;
-        this.fedoraObject = fdo;
         this.metadata = new HashMap<>();
         this.relatedEvents = new ArrayList<>();
 
@@ -78,6 +76,15 @@ public class FedoraObjectEvent implements OCSEvent {
      */
     public FedoraObject getFedoraObject() {
         return fedoraObject;
+    }
+
+    /**
+     * Sets the Fedora object that is the subject of this event.
+     * @param fedoraObject <code>FedoraObject</code> for this event
+     */
+    public void setFedoraObject(FedoraObject fedoraObject) {
+        // Note: Consider not permitting this to be set twice. DWD
+        this.fedoraObject = fedoraObject;
     }
 
 }

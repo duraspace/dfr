@@ -41,6 +41,11 @@
     <constructor-arg ref="destinationClient"/>
   </bean>
 
+  <!-- Splits a single incoming storage message into additional messages -->
+  <bean id="destinationEventHandler" class="org.duraspace.dfr.ocs.fedora.FedoraEventHandler">
+    <constructor-arg ref="destinationStoreClient"/>
+  </bean>
+
   <!-- The OCS object creation processor -->
   <bean id="contentProcessor" class="org.duraspace.dfr.ocs.simpleproc.SimpleProcessor" depends-on="destinationStoreClient">
     <constructor-arg type="java.lang.String" value="${dfr.object.prefix}"/>
@@ -118,9 +123,6 @@
   <!-- Splits a single incoming storage message into additional messages -->
   <bean id="createSplitter" class="org.duraspace.dfr.ocs.duracloud.DuraCloudObjectCreatedMessageSplitter"/>
 
-  <!-- Splits a single incoming storage message into additional messages -->
-  <bean id="fedoraEventHandler" class="org.duraspace.dfr.ocs.fedora.FedoraEventHandler"/>
-
   <!-- Provides the Camel routing setup -->
   <camelContext id="camelContext" xmlns="http://camel.apache.org/schema/spring" trace="true">
     <route>
@@ -130,8 +132,8 @@
       <split>
         <method bean="createSplitter" method="splitBody"/>
         <bean ref="contentProcessor" method="process"/>
-        <bean ref="fedoraEventHandler" method="ingest"/>
-        <bean ref="destinationStoreClient" method="ingest"/>
+        <bean ref="destinationEventHandler" method="ingest"/>
+        <!-- <bean ref="destinationStoreClient" method="ingest"/> -->
       </split>
     </route>
   </camelContext>

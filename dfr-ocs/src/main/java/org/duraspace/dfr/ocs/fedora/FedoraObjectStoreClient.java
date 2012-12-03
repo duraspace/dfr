@@ -19,7 +19,7 @@ import java.io.*;
  *
  * Note: We need to move the strings to constants or properties. Also, since
  *       Fedora is an endpoint this could be a Camel component (or hook into
- *       one)..
+ *       one) since it interfaces with an endpoint.
  */
 public class FedoraObjectStoreClient implements FedoraObjectStore {
 
@@ -40,7 +40,7 @@ public class FedoraObjectStoreClient implements FedoraObjectStore {
     public FedoraObjectStoreClient(FedoraClient fedoraClient) {
         if (fedoraClient == null) throw new NullPointerException();
         this.fedoraClient = fedoraClient;
-        logger.debug("Constructing a Fedora Repository");
+        logger.debug("Constructing a Fedora Object Store Client");
     }
 
     @Override

@@ -28,6 +28,8 @@
         <oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
           <dc:title>Imported Objects</dc:title>
           <dc:identifier>si:importedObjects</dc:identifier>
+          <dc:description/>
+          <dc:relation/>
         </oai_dc:dc>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
@@ -70,6 +72,79 @@
           </search_terms>
           <relationship>isMemberOfCollection</relationship>
         </collection_policy>
+      </foxml:xmlContent>
+    </foxml:datastreamVersion>
+  </foxml:datastream>
+  <foxml:datastream ID="EAC-CPF" STATE="A" CONTROL_GROUP="X" VERSIONABLE="true">
+    <foxml:datastreamVersion ID="EAC-CPF.1" LABEL="EAC-CPF Record" CREATED="2012-11-06T18:39:39.921Z" MIMETYPE="text/xml" SIZE="4522">
+      <foxml:xmlContent>
+        <eac-cpf xmlns="urn:isbn:1-931666-33-4" xmlns:eac="urn:isbn:1-931666-33-4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <cpfDescription>
+            <identity>
+              <entityType>person</entityType>
+              <nameEntry localType="primary">
+                <part>Jonathan Markow</part>
+              </nameEntry>
+              <nameEntry localType="abbreviation">
+                <part>JM</part>
+              </nameEntry>
+            </identity>
+            <relations>
+              <cpfRelation>
+                <cpfRelationType>Project Contact</cpfRelationType>
+                <cpfRelation/>
+                <relationEntry localType="Project Contact"/>
+              </cpfRelation>
+            </relations>
+            <description>
+              <functions>
+                <function>
+                  <term>Project Description</term>
+                  <descriptiveNote>
+                    <p/>
+                  </descriptiveNote>
+                </function>
+              </functions>
+              <function>
+                <term>Project Description</term>
+                <descriptiveNote>DuraCloud for Research default imported objects project.</descriptiveNote>
+              </function>
+              <existDates>
+                <dateRange>
+                  <fromDate>2011</fromDate>
+                  <toDate>2012</toDate>
+                </dateRange>
+              </existDates>
+              <place>
+                <placeEntry countryCode="US" latitude="" longitude="">Imported Objects</placeEntry>
+              </place>
+              <function>
+                <term>Project Objectives </term>
+                <descriptiveNote>Provides a place to import objects.</descriptiveNote>
+              </function>
+              <function>
+                <term>Project Design</term>
+                <descriptiveNote>Integrated applications tooling.</descriptiveNote>
+              </function>
+            </description>
+          </cpfDescription>
+          <control>
+            <recordId>si:importedObjects</recordId>
+            <maintenanceStatus>original</maintenanceStatus>
+            <maintenanceAgency>
+              <agencyName/>
+            </maintenanceAgency>
+            <maintenanceHistory>
+              <maintenanceEvent>
+                <eventType>created</eventType>
+                <eventDateTime/>
+                <agentType>automated</agentType>
+                <agent/>
+                <eventDescription/>
+              </maintenanceEvent>
+            </maintenanceHistory>
+          </control>
+        </eac-cpf>
       </foxml:xmlContent>
     </foxml:datastreamVersion>
   </foxml:datastream>
