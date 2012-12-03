@@ -37,7 +37,7 @@ public class DfrSyncDriver {
         try {
 
             final JDialog dialog = new JDialog();
-            dialog.setSize(new java.awt.Dimension(400, 50));
+            dialog.setSize(new java.awt.Dimension(400, 75));
             dialog.setModalityType(ModalityType.MODELESS);
             dialog.setTitle("UpSync Utility");
             dialog.setLocationRelativeTo(null);

@@ -34,7 +34,6 @@ a.button, button {
   border-radius: 5px;  
   border-collapse: collapse;
   background-color: #DDD;
-  box-shadow: 3px 3px 4px #555;
   color: #555;
   font-size: 12px;
 }
@@ -44,18 +43,13 @@ a.button {
   text-decoration: none;
 }
 
-a.button:active, button:active {
-  box-shadow: 1px 1px 2px #555;
-  
-}
 
 a.button:hover, button:hover {
   border: 1px solid #0E0;
 }
 
 a.button[disabled], button[disabled] {
-  background-color: #999; 
-  box-shadow: 0px 0px 0px #555;
+  background-color: #777; 
   color: #EEE;
 }
 
@@ -167,13 +161,29 @@ ul.global-errors, input.error  {
   color: #FFF; 
 }
 
+#footer ul li:first-child{
+  padding-left:10px;
+}
 #footer ul li:after{
 	content: "|";
 	padding-left: 10px;
+	font-size: 12px;
+	font-weight: bold;
+	color: #2375B2;
 }
 
 #footer ul li:last-child:after{
 	content: "";
+}
+
+#footer a, #footer {
+  color: #4C4C4C;
+  font-size: 13px;
+}
+
+#footer a:hover {
+  color: #5C5C5C;
+  
 }
 
 #content {
@@ -220,9 +230,51 @@ ul.button-bar li {
 	display:inline;
 }
 
-#recent-activity-graph {
+#recent-activity {
 	height: 100px;
 	border: 1px solid #555;
+	overflow-y:auto;
+}
+
+#recent-activity table{
+  width: 100%;
+}
+#recent-activity th {
+  font-size: 11px;
+}
+
+#recent-activity td:nth-child(1){
+  text-overflow: ellipsis; 
+  font-size: 13px;
+}
+
+#recent-activity td:nth-child(1):hover{
+  cursor: default;
+}
+
+#recent-activity td, #recent-activity th {
+  padding-right: 5px;  
+}
+
+#recent-activity td:nth-child(2), #recent-activity th:nth-child(2){
+  text-align:right;
+  width: 10%;
+}
+
+#recent-activity td:nth-child(3), 
+#recent-activity th:nth-child(3){
+  text-align: right !important;
+  width: 10%;
+}
+
+#recent-activity td:nth-child(4){
+  width: 21%;
+}
+
+#recent-activity td:nth-child(2), 
+#recent-activity td:nth-child(3),
+#recent-activity td:nth-child(4){
+  font-size: 10px;
 }
 
 #status-indicator {
