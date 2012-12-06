@@ -1,6 +1,7 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
 import com.github.cwilper.fcrepo.dto.core.*;
+import eu.medsea.mimeutil.MimeUtil2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.duracloud.client.ContentStore;
 import org.duraspace.dfr.ocs.core.OCSException;
@@ -70,6 +71,10 @@ public class SimpleProcessor {
     /** The URL of the DuraStore service containing the content. */
     private String duraStoreURL;
 
+    /** MIME Test Utility */
+    // Move to Spring when this class gets refactored. DWD
+    private final MimeUtil2 mimeUtil = new MimeUtil2();
+
     /**
      * Creates an instance.
      *
@@ -105,6 +110,9 @@ public class SimpleProcessor {
                     duraStoreURL);
         }
         this.duraStoreURL = duraStoreURL;
+
+        // Initialize the MIME type detector
+        mimeUtil.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector");
 
         logger.debug("Constructing a simple processor");
     }
@@ -150,6 +158,16 @@ public class SimpleProcessor {
                 messageMetadata.get(STORE_ID);
         logger.info("Content URL: " + contentURL);
         String objectPID = pidPrefix + DigestUtils.md5Hex(contentURL);
+
+        // Note: It is complaining that is needs the InputStream to support
+        // mark() and close() and as far as I know it does. So we will just
+        // check MIME based on name. DWD
+        //String mimeType =
+        //    MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(storageObject.getContent())).toString();
+        String mimeType =
+            MimeUtil2.getMostSpecificMimeType(mimeUtil.getMimeTypes(objectId)).toString();
+        logger.debug("Tested MIME - " + mimeType);
+        messageMetadata.put("checkedMIMEType", mimeType);
 
         // Create the Fedora object.
         Map<String, String> metadata = storageObject.getMetadata();
@@ -201,11 +219,11 @@ public class SimpleProcessor {
             ContentStore.CONTENT_MODIFIED,
             ContentStore.CONTENT_SIZE);
 
-        Datastream datastream = new Datastream("CONTENT");
+        Datastream datastream = new Datastream("OBJ");
         datastream.controlGroup(ControlGroup.REDIRECT);
         Date date = parseRFC822Date(metadata.get(
                 ContentStore.CONTENT_MODIFIED));
-        DatastreamVersion version = new DatastreamVersion("CONTENT.0", date);
+        DatastreamVersion version = new DatastreamVersion("OBJ.0", date);
         // TODO: Activate this after Fedora has been updated to either
         //       not require auto-validating checksums for externals
         //       datastreams or to allow configuration of credentials for
@@ -218,6 +236,11 @@ public class SimpleProcessor {
         version.contentLocation(URI.create(contentURL));
 
         /*
+        // Note: We are using external (not managed) datastreams for the
+        //       content in DuraCloud. This means we need to reference the
+        //       object via a URL. The name must be encoded but only for the
+        //       external reference. But something is not working in the
+        //       Fedora DTO library (or I am not using it right. DWD.
         try {
             version.contentLocation(URI.create(URLEncoder.encode(contentURL, "UTF-8")));
         } catch (UnsupportedEncodingException e) {
@@ -231,7 +254,11 @@ public class SimpleProcessor {
         label = label.substring(0, label.indexOf("?"));
         version.label(label);
         version.size(Long.parseLong(metadata.get(ContentStore.CONTENT_SIZE)));
+        // Note: This is only as good as what DuraCloud contains.  Since the
+        //       JRE content.properties is used for sync, and its weak we
+        //       need to do more. DWD
         version.mimeType(metadata.get(ContentStore.CONTENT_MIMETYPE));
+        version.mimeType(messageMetadata.get("checkedMIMEType"));
         datastream.versions().add(version);
 
         return datastream;
@@ -642,6 +669,8 @@ public class SimpleProcessor {
             String labelPath = labelURL.getPath();
             int lastSlash = labelPath.lastIndexOf("/") + 1;
             label = labelPath.substring(lastSlash);
+            //int extension = label.lastIndexOf(".");
+            //label = label.substring(0, extension);
         } catch (MalformedURLException e) {
             // Don't care
         }

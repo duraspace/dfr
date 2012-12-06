@@ -24,7 +24,7 @@ public class SimpleProcessorTest {
     private static final String CONTENT_ID = "path/to/content";
     private static final String CONTENT_URL =
             DURASTORE_URL + "/spaceId/path/to/content?storeID=storeId";
-    private static final String LABEL = "content";
+    private static final String LABEL = "tbd";
     private static final String CONTENT_URL_DIGEST =
             "3c3b37e4f9449aba371be1dcd04a2645";
     private static final String FEDORA_PID = PID_PREFIX + CONTENT_URL_DIGEST;
