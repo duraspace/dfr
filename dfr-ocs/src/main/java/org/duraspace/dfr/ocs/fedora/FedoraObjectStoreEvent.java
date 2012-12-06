@@ -13,10 +13,10 @@ import java.util.Map;
 /**
  * Event related to a Fedora object.
  */
-public class FedoraObjectEvent implements OCSEvent {
+public class FedoraObjectStoreEvent implements OCSEvent {
 
     private static final Logger logger =
-        LoggerFactory.getLogger(FedoraObjectEvent.class);
+        LoggerFactory.getLogger(FedoraObjectStoreEvent.class);
 
     /** Identifies the event to some level of uniqueness. */
     private final String eventID;
@@ -35,14 +35,14 @@ public class FedoraObjectEvent implements OCSEvent {
      *
      * @param eventID the ID of this event to some level of uniqueness
      */
-    public FedoraObjectEvent(String eventID) {
+    public FedoraObjectStoreEvent(String eventID) {
 
         // Check required arguments are set.
         if (eventID == null) {
             throw new NullPointerException();
         }
 
-        logger.debug("Creating a FedoraObjectEvent - " + eventID);
+        logger.debug("Creating a FedoraObjectStoreEvent - " + eventID);
 
         this.eventID = eventID;
         this.metadata = new HashMap<>();

@@ -7,16 +7,14 @@ import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageObject;
-import org.duraspace.dfr.ocs.fedora.FedoraObjectEvent;
+import org.duraspace.dfr.ocs.fedora.FedoraObjectStoreEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -111,7 +109,18 @@ public class SimpleProcessor {
         logger.debug("Constructing a simple processor");
     }
 
-    public FedoraObjectEvent process(StorageObjectEvent event) throws OCSException {
+    /**
+     * Processor for the incoming <code>StorageObjectEvent</code> called by
+     * the execution environment to create a destination
+     * <code>FedoraObjectStoreEvent</code> to be consumed by subsequent
+     * processing. In this case a new FedoraObject is created and later
+     * ingested into a Fedora object store.
+     *
+     * @param event an incoming <code>StorageObjectEvent</code>
+     * @return an outgoing <code>FedoraObjectStoreEvent</code>
+     * @throws OCSException if the processing failed
+     */
+    public FedoraObjectStoreEvent process(StorageObjectEvent event) throws OCSException {
         logger.debug("Processing a storage event");
 
         FedoraObject fedoraObject;
@@ -149,8 +158,8 @@ public class SimpleProcessor {
 
         // Note: Using the PID as an eventID is not ideal but until we have
         //       an ID generator but it will suffice for the moment. DWD
-        FedoraObjectEvent fdoEvent =
-            new FedoraObjectEvent(objectPID);
+        FedoraObjectStoreEvent fdoEvent =
+            new FedoraObjectStoreEvent(objectPID);
         fdoEvent.setFedoraObject(fedoraObject);
         String logMessage = "Requested by DFR Object Creation Service." +
                 " Event ID: " + event.getEventID();
@@ -165,17 +174,21 @@ public class SimpleProcessor {
                                          Map<String, String> metadata,
                                          Map<String, String> messageMetadata) {
         String label = prettyLabel(contentURL);
+        messageMetadata.put("label", label);
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
         String objectType = messageMetadata.get("objectType");
         fedoraObject.label(label);
         if (objectType.equals("content")) {
-            fedoraObject.putDatastream(getContentDatastream(contentURL, metadata, messageMetadata));
+            fedoraObject.putDatastream(getContentDatastream(contentURL,
+                metadata, messageMetadata));
         }
-        fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID, metadata, messageMetadata));
+        fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID,
+            metadata, messageMetadata));
         //fedoraObject.putDatastream(getNcdDataStream(metadata));
-        fedoraObject.putDatastream(getLidoDataStream(metadata));
+        fedoraObject.putDatastream(getLidoDataStream(metadata, messageMetadata));
         fedoraObject.putDatastream(getCollectionPolicyDataStream(metadata));
+        fedoraObject.putDatastream(getDuracloudDataStream(metadata, messageMetadata));
         return fedoraObject;
     }
 
@@ -423,12 +436,15 @@ public class SimpleProcessor {
 
     }
 
-    private Datastream getLidoDataStream(Map<String, String> metadata) {
+    private Datastream getLidoDataStream(Map<String, String> metadata,
+                                         Map<String, String> messageMetadata) {
 
         Datastream datastream = new Datastream("LIDO");
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("LIDO.0", date);
+
+        String label = messageMetadata.get("label");
 
         String inlineXML =
             "<lido xmlns=\"http://www.lido-schema.org\" " +
@@ -451,7 +467,7 @@ public class SimpleProcessor {
             "    <objectIdentificationWrap>\n" +
             "      <titleWrap>\n" +
             "        <titleSet>\n" +
-            "          <appellationValue>Default Collection LIDO</appellationValue>\n" +
+            "          <appellationValue>" + label + "</appellationValue>\n" +
             "        </titleSet>\n" +
             "        <titleSet/>\n" +
             "        <titleSet/>\n" +
@@ -556,6 +572,39 @@ public class SimpleProcessor {
 
         } catch (IOException e) {
             logger.info("Could not create XML for LIDO Record");
+        }
+
+        return datastream;
+
+    }
+
+    private Datastream getDuracloudDataStream(Map<String, String> metadata,
+                                              Map<String, String> messageMetadata) {
+
+        Datastream datastream = new Datastream("DCOM");
+        datastream.controlGroup(ControlGroup.INLINE_XML);
+        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        DatastreamVersion version = new DatastreamVersion("DCOM.0", date);
+
+        String inlineXML = "<dcom>\n";
+
+        for (Map.Entry<String, String> entry : metadata.entrySet())
+        {
+            inlineXML = inlineXML + "  <" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">\n";
+        }
+
+        inlineXML = inlineXML + "</dcom>";
+
+        try {
+
+            version.inlineXML(new InlineXML(inlineXML));
+            version.label("DCOM Record");
+            version.size((long) inlineXML.length());
+            version.mimeType("text/xml");
+            datastream.versions().add(version);
+
+        } catch (IOException e) {
+            logger.info("Could not create XML for Duracloud Metadata Record");
         }
 
         return datastream;

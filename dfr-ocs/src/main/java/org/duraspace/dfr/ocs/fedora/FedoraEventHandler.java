@@ -31,14 +31,14 @@ public class FedoraEventHandler {
     }
 
 
-    public FedoraObjectEvent ingest(FedoraObjectEvent event) {
+    public FedoraObjectStoreEvent ingest(FedoraObjectStoreEvent event) {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         FedoraObject fdo = event.getFedoraObject();
         fedoraObjectStore.ingest(fdo, "Ingested via DfR");
         return event;
     }
 
-    public FedoraObjectEvent purge(FedoraObjectEvent event) throws OCSException {
+    public FedoraObjectStoreEvent purge(FedoraObjectStoreEvent event) throws OCSException {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         Map<String, String> metadata = event.getMetadata();
         String pid = metadata.get("PID");
@@ -48,7 +48,7 @@ public class FedoraEventHandler {
         return event;
     }
 
-    public FedoraObjectEvent export(FedoraObjectEvent event) throws OCSException {
+    public FedoraObjectStoreEvent export(FedoraObjectStoreEvent event) throws OCSException {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         Map<String, String> metadata = event.getMetadata();
         String pid = metadata.get("PID");

@@ -1,12 +1,9 @@
 package org.duraspace.dfr.ocs.simpleproc;
 
 import com.github.cwilper.fcrepo.dto.core.*;
-import org.duraspace.dfr.ocs.core.MemoryFedoraObjectStore;
-import org.duraspace.dfr.ocs.core.OCSException;
-import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudStorageObject;
-import org.duraspace.dfr.ocs.fedora.FedoraObjectEvent;
+import org.duraspace.dfr.ocs.fedora.FedoraObjectStoreEvent;
 import org.mockito.Mockito;
 import org.junit.Assert;
 import org.junit.Test;
@@ -15,7 +12,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -125,7 +121,7 @@ public class SimpleProcessorTest {
                 StorageObjectEvent.EventType.CREATED);
         Mockito.when(event.getEventID()).thenReturn("eventId");
 
-        FedoraObjectEvent fdoEvent = processor.process(event);
+        FedoraObjectStoreEvent fdoEvent = processor.process(event);
         FedoraObject fedoraObject = fdoEvent.getFedoraObject();
 
         Assert.assertNotNull(fedoraObject);

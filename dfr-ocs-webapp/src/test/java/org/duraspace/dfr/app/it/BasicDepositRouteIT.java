@@ -158,7 +158,7 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
         String url = sourceStoreUrl + "/" + spaceId
                 + "/" + contentId + "?storeID="
                 + sourceStoreClient.getContentStore().getStoreId();
-        System.out.println("Pid Source - " + url);
+        //System.out.println("Pid Source - " + url);
         return pidPrefix + DigestUtils.md5Hex(url);
     }
 
