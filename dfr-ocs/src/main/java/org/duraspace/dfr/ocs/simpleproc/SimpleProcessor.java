@@ -617,7 +617,11 @@ public class SimpleProcessor {
 
         for (Map.Entry<String, String> entry : metadata.entrySet())
         {
-            inlineXML = inlineXML + "  <" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">\n";
+            inlineXML =
+                inlineXML +
+                    "  <" + entry.getKey() + ">" +
+                    entry.getValue() +
+                    "</" + entry.getKey() + ">\n";
         }
 
         inlineXML = inlineXML + "</dcom>";
