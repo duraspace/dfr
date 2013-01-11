@@ -53,6 +53,10 @@ public class DuraCloudObjectCreatedMessageSplitter {
         String[] splits = storageObject.getId().split("/");
         int size = splits.length;
 
+        // Record the rightmost split, equivalent to the original filename.
+        event.getMetadata().put("objectBase", splits[size - 1]);
+        System.out.println("Object Base - " + splits[size - 1]);
+
         // If there are at least two level (n level collection and one original)?
         if (size >= 2) {
 

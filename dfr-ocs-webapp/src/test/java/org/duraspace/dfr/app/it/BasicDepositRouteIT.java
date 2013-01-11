@@ -12,6 +12,8 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.builder.NotifyBuilder;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.duracloud.error.ContentStoreException;
 import org.duraspace.dfr.app.org.duraspace.dfr.app.util.TempSpace;
 import org.duraspace.dfr.ocs.duracloud.DuraCloudObjectStoreClient;
@@ -54,7 +56,7 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
     private static final Logger logger =
         LoggerFactory.getLogger(BasicDepositRouteIT.class);
 
-    private static final String CONTENT_ID = "foo";
+    private static final String CONTENT_ID = "foo bar";
     private static final String CONTENT = "bar";
 
     @Autowired
@@ -161,11 +163,22 @@ public class BasicDepositRouteIT extends AbstractTestExecutionListener {
         }
     }
 
-    private String getPid(String contentId) {
+    private String getPid(String objectId) {
+
+        String encodedObjectID = "";
+        try {
+            encodedObjectID = URIUtil.encodePath(objectId);
+        }
+        catch (URIException e) {
+            String msg = "Unable to encode the DuraCloud content location: " + objectId;
+            logger.info(msg);
+        }
+
         String url = sourceStoreUrl + "/" + spaceId
-                + "/" + contentId + "?storeID="
+                + "/" + encodedObjectID + "?storeID="
                 + sourceStoreClient.getContentStore().getStoreId();
-        //System.out.println("Pid Source - " + url);
+        logger.debug("Pid Source - " + url);
+
         return pidPrefix + DigestUtils.md5Hex(url);
     }
 

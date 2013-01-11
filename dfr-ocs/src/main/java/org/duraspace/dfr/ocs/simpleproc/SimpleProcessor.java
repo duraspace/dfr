@@ -10,6 +10,8 @@ package org.duraspace.dfr.ocs.simpleproc;
 import com.github.cwilper.fcrepo.dto.core.*;
 import eu.medsea.mimeutil.MimeUtil2;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.duracloud.client.ContentStore;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
@@ -20,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
+import java.net.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -147,8 +147,6 @@ public class SimpleProcessor {
 
         requireValues(messageMetadata, "objectId", "objectType", "collectionId");
         String objectId = messageMetadata.get("objectId");
-        // Note: objectType is no longer used in processor code. DWD
-        //String objectType = messageMetadata.get("objectType");
         String collectionId = messageMetadata.get("collectionId");
 
         if (!collectionId.equals("si:importedObjects")) {
@@ -159,11 +157,25 @@ public class SimpleProcessor {
             collectionPID = pidPrefix + DigestUtils.md5Hex(collectionURL);
         }
 
+        // The encoding of the DuraCloud object and the Fedora external
+        // reference URL need to be compatible since Sidora does not
+        // use the StoreClient to access DuraCloud content.
+        String encodedObjectID;
+        try {
+            encodedObjectID = URIUtil.encodePath(objectId);
+        }
+        catch (URIException e) {
+            String msg = "Unable to encode the duracloud content location: " + objectId;
+            logger.info(msg);
+            throw new OCSException(msg + e);
+        }
+
         requireValues(messageMetadata, STORE_ID, SPACE_ID);
         String contentURL = duraStoreURL + "/" +
-                messageMetadata.get(SPACE_ID) + "/" + objectId + "?storeID=" +
+                messageMetadata.get(SPACE_ID) +
+                "/" + encodedObjectID + "?storeID=" +
                 messageMetadata.get(STORE_ID);
-        logger.info("Content URL: " + contentURL);
+        logger.debug("Content URL: " + contentURL);
         String objectPID = pidPrefix + DigestUtils.md5Hex(contentURL);
 
         // Note: It is complaining that is needs the InputStream to support
@@ -194,12 +206,17 @@ public class SimpleProcessor {
         return fdoEvent;
     }
 
-    private FedoraObject getFedoraObject(String pid, String collectionPID,
+    private FedoraObject getFedoraObject(String pid,
+                                         String collectionPID,
                                          String contentURL,
                                          Map<String, String> metadata,
                                          Map<String, String> messageMetadata) {
-        String label = prettyLabel(contentURL);
-        messageMetadata.put("label", label);
+
+        String label = messageMetadata.get("objectId");
+        int i = label.lastIndexOf("/");
+        label = label.substring(i + 1);
+        messageMetadata.put("objectLabel", label);
+
         FedoraObject fedoraObject = new FedoraObject();
         fedoraObject.pid(pid);
         String objectType = messageMetadata.get("objectType");
@@ -208,12 +225,21 @@ public class SimpleProcessor {
             fedoraObject.putDatastream(getContentDatastream(contentURL,
                 metadata, messageMetadata));
         }
+
+        // Note: For demonstration purposes we are only doing the Lido content
+        //       model. This is hard coded crap but good enough for the demo.
+        //       When this is broken into a Camel path we can add business
+        //       logic to support other Fedora (Sidora) objects.
+        //       DWD.
+        messageMetadata.put("contentModel", "info:fedora/si:lidoCollectionCModel");
+
         fedoraObject.putDatastream(getRelsDataStream(pid, collectionPID,
             metadata, messageMetadata));
         //fedoraObject.putDatastream(getNcdDataStream(metadata));
         fedoraObject.putDatastream(getLidoDataStream(metadata, messageMetadata));
         fedoraObject.putDatastream(getCollectionPolicyDataStream(metadata));
         fedoraObject.putDatastream(getDuracloudDataStream(metadata, messageMetadata));
+
         return fedoraObject;
     }
 
@@ -242,29 +268,14 @@ public class SimpleProcessor {
         //        .hexValue(metadata.get(ContentStore.CONTENT_CHECKSUM)));
         version.contentLocation(URI.create(contentURL));
 
-        /*
-        // Note: We are using external (not managed) datastreams for the
-        //       content in DuraCloud. This means we need to reference the
-        //       object via a URL. The name must be encoded but only for the
-        //       external reference. But something is not working in the
-        //       Fedora DTO library (or I am not using it right. DWD.
-        try {
-            version.contentLocation(URI.create(URLEncoder.encode(contentURL, "UTF-8")));
-        } catch (UnsupportedEncodingException e) {
-            logger.info("Cannot convert content object name to a URL - " + contentURL);
-            version.contentLocation(URI.create("Unsupported_Content_Name"));
-        }
-        */
-
-        int i = contentURL.lastIndexOf("/");
-        String label = contentURL.substring(i + 1);
-        label = label.substring(0, label.indexOf("?"));
+        requireValues(messageMetadata, "objectLabel");
+        String label = messageMetadata.get("objectLabel");
         version.label(label);
         version.size(Long.parseLong(metadata.get(ContentStore.CONTENT_SIZE)));
         // Note: This is only as good as what DuraCloud contains.  Since the
         //       JRE content.properties is used for sync, and its weak we
-        //       need to do more. DWD
-        version.mimeType(metadata.get(ContentStore.CONTENT_MIMETYPE));
+        //       use our own mime characterization. DWD
+        //version.mimeType(metadata.get(ContentStore.CONTENT_MIMETYPE));
         version.mimeType(messageMetadata.get("checkedMIMEType"));
         datastream.versions().add(version);
 
@@ -279,12 +290,9 @@ public class SimpleProcessor {
         requireValues(metadata,
             ContentStore.CONTENT_MODIFIED);
 
-        String contentModel = "info:fedora/si:lidoCollectionCModel";
-        String objectType = messageMetadata.get("objectType");
-        // Note: Use if we decide to content objects Sidora resources. DWD
-        //if (objectType.equals("collection")) {
-        //    contentModel = "info:fedora/si:lidoCollectionCModel";
-        //}
+        requireValues(messageMetadata, "contentModel");
+        String contentModel = messageMetadata.get("contentModel");
+
         Datastream datastream = new Datastream("RELS-EXT");
         datastream.controlGroup(ControlGroup.INLINE_XML);
         Date date = parseRFC822Date(metadata.get(
@@ -309,9 +317,9 @@ public class SimpleProcessor {
         inlineXML = inlineXML +
             "<rdf:Description rdf:about=\"info:fedora/" + pid + "\">\n";
         inlineXML = inlineXML +
-            "<fedora:isMemberOfCollection rdf:resource=\"info:fedora/" + collectionPID + "\"></fedora:isMemberOfCollection>\n" +
-            "<fedora-model:hasModel rdf:resource=\"" + contentModel + "\"></fedora-model:hasModel>\n" +
-            "<orginal_metadata xmlns=\"http://islandora.org/ontologies/metadata#\">TRUE</orginal_metadata>\n" +
+            "    <fedora:isMemberOfCollection rdf:resource=\"info:fedora/" + collectionPID + "\"></fedora:isMemberOfCollection>\n" +
+            "    <fedora-model:hasModel rdf:resource=\"" + contentModel + "\"></fedora-model:hasModel>\n" +
+            "    <orginal_metadata xmlns=\"http://islandora.org/ontologies/metadata#\">TRUE</orginal_metadata>\n" +
             "</rdf:Description>\n" +
             "</rdf:RDF>";
 
@@ -342,41 +350,41 @@ public class SimpleProcessor {
         String inlineXML =
             "<collection_policy xmlns=\"http://www.islandora.ca\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "name=\"\" xsi:schemaLocation=\"http://www.islandora.ca http://syn.lib.umanitoba.ca/collection_policy.xsd\">" +
-                "  <content_models>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant images\" namespace=\"si:\" pid=\"si:imageCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Digitized text, with page images\" namespace=\"si:\" pid=\"si:fieldbookCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Tabular datasets\" namespace=\"si:\" pid=\"si:datasetCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:generalImageCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:simpleImageCModel\"></content_model>" +
-                "  </content_models>" +
-                "  <concept_models>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Project or sub-project\" namespace=\"si:\" pid=\"si:projectCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Natural history collection\" namespace=\"si:\" pid=\"si:ncdCollectionCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Research site, plot or area\" namespace=\"si:\" pid=\"si:ctPlotCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Person\" namespace=\"si:\" pid=\"si:peopleCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Organization or Institution\" namespace=\"si:\" pid=\"si:organizationCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Expedition\" namespace=\"si:\" pid=\"si:expeditionCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Camera trap\" namespace=\"si:\" pid=\"si:cameraTrapCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant species\" namespace=\"si:\" pid=\"si:dwcCModel\"></content_model>" +
-                "    <content_model dsid=\"ISLANDORACM\" name=\"Cultural Heritage Entity or Object\" namespace=\"si:\" pid=\"si:lidoCollectionCModel\"></content_model>" +
-                "  </concept_models>" +
-                "  <search_terms>" +
-                "    <term field=\"dc.title\">dc.title</term>" +
-                "    <term field=\"dc.creator\">dc.creator</term>" +
-                "    <term default=\"true\" field=\"dc.description\">dc.description</term>" +
-                "    <term field=\"dc.date\">dc.date</term>" +
-                "    <term field=\"dc.identifier\">dc.identifier</term>" +
-                "    <term field=\"dc.language\">dc.language</term>" +
-                "    <term field=\"dc.publisher\">dc.publisher</term>" +
-                "    <term field=\"dc.rights\">dc.rights</term>" +
-                "    <term field=\"dc.subject\">dc.subject</term>" +
-                "    <term field=\"dc.relation\">dc.relation</term>" +
-                "    <term field=\"dcterms.temporal\">dcterms.temporal</term>" +
-                "    <term field=\"dcterms.spatial\">dcterms.spatial</term>" +
-                "    <term field=\"fgs.DS.first.text\">Full Text</term>" +
-                "  </search_terms>" +
-                "  <relationship>isMemberOfCollection</relationship>" +
+                "name=\"\" xsi:schemaLocation=\"http://www.islandora.ca http://syn.lib.umanitoba.ca/collection_policy.xsd\">\n" +
+                "  <content_models>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant images\" namespace=\"si:\" pid=\"si:imageCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Digitized text, with page images\" namespace=\"si:\" pid=\"si:fieldbookCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Tabular datasets\" namespace=\"si:\" pid=\"si:datasetCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:generalImageCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"General image\" namespace=\"si:\" pid=\"si:simpleImageCModel\"></content_model>\n" +
+                "  </content_models>\n" +
+                "  <concept_models>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Project or sub-project\" namespace=\"si:\" pid=\"si:projectCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Natural history collection\" namespace=\"si:\" pid=\"si:ncdCollectionCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Research site, plot or area\" namespace=\"si:\" pid=\"si:ctPlotCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Person\" namespace=\"si:\" pid=\"si:peopleCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Organization or Institution\" namespace=\"si:\" pid=\"si:organizationCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Expedition\" namespace=\"si:\" pid=\"si:expeditionCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Camera trap\" namespace=\"si:\" pid=\"si:cameraTrapCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Animal or plant species\" namespace=\"si:\" pid=\"si:dwcCModel\"></content_model>\n" +
+                "    <content_model dsid=\"ISLANDORACM\" name=\"Cultural Heritage Entity or Object\" namespace=\"si:\" pid=\"si:lidoCollectionCModel\"></content_model>\n" +
+                "  </concept_models>\n" +
+                "  <search_terms>\n" +
+                "    <term field=\"dc.title\">dc.title</term>\n" +
+                "    <term field=\"dc.creator\">dc.creator</term>\n" +
+                "    <term default=\"true\" field=\"dc.description\">dc.description</term>\n" +
+                "    <term field=\"dc.date\">dc.date</term>\n" +
+                "    <term field=\"dc.identifier\">dc.identifier</term>\n" +
+                "    <term field=\"dc.language\">dc.language</term>\n" +
+                "    <term field=\"dc.publisher\">dc.publisher</term>\n" +
+                "    <term field=\"dc.rights\">dc.rights</term>\n" +
+                "    <term field=\"dc.subject\">dc.subject</term>\n" +
+                "    <term field=\"dc.relation\">dc.relation</term>\n" +
+                "    <term field=\"dcterms.temporal\">dcterms.temporal</term>\n" +
+                "    <term field=\"dcterms.spatial\">dcterms.spatial</term>\n" +
+                "    <term field=\"fgs.DS.first.text\">Full Text</term>\n" +
+                "  </search_terms>\n" +
+                "  <relationship>isMemberOfCollection</relationship>\n" +
                 "</collection_policy>";
 
         try {
@@ -478,7 +486,8 @@ public class SimpleProcessor {
         Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("LIDO.0", date);
 
-        String label = messageMetadata.get("label");
+        requireValues(messageMetadata, "objectLabel");
+        String label = messageMetadata.get("objectLabel");
 
         String inlineXML =
             "<lido xmlns=\"http://www.lido-schema.org\" " +
@@ -670,23 +679,55 @@ public class SimpleProcessor {
         }
     }
 
-    public static String prettyLabel(String inLabel) {
-        // Don't care if they send in a null
-        if (inLabel == null) { return inLabel; }
-        String label = inLabel;
-        try {
-            // If its a URL, we only want the last part.
-            URL labelURL = new URL(inLabel);
-            String labelPath = labelURL.getPath();
-            int lastSlash = labelPath.lastIndexOf("/") + 1;
-            label = labelPath.substring(lastSlash);
-            //int extension = label.lastIndexOf(".");
-            //label = label.substring(0, extension);
-        } catch (MalformedURLException e) {
-            // Don't care
-        }
-
-        return label;
-    }
+//    public static String prettyLabel(String inLabel) {
+//        // Don't care if they send in a null
+//        if (inLabel == null) { return inLabel; }
+//        String label = inLabel;
+//        try {
+//            // If its a URL, we only want the last part.
+//            URL labelURL = new URL(inLabel);
+//            String labelPath = labelURL.getPath();
+//            int lastSlash = labelPath.lastIndexOf("/") + 1;
+//            label = labelPath.substring(lastSlash);
+//            //int extension = label.lastIndexOf(".");
+//            //label = label.substring(0, extension);
+//        } catch (MalformedURLException e) {
+//            // Don't care
+//        }
+//
+//        return label;
+//    }
+//
+//    private static String encodeDuraCloudID(String objectID) {
+//
+//        String encodedObjectID = "";
+//
+//        // In DuraCloud the splits are delimited by slashes.
+//        String[] splits = objectID.split("/");
+//        int size = splits.length;
+//
+//        // For each collection level
+//        for (int i = 0; i < (size); i++) {
+//
+//            // Each split (in this loop) represents a collection
+//            String level = splits[i];
+//            logger.info("level: " + level);
+//
+//            // Add an unencoded delimiter after each collection level.
+//            if (i > 0) { encodedObjectID = encodedObjectID + "/"; }
+//
+//            try {
+//                encodedObjectID =
+//                    encodedObjectID + URLEncoder.encode(level, "UTF-8");
+//            } catch (UnsupportedEncodingException e) {
+//                String msg = "Unable to encode the content location: " + level;
+//                logger.info(msg);
+//                throw new OCSException(msg + e);
+//            }
+//
+//        }
+//
+//       return encodedObjectID;
+//    }
 
 }

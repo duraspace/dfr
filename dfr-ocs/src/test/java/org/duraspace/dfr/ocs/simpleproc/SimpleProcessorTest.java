@@ -102,8 +102,8 @@ public class SimpleProcessorTest {
         //processor.setFedoraObjectStore(fedoraObjectStore);
 
         Map<String, String> eventMetadata = new HashMap<String, String>();
-        eventMetadata.put("objectId", "content");
-        eventMetadata.put("objectType", "objectType");
+        eventMetadata.put("objectId", "dir1/duracloud content");
+        eventMetadata.put("objectType", "content");
         eventMetadata.put("collectionId", "si:importedObjects");
         eventMetadata.put("store-id", "storeId");
         eventMetadata.put("space-id", "spaceId");
@@ -179,12 +179,12 @@ public class SimpleProcessorTest {
             // The equality test will fail.
         }
 
-//        FedoraObject expectedFedoraObject = new FedoraObject()
-//                .pid(FEDORA_PID)
-//                .label(LABEL)
-//                .putDatastream(expectedDatastream2)
-//                .putDatastream(expectedDatastream);
-//            Assert.assertEquals(expectedFedoraObject, fedoraObject);
+        //FedoraObject expectedFedoraObject = new FedoraObject()
+        //        .pid(FEDORA_PID)
+        //        .label(LABEL)
+        //        .putDatastream(expectedDatastream2)
+        //        .putDatastream(expectedDatastream);
+            //Assert.assertEquals(expectedFedoraObject, fedoraObject);
 
             // Note: Log is no longer created here.
             //Assert.assertEquals(
