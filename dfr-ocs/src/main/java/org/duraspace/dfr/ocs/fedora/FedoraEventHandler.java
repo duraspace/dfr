@@ -37,24 +37,47 @@ public class FedoraEventHandler {
         logger.debug("Constructing a Fedora Event Handler");
     }
 
-
+    /**
+     * Ingests a Fedora Object resulting from an event.
+     *
+     * @param event the ingest <code>Event</code>
+     * @return the ingest <code>Event</code> with status
+     */
     public FedoraObjectStoreEvent ingest(FedoraObjectStoreEvent event) {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         FedoraObject fdo = event.getFedoraObject();
-        fedoraObjectStore.ingest(fdo, "Ingested via DfR");
+        String logMessage = event.getMetadata().get("log-message");
+        if (logMessage == null) { logMessage = "Ingest via DfR"; }
+        fedoraObjectStore.ingest(fdo, logMessage);
         return event;
     }
 
+    /**
+     * Purge a Fedora Object resulting from an event.
+     *
+     * @param event the purge <code>Event</code>
+     * @return the purge <code>Event</code> with status
+     * @throws OCSException is the purge failedJim
+     */
     public FedoraObjectStoreEvent purge(FedoraObjectStoreEvent event) throws OCSException {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         Map<String, String> metadata = event.getMetadata();
         String pid = metadata.get("PID");
+        String logMessage = event.getMetadata().get("log-message");
+        if (logMessage == null) { logMessage = "Purge via DfR"; }
         if (pid != null) {
-          fedoraObjectStore.purge(pid, "Purged via DfR");
+          fedoraObjectStore.purge(pid, logMessage);
         }
         return event;
     }
 
+    /**
+     * Retrieves a copy of a Fedora object from the store.
+     *
+     * @param event the export <code>Event</code>
+     * @return the export <code>Event</code> containing the Fedora Object
+     * @throws OCSException if the export failed
+     */
     public FedoraObjectStoreEvent export(FedoraObjectStoreEvent event) throws OCSException {
         logger.debug("Processing Fedora Object Event - " + event.getEventID());
         Map<String, String> metadata = event.getMetadata();
