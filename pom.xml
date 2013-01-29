@@ -9,6 +9,41 @@
   <packaging>pom</packaging>
   <name>DuraCloud for Research</name>
 
+  <prerequisites>
+    <maven>2.2.1</maven>
+  </prerequisites>
+
+  <inceptionYear>2012</inceptionYear>
+
+  <developers>
+
+    <developer>
+      <name>Branan, Bill</name>
+      <email>bbranan@duraspace.org</email>
+    </developer>
+
+    <developer>
+      <name>Wilper, Chris</name>
+      <email>cwilper@duraspace.org</email>
+    </developer>
+
+    <developer>
+      <name>Woods, Andrew</name>
+      <email>awoods@duraspace.org</email>
+    </developer>
+
+    <developer>
+      <name>Bernstein, Danny</name>
+      <email>dbernstein@duraspace.org</email>
+    </developer>
+
+    <developer>
+      <name>Davis, Daniel</name>
+      <email>ddavis@duraspace.org</email>
+    </developer>
+
+  </developers>
+
   <modules>
     <module>dfr-ocs</module>
     <module>dfr-ocs-webapp</module>
