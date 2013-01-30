@@ -1,4 +1,10 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
+<%-- 
+  The contents of this file are subject to the license and copyright
+  detailed in the LICENSE and NOTICE files at the root of the source
+  tree and available online at
+ 
+      http://duracloud.org/license/
+--%>
 <%-- A convenient place for tag libraries.  A reference is added to each page. --%>
 <%-- Author: Daniel Bernstein --%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>

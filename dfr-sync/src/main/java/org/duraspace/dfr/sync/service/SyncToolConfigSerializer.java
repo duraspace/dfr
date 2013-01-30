@@ -1,3 +1,10 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duraspace.dfr.sync.service;
 
 import java.io.File;
@@ -10,7 +17,11 @@ import java.io.Writer;
 import org.duracloud.sync.config.SyncToolConfig;
 
 import com.thoughtworks.xstream.XStream;
-
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
 public class SyncToolConfigSerializer {
 
     /**

@@ -1,6 +1,13 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
-<%-- Template base for all pages --%>
-<%-- Author: Daniel Bernstein --%>
+<!-- 
+  The contents of this file are subject to the license and copyright
+  detailed in the LICENSE and NOTICE files at the root of the source
+  tree and available online at
+ 
+      http://duracloud.org/license/
+ -->
+<%-- Template base for all pages 
+@Author: Daniel Bernstein (dbernstein@duracloud.org)
+--%>
 
 <%@include file="../include/libraries.jsp"%>
 <!DOCTYPE html>

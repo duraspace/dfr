@@ -1,3 +1,10 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duraspace.dfr.sync.service;
 
 import java.util.Arrays;
@@ -8,7 +15,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
 public class SyncProcessStateTransitionValidatorTest {
     private SyncProcessStateTransitionValidator v =
         new SyncProcessStateTransitionValidator();

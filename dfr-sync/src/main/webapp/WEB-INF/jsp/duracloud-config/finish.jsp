@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%><%-- Status
+<%-- 
+  The contents of this file are subject to the license and copyright
+  detailed in the LICENSE and NOTICE files at the root of the source
+  tree and available online at
+ 
+      http://duracloud.org/license/
+--%>
+<%-- Status
 Page: displays configuration information for the synchronization process.
 --%><%-- Author: Daniel Bernstein --%><%@include
 file="../include/libraries.jsp"%>
