@@ -54,7 +54,7 @@ public class TempSpace {
             try {
                 logger.debug("Adding a temp space {}", spaceId);
                 if (count == 0) {
-                    store.createSpace(spaceId, null);
+                    store.createSpace(spaceId);
                     logger.debug("Created a temp space {}", spaceId);
                 }
                 store.getSpaceACLs(spaceId);

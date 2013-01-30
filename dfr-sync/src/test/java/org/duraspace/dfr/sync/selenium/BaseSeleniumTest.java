@@ -92,7 +92,7 @@ public abstract class BaseSeleniumTest {
        List<String> spaces = cs.getSpaces();
        
        if(!spaces.contains(spaceId)){
-           cs.createSpace(spaceId, null);
+           cs.createSpace(spaceId);
        }
     }
 
