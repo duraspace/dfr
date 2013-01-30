@@ -1,3 +1,10 @@
+/*
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ *     http://duracloud.org/license/
+ */
 package org.duraspace.dfr.sync;
 
 import java.awt.AWTException;
@@ -26,7 +33,11 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 
+ * @author Daniel Bernstein
+ *
+ */
 public class DfrSyncDriver {
     private static int port;
     private static String contextPath;

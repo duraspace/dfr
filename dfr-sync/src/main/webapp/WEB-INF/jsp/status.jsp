@@ -1,4 +1,10 @@
-<%-- Copyright (c) 2009-2012 DuraSpace. All rights reserved.--%>
+<%-- 
+  The contents of this file are subject to the license and copyright
+  detailed in the LICENSE and NOTICE files at the root of the source
+  tree and available online at
+ 
+      http://duracloud.org/license/
+--%>
 <%-- Status Page: displays state and progress information for the synchronization process. --%>
 <%-- Author: Daniel Bernstein --%>
 
