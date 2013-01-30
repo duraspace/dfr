@@ -54,7 +54,7 @@ public class DuraCloudTempSpace {
         int count = 0;
         while (!exists && count < 10) {
             try {
-                if (count == 0) contentStore.createSpace(id, null);
+                if (count == 0) contentStore.createSpace(id);
                 contentStore.getSpaceACLs(id);
                 exists = true;
             } catch (NotFoundException e) {
