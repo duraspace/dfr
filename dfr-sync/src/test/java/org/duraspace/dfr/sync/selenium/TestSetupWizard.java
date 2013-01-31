@@ -106,7 +106,7 @@ public class TestSetupWizard extends BaseSeleniumTest {
         clickAndWait("id=startNow");
 
         //verify status page is showing
-        Assert.assertTrue(isTextPresent("Status"));
+        Assert.assertTrue(isElementPresent("id=status-indicator"));
 
     }
     protected void sleep(int ms) {
