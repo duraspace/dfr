@@ -13,6 +13,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.duracloud.client.ContentStore;
+import org.duracloud.common.util.DateUtil;
 import org.duraspace.dfr.ocs.core.OCSException;
 import org.duraspace.dfr.ocs.core.StorageObject;
 import org.duraspace.dfr.ocs.core.StorageObjectEvent;
@@ -69,6 +70,7 @@ public class SimpleProcessor {
         LoggerFactory.getLogger(SimpleProcessor.class);
 
     private static final String RFC822_FORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
+    private static final String ISO8601_DATE_FORMAT = "yyyy-MM-dd";
     private static final String STORE_ID = "store-id";
     private static final String SPACE_ID = "space-id";
 
@@ -254,8 +256,10 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("OBJ");
         datastream.controlGroup(ControlGroup.REDIRECT);
-        Date date = parseRFC822Date(metadata.get(
-                ContentStore.CONTENT_MODIFIED));
+        //Date date = parseRFC822Date(metadata.get(
+        //        ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("OBJ.0", date);
         // TODO: Activate this after Fedora has been updated to either
         //       not require auto-validating checksums for externals
@@ -295,7 +299,9 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("RELS-EXT");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(
+        //Date date = parseRFC822Date(metadata.get(
+        //    ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
             ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("RELS-EXT.0", date);
         // TODO: Activate this after Fedora has been updated to either
@@ -344,7 +350,10 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("COLLECTION_POLICY");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        //Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
+
         DatastreamVersion version = new DatastreamVersion("COLLECTION_POLICY.0", date);
 
         String inlineXML =
@@ -407,7 +416,9 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("NCD");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        //Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("NCD.0", date);
 
         String inlineXML =
@@ -483,7 +494,9 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("LIDO");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        //Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("LIDO.0", date);
 
         requireValues(messageMetadata, "objectLabel");
@@ -626,7 +639,9 @@ public class SimpleProcessor {
 
         Datastream datastream = new Datastream("DCOM");
         datastream.controlGroup(ControlGroup.INLINE_XML);
-        Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        //Date date = parseRFC822Date(metadata.get(ContentStore.CONTENT_MODIFIED));
+        Date date = parseISO8601Date(metadata.get(
+            ContentStore.CONTENT_MODIFIED));
         DatastreamVersion version = new DatastreamVersion("DCOM.0", date);
 
         String inlineXML = "<dcom>\n";
@@ -665,6 +680,17 @@ public class SimpleProcessor {
                 throw new IllegalArgumentException("Value not specified for '" +
                         key + "'");
             }
+        }
+    }
+
+    private static Date parseISO8601Date(String contentDate) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(ISO8601_DATE_FORMAT);
+            format.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return format.parse(contentDate);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Date is malformed: " +
+                contentDate);
         }
     }
 

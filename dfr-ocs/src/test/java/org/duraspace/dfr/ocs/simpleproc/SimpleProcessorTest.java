@@ -35,8 +35,10 @@ public class SimpleProcessorTest {
     private static final String CONTENT_URL_DIGEST =
             "3c3b37e4f9449aba371be1dcd04a2645";
     private static final String FEDORA_PID = PID_PREFIX + CONTENT_URL_DIGEST;
-    private static final String GOOD_DATE = "Fri, 24 Feb 2012 11:48:02 UTC";
-    private static final long GOOD_DATE_MILLIS = 1330084082000L;
+    //private static final String GOOD_DATE = "Fri, 24 Feb 2012 11:48:02 UTC";
+    //private static final long GOOD_DATE_MILLIS = 1330084082000L;
+    private static final String GOOD_DATE = "2012-02-24";
+    private static final long GOOD_DATE_MILLIS = 1330059600000L;
 
     @Test (expected=NullPointerException.class)
     public void initWithNullPidPrefix() {
